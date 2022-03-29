@@ -294,7 +294,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <th>비밀글 작성 권한</th>
+                    <th>비밀글 조회 권한</th>
                     <td>
                         <select name="secret_level" class="inp">
                             <?php for ($i = 1; $i <= 9; $i++){ ?>

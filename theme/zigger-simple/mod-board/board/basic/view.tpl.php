@@ -128,7 +128,7 @@
                 <span class="cmt"><?php echo $view[0]['next_data']['comment_cnt']; ?></span>
             </a>
             <span class="writer">
-                <?php if ($view[0]['next_data']['mb_profileimg']) { ?>
+                <?php if ($view[0]['next_data']['profileimg']) { ?>
                 <div class="board-mb-profileimg" style="background-image: url('<?php echo $view[0]['next_data']['profileimg']; ?>');"></div>
                 <?php } ?>
 
@@ -148,7 +148,7 @@
                 <span class="cmt"><?php echo $view[0]['prev_data']['comment_cnt']; ?></span>
             </a>
             <span class="writer">
-                <?php if ($view[0]['prev_data']['mb_profileimg']) { ?>
+                <?php if ($view[0]['prev_data']['profileimg']) { ?>
                 <div class="board-mb-profileimg" style="background-image: url('<?php echo $view[0]['prev_data']['profileimg']; ?>');"></div>
                 <?php } ?>
 

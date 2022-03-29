@@ -46,6 +46,7 @@ define('ERR_MSG_9', '필수 변수 값이 전달되지 않았습니다. (ERR-COD
 define('ERR_MSG_10', '접근 권한이 없습니다. (ERR-CODE: err010)'); //페이지 접근 권한이 없는 경우
 define('ERR_MSG_11', 'set_category_key 설정 없이 사용할 수 없는 명령어가 있습니다. (ERR-CODE: err011)'); //$func->set_category_key() 없이 $func->page_title() 등을 호출하려는 경우
 define('ERR_MSG_12', 'page_navigator 에서 카테고리 key를 확인할 수 없습니다. (ERR-CODE: err012)'); //$func->page_navigator() 에서 카테고리 key를 인증할 수 없는 경우
+define('ERR_MSG_13', 'Oject Storage 처리에 실패 했습니다. (ERR-CODE: err013)'); //Object Storage 처리에 실패한 경우
 
 //경고문구 상수
 define('SET_NODATA_MSG', '데이터가 존재하지 않습니다.'); //데이터가 없는 경우 문구

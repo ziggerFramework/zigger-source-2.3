@@ -200,6 +200,7 @@ class Uploader {
 
             } catch (S3Exception $e) {
                 if ($e->getMessage()) {
+                    Func::err_print(ERR_MSG_13);
                     return false;
                 }
             }
@@ -232,6 +233,7 @@ class Uploader {
 
             } catch (S3Exception $e) {
                 if ($e->getMessage()) {
+                    Func::err_print(ERR_MSG_13);
                     return false;
                 }
             }

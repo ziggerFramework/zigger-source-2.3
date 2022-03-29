@@ -24,7 +24,7 @@ class Banner_fetch
         );
 
         if ($sql->getcount() < 1) {
-            Func::core_err('Banner Key 가 존재하지 않습니다. : '.$FETCH_CONF['key']);
+            Func::core_err('Banner Key 가 존재하지 않습니다. : '.$FETCH_CONF['key'], false);
         }
 
         $bn_html = '<ul>';

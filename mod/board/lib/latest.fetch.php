@@ -17,7 +17,7 @@ class Latest_fetch extends \Controller\Make_Controller {
         $lat_skin = MOD_BOARD_THEME_PATH.'/latest/'.$FETCH_CONF['theme'].'/latest.tpl.php';
 
         if (!file_exists($lat_skin)) {
-            Func::core_err('최근게시물 테마 파일이 존재하지 않습니다. : \''.$FETCH_CONF['theme'].'\'');
+            Func::core_err('최근게시물 테마 파일이 존재하지 않습니다. : \''.$FETCH_CONF['theme'].'\'', false);
         }
 
         $this->layout()->view($lat_skin);
@@ -131,14 +131,17 @@ class Latest_fetch extends \Controller\Make_Controller {
 
         } while($sql->nextRec());
 
+        $continue = true;
 
         if (!$FETCH_CONF['id'] || $sql->getcount() < 1) {
-            Func::core_err('최근게시물 게시판 id가 올바르지 않습니다. : \''.$FETCH_CONF['id'].'\'');
+            Func::core_err('최근게시물 게시판 id가 올바르지 않습니다. : \''.$FETCH_CONF['id'].'\'', false);
+            $continue = false;
         }
 
         //옵션 값 검사
         if (!isset($FETCH_CONF['limit']) || !$FETCH_CONF['limit'] || $FETCH_CONF['limit'] < 1) {
-            Func::core_err('최근게시물 limit 옵션이 올바르지 않습니다. : "'.$FETCH_CONF['limit'].'"');
+            $continue = Func::core_err('최근게시물 limit 옵션이 올바르지 않습니다. : "'.$FETCH_CONF['limit'].'"', false);
+            $continue = false;
         }
         if (!isset($FETCH_CONF['orderby']) || !$FETCH_CONF['orderby']) {
             $FETCH_CONF['orderby'] = 'recent';
@@ -156,68 +159,82 @@ class Latest_fetch extends \Controller\Make_Controller {
             $FETCH_CONF['img-height'] = 150;
         }
         if (!isset($FETCH_CONF['uri']) || !$FETCH_CONF['uri']) {
-            Func::core_err('uri 옵션이 올바르지 않습니다. : \''.$FETCH_CONF['uri'].'\'');
+            $continue = Func::core_err('uri 옵션이 올바르지 않습니다. : \''.$FETCH_CONF['uri'].'\'', false);
+            $continue = false;
         }
 
-        //게시물 가져옴
-        switch ($FETCH_CONF['orderby']) {
-            case 'recent' :
-                $orderby = 'board.regdate DESC, board.idx DESC';
-                break;
+        if ($continue === true) {
 
-            case 'view' :
-                $orderby = 'board.view DESC, board.regdate DESC';
-                break;
+            //게시물 가져옴
+            switch ($FETCH_CONF['orderby']) {
+                case 'recent' :
+                    $orderby = 'board.regdate DESC, board.idx DESC';
+                    break;
 
-            case 'like' :
-                $orderby = 'likes_cnt DESC, board.regdate DESC';
-                break;
+                case 'view' :
+                    $orderby = 'board.view DESC, board.regdate DESC';
+                    break;
+
+                case 'like' :
+                    $orderby = 'likes_cnt DESC, board.regdate DESC';
+                    break;
+            }
+
+            $sql->query(
+                "
+                SELECT *,
+                (
+                    SELECT COUNT(*)
+                    FROM {$sql->table("mod:board_cmt_".$boardinfo['id'])}
+                    WHERE bo_idx=board.idx
+                ) comment_cnt,
+                (
+                    SELECT COUNT(*)
+                    FROM {$sql->table("mod:board_like")}
+                    WHERE id='{$boardinfo['id']}' AND data_idx=board.idx AND likes>0
+                ) likes_cnt
+                FROM {$sql->table("mod:board_data_".$boardinfo['id'])} board
+                WHERE board.use_notice='N' AND board.rn=0 AND board.dregdate IS NULL
+                ORDER BY $orderby
+                LIMIT {$FETCH_CONF['limit']}
+                ", []
+            );
+
+            $lat_cnt = $sql->getcount();
+            $print_arr = array();
+
+            if ($lat_cnt > 0) {
+                do {
+                    $lat_arr = $sql->fetchs();
+
+                    $lat_arr[0]['get_link'] = get_link($lat_arr);
+                    $lat_arr[0]['print_subject'] = print_subject($lat_arr);
+                    $lat_arr[0]['print_article'] = print_article($lat_arr);
+                    $lat_arr[0]['thumbnail'] = thumbnail($lat_arr);
+                    $lat_arr[0]['comment_cnt'] = comment_cnt($lat_arr);
+                    $lat_arr['date'] = Func::date($lat_arr['regdate']);
+                    $lat_arr['img-width'] = $FETCH_CONF['img-width'];
+                    $lat_arr['img-height'] = $FETCH_CONF['img-height'];
+
+                    $print_arr[] = $lat_arr;
+
+                } while ($sql->nextRec());
+            }
+
         }
 
-        $sql->query(
-            "
-            SELECT *,
-            (
-                SELECT COUNT(*)
-                FROM {$sql->table("mod:board_cmt_".$boardinfo['id'])}
-                WHERE bo_idx=board.idx
-            ) comment_cnt,
-            (
-                SELECT COUNT(*)
-                FROM {$sql->table("mod:board_like")}
-                WHERE id='{$boardinfo['id']}' AND data_idx=board.idx AND likes>0
-            ) likes_cnt
-            FROM {$sql->table("mod:board_data_".$boardinfo['id'])} board
-            WHERE board.use_notice='N' AND board.rn=0 AND board.dregdate IS NULL
-            ORDER BY $orderby
-            LIMIT {$FETCH_CONF['limit']}
-            ", []
-        );
+        if ($continue === true) {
 
-        $lat_cnt = $sql->getcount();
-        $print_arr = array();
+            $this->set('print_arr', $print_arr);
+            $this->set('get_board_link', get_board_link());
+            $this->set('board_title', $boardinfo['title']);
 
-        if ($lat_cnt > 0) {
-            do {
-                $lat_arr = $sql->fetchs();
+        } else {
 
-                $lat_arr[0]['get_link'] = get_link($lat_arr);
-                $lat_arr[0]['print_subject'] = print_subject($lat_arr);
-                $lat_arr[0]['print_article'] = print_article($lat_arr);
-                $lat_arr[0]['thumbnail'] = thumbnail($lat_arr);
-                $lat_arr[0]['comment_cnt'] = comment_cnt($lat_arr);
-                $lat_arr['date'] = Func::date($lat_arr['regdate']);
-                $lat_arr['img-width'] = $FETCH_CONF['img-width'];
-                $lat_arr['img-height'] = $FETCH_CONF['img-height'];
+            $this->set('print_arr', '');
+            $this->set('get_board_link', '');
+            $this->set('board_title', '');
 
-                $print_arr[] = $lat_arr;
-
-            } while ($sql->nextRec());
         }
-
-        $this->set('print_arr', $print_arr);
-        $this->set('get_board_link', get_board_link());
-        $this->set('board_title', $boardinfo['title']);
     }
-
 }

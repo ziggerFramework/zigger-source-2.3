@@ -553,12 +553,14 @@ class Func {
     }
 
     //error : core error
-    static public function core_err($msg)
+    static public function core_err($msg, $exit = true)
     {
         echo '<div style="border-left: 4px solid #b82e24;background: #e54d42;padding: 3px 15px;margin:15px;">';
         echo '<p style="display: block;font-size: 13px;line-height:18px;color: #fff;letter-spacing: -1px;">Core error : '.$msg.'</p>';
         echo '</div>';
-        exit;
+        if ($exit === true) {
+            exit;
+        }
     }
 
     //error : 오류메시지 화면에 출력

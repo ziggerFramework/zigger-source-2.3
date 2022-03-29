@@ -290,7 +290,7 @@ class View extends \Controller\Make_Controller {
                 $arr[0][$value] = $sql->fetchs();
                 $arr[0][$value]['date'] = Func::date($arr[0][$value]['regdate']);
                 $arr[0][$value]['datetime'] = Func::datetime($arr[0][$value]['regdate']);
-                $arr[0][$value]['profileimg'] = print_profileimg($arr);
+                $arr[0][$value]['profileimg'] = print_profileimg($arr[0][$value]);
                 $arr[0][$value]['get_link'] = seek_get_link($arr[0][$value], $req['page'], $req['keyword'], $req['where'], $req['category']);
                 $arr[0][$value]['writer'] = print_writer($arr[0][$value]);
                 $arr[0][$value]['comment_cnt'] = comment_cnt($arr[0][$value]);
