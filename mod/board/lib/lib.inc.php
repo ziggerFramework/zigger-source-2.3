@@ -37,7 +37,7 @@ class Library {
 
         do {
             $cfg = $sql->fetchs();
-            
+
             $sql->specialchars = 0;
             $sql->nl2br = 0;
 
@@ -79,6 +79,7 @@ class Library {
         global $mode;
 
         Func::add_stylesheet(MOD_BOARD_THEME_DIR.'/board/'.$theme.'/style.css');
+        Func::add_javascript(MOD_BOARD_THEME_DIR.'/board/'.$theme.'/script.js');
 
         if ($mode == 'write') {
             Func::add_javascript(PH_PLUGIN_DIR.'/'.PH_PLUGIN_CKEDITOR.'/ckeditor.js');

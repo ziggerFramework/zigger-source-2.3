@@ -47,6 +47,9 @@ if ($CONF['meta']) {
   echo $CONF['meta'].PHP_EOL;
 }
 ?>
+<?php if ($CONF['use_rss'] == 'Y') { ?>
+<link rel="alternate" type="application/rss+xml" title="<?php echo $CONF['title']; ?> Feed" href="<?php echo PH_DOMAIN; ?>/rss" />
+<?php } ?>
 <?php if ($CONF['favicon']) { ?>
 <link rel="icon" href="<?php echo $CONF['favicon']?>" />
 <link rel="shortcut icon" href="<?php echo $CONF['favicon']; ?>" />

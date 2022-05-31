@@ -181,6 +181,13 @@
                     </td>
                 </tr>
                 <tr>
+                    <th>이전/다음글 사용</th>
+                    <td>
+                        <label class="mr10"><input type="radio" name="use_seek" value="Y" checked /> 사용</label>
+                        <label><input type="radio" name="use_seek" value="N" /> 사용안함</label>
+                    </td>
+                </tr>
+                <tr>
                     <th>첨부파일1 사용</th>
                     <td>
                         <label class="mr10"><input type="radio" name="use_file1" value="Y" checked /> 사용</label>

@@ -380,7 +380,7 @@ class Regist_submit {
 
         Method::security('referer');
         Method::security('request_post');
-        $req = Method::request('post', 'id, title, theme, use_category, category, use_list, m_use_list, list_limit, m_list_limit, sbj_limit, m_sbj_limit, txt_limit, m_txt_limit, use_likes, use_reply, use_comment, use_secret, ico_secret_def, use_file1, use_file2, use_mng_feed, file_limit, article_min_len, top_source, bottom_source, ctr_level, list_level, write_level, secret_level, comment_level, reply_level, delete_level, read_level, write_level, read_point, write_point, ico_file, ico_secret, ico_new, ico_new_case, ico_hot, ico_hot_case_1, ico_hot_case_2, ico_hot_case_3, conf_1, conf_2, conf_3, conf_4, conf_5, conf_6, conf_7, conf_8, conf_9, conf_10, conf_exp');
+        $req = Method::request('post', 'id, title, theme, use_category, category, use_list, m_use_list, list_limit, m_list_limit, sbj_limit, m_sbj_limit, txt_limit, m_txt_limit, use_likes, use_reply, use_comment, use_secret, use_seek, ico_secret_def, use_file1, use_file2, use_mng_feed, file_limit, article_min_len, top_source, bottom_source, ctr_level, list_level, write_level, secret_level, comment_level, reply_level, delete_level, read_level, write_level, read_point, write_point, ico_file, ico_secret, ico_new, ico_new_case, ico_hot, ico_hot_case_1, ico_hot_case_2, ico_hot_case_3, conf_1, conf_2, conf_3, conf_4, conf_5, conf_6, conf_7, conf_8, conf_9, conf_10, conf_exp');
 
         $board_id = $req['id'];
 
@@ -553,6 +553,7 @@ class Regist_submit {
             'title' => $req['title'],
             'use_list' => $req['use_list'],
             'use_secret' => $req['use_secret'],
+            'use_seek' => $req['use_seek'],
             'use_comment' => $req['use_comment'],
             'use_likes' => $req['use_likes'],
             'use_reply' => $req['use_reply'],

@@ -179,6 +179,45 @@
         <table class="table1">
             <thead>
                 <tr>
+                    <th colspan="2" class="tal">RSS 발행 설정</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>RSS 발행 사용</th>
+                    <td>
+                        <label class="mr10"><input type="radio" name="use_rss" value="Y" <?php echo $use_rss['Y']; ?> /> 발행</label>
+                        <label><input type="radio" name="use_rss" value="N" <?php echo $use_rss['N']; ?> /> 발행안함</label>
+                        <span class="tbl_sment">
+                            RSS 주소 : <a href="<?php echo PH_DOMAIN; ?>/rss" target="_blank"><?php echo PH_DOMAIN; ?>/rss</a>
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>RSS 발행 구문</th>
+                    <td>
+                        <textarea name="rss_boards" title="rss 발행 구문" style="height: 300px;"><?php echo $write['rss_boards']; ?></textarea>
+                        <span class="tbl_sment">
+                            <strong>board_id</strong> : 게시판의 고유 id (게시판 모듈 참고)<br />
+                            <strong>title</strong> : RSS에서 노출될 게시판 제목<br />
+                            <strong>link</strong> : RSS에서 클릭시 이동할 게시판 페이지 URL
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="btn-wrap">
+            <div class="center">
+                <button type="submit" class="btn1"><i class="fa fa-check"></i> 변경완료</button>
+            </div>
+        </div>
+
+        <?php echo $print_target[3]; ?>
+
+        <table class="table1">
+            <thead>
+                <tr>
                     <th colspan="2" class="tal">외부 SMTP(메일서버) 연동</th>
                 </tr>
             </thead>
@@ -236,7 +275,7 @@
             </div>
         </div>
 
-        <?php echo $print_target[3]; ?>
+        <?php echo $print_target[4]; ?>
 
         <table class="table1">
             <thead>
@@ -305,7 +344,7 @@
             </div>
         </div>
 
-        <?php echo $print_target[4]; ?>
+        <?php echo $print_target[5]; ?>
 
         <table class="table1">
             <thead>

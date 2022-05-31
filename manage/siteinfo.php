@@ -349,7 +349,7 @@ class Plugins extends \Controller\Make_Controller {
         $manage = new ManageFunc();
         $sql = new Pdosql();
 
-        $manage->make_target('Google reCaptcha 연동|SNS 로그인 API 관리|외부 SMTP(메일서버) 연동|Object Storage(AWS S3) 연동|SMS 문자발송(NCP SENS) 연동');
+        $manage->make_target('Google reCaptcha 연동|SNS 로그인 API 관리|RSS 발행 설정|외부 SMTP(메일서버) 연동|Object Storage(AWS S3) 연동|SMS 문자발송(NCP SENS) 연동');
 
         $sql->query(
             "
@@ -364,6 +364,13 @@ class Plugins extends \Controller\Make_Controller {
         do {
             $cfg = $sql->fetchs();
             $arr[$cfg['cfg_key']] = $cfg['cfg_value'];
+
+            if ($cfg['cfg_key'] == 'rss_boards') {
+                $sql->specialchars = 0;
+                $sql->nl2br = 0;
+
+                $arr[$cfg['cfg_key']] = $sql->fetch('cfg_value');
+            }
 
         } while($sql->nextRec());
 
@@ -385,6 +392,7 @@ class Plugins extends \Controller\Make_Controller {
         $this->set('use_smtp', set_checked($arr, 'use_smtp'));
         $this->set('use_sms', set_checked($arr, 'use_sms'));
         $this->set('use_feedsms', set_checked($arr, 'use_feedsms'));
+        $this->set('use_rss', set_checked($arr, 'use_rss'));
         $this->set('write', $write);
     }
 
@@ -411,7 +419,7 @@ class Plugins_submit {
 
         Method::security('referer');
         Method::security('request_post');
-        $req = Method::request('post', 'use_recaptcha, recaptcha_key1, recaptcha_key2, use_sns_ka, sns_ka_key1, sns_ka_key2, use_sns_nv, sns_nv_key1, sns_nv_key2, use_smtp, smtp_server, smtp_port, smtp_id, smtp_pwd, use_s3, s3_key1, s3_key2, s3_key3, s3_key4, s3_key5, use_sms, use_feedsms, sms_toadm, sms_from, sms_key1, sms_key2, sms_key3, sms_key4');
+        $req = Method::request('post', 'use_recaptcha, recaptcha_key1, recaptcha_key2, use_sns_ka, sns_ka_key1, sns_ka_key2, use_sns_nv, sns_nv_key1, sns_nv_key2, use_smtp, smtp_server, smtp_port, smtp_id, smtp_pwd, use_s3, s3_key1, s3_key2, s3_key3, s3_key4, s3_key5, use_sms, use_feedsms, sms_toadm, sms_from, sms_key1, sms_key2, sms_key3, sms_key4, use_rss, rss_boards');
         $manage->req_hidden_inp('post');
 
         if ($req['use_recaptcha'] == 'Y') {
@@ -561,6 +569,12 @@ class Plugins_submit {
             }
         }
 
+        if ($req['use_rss'] == 'Y') {
+            if (!$req['rss_boards']) {
+                Valid::error('rss_boards', 'RSS 발행을 활성화 하려면 RSS 구문을 입력해야 합니다.');
+            }
+        }
+
         $sql->query(
             "
             SELECT *
@@ -604,7 +618,9 @@ class Plugins_submit {
             'sms_key1' => $req['sms_key1'],
             'sms_key2' => $req['sms_key2'],
             'sms_key3' => $req['sms_key3'],
-            'sms_key4' => $req['sms_key4']
+            'sms_key4' => $req['sms_key4'],
+            'use_rss' => $req['use_rss'],
+            'rss_boards' => $req['rss_boards']
         );
 
         foreach ($data as $key => $value) {

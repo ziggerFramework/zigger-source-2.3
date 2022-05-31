@@ -234,12 +234,12 @@ var sitemap_list = {
 
         var request_sbm = function() {
             $('#sitemapListForm').submit();
-
         }
 
         var list_reload = function() {
             $('#sitemapListForm').load(PH_MANAGE_DIR + '/siteinfo/sitemapList', function(){
                 get_sortable();
+                $('.sitemap').removeClass('with-ajax-cover');
             });
         }
         list_reload();
@@ -247,6 +247,9 @@ var sitemap_list = {
         var list_refrs = function() {
             var eqidx = new Array();
             var eqval = new Array();
+
+            $('.sitemap').addClass('with-ajax-cover');
+            $('#sitemapListForm').append('<div class="ajax-cover"></div>');
 
             get_sortable();
 
@@ -304,9 +307,8 @@ var sitemap_list = {
         $(document).on('click', '#sitemapListForm .add-1d', function(e) {
             e.preventDefault();
             var html = '<div class="st-1d"><h4><a href="#" class="modify-btn"><input type="hidden" name="idx[]" value="" /><input type="hidden" name="caidx[]" value="" data-depth="1" /><input type="hidden" name="org_caidx[]" value="" />새로운 1차 카테고리</a><i class="fa fa-trash-alt st-del del-1d"></i></h4><div class="in"><ul class="st-2d"></ul><span class="st-no-cat">아직 생성된 2차 카테고리가 없습니다.</span></div><a href="#" class="st-add add-2d"><i class="fa fa-plus"></i> 2차 카테고리 추가</a></div>';
-            $(html).hide().appendTo($('.sortable')).fadeIn(200, function() {
-                list_refrs();
-            });
+            $(html).hide().appendTo($('.sortable'));
+            list_refrs();
         });
 
         $(document).on('click', '#sitemapListForm .add-2d', function(e) {

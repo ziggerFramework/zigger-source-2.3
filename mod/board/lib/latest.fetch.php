@@ -83,10 +83,6 @@ class Latest_fetch extends \Controller\Make_Controller {
                 }
             }
 
-            if (!isset($tmb) && isset($match[0])) {
-                $tmb = basename($match[1]);
-            }
-
             if (isset($tmb)) {
                 $fileinfo = Func::get_fileinfo($tmb);
 
@@ -94,10 +90,14 @@ class Latest_fetch extends \Controller\Make_Controller {
                     $tmb = $fileinfo['replink'];
 
                 } else {
-                    $tmb = PH_DOMAIN.MOD_BOARD_DATA_DIR.'/'.$FETCH_CONF['id'].'/thumb/'.$tmb;
+                    $tmb = MOD_BOARD_DATA_DIR.'/'.$FETCH_CONF['id'].'/thumb/'.$tmb;
                 }
 
-            } else {
+            } else if (isset($match[0])) {
+                $tmb = $match[1];
+            }
+
+            if (!isset($tmb)) {
                 $tmb = SET_BLANK_IMG;
             }
 
