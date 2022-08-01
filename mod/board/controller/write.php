@@ -313,16 +313,11 @@ class Write extends \Controller\Make_Controller {
 
             if (!IS_MEMBER || ($req['wrmode'] == 'modify' && $arr['mb_idx'] == '0')) {
                 $is_writer_show = true;
-
-            } else {
-                $is_writer_show = false;
-            }
-
-            if (!IS_MEMBER || ($req['wrmode'] == 'modify' && $arr['mb_idx'] == '0')) {
                 $is_pwd_show = true;
                 $is_email_show = true;
 
             } else {
+                $is_writer_show = false;
                 $is_pwd_show = false;
                 $is_email_show = false;
             }
@@ -457,7 +452,7 @@ class Write_submit{
 
         Method::security('referer');
         Method::security('request_post');
-        $req = Method::request('post', 'thisuri, board_id, wrmode, read, page, where, keyword, category_ed, use_html, category, use_notice, use_secret, use_email, writer, password, email, subject, article, file1_del, file2_del, captcha, data_1, data_2, data_3, data_4, data_5, data_6, data_7, data_8, data_9, data_10');
+        $req = Method::request('post', 'thisuri, board_id, wrmode, read, page, where, keyword, category_ed, use_html, category, use_notice, use_secret, use_email, writer, password, email, subject, article, file1_del, file2_del, captcha, request, wdate_date, wdate_h, wdate_i, wdate_s, data_1, data_2, data_3, data_4, data_5, data_6, data_7, data_8, data_9, data_10');
         $f_req = Method::request('file', 'file1, file2');
 
         $board_id = $req['board_id'];
@@ -829,16 +824,24 @@ class Write_submit{
             $req['writer'] = $MB['name'];
         }
 
+        //Manager 에서 등록한 경우 날짜 설정
+        $wdate = date('Y-m-d H:i:s');
+        if (isset($req['request']) && $req['request'] == 'manage') {
+            if ($req['wdate_date']) {
+                $wdate = $req['wdate_date'].' '.$req['wdate_h'].':'.$req['wdate_i'].':'.$req['wdate_s'];
+            }
+        }
+
         //insert
         $sql->query(
             "
             INSERT INTO {$sql->table("mod:board_data_".$board_id)}
-            (category,mb_idx,mb_id,writer,pwd,email,article,subject,file1,file2,use_secret,use_notice,use_html,use_email,ip,regdate,ln,rn,data_1,data_2,data_3,data_4,data_5,data_6,data_7,data_8,data_9,data_10)
+            (category,mb_idx,mb_id,writer,pwd,email,article,subject,file1,file2,use_secret,use_notice,use_html,use_email,ip,ln,rn,data_1,data_2,data_3,data_4,data_5,data_6,data_7,data_8,data_9,data_10,regdate)
             VALUES
-            (:col1,:col2,:col3,:col4,:col5,:col6,:col7,:col8,:col9,:col10,:col11,:col12,'Y',:col13,'{$_SERVER['REMOTE_ADDR']}',now(),:col14,:col15,:col16,:col17,:col18,:col19,:col20,:col21,:col22,:col23,:col24,:col25)
+            (:col1,:col2,:col3,:col4,:col5,:col6,:col7,:col8,:col9,:col10,:col11,:col12,'Y',:col13,'{$_SERVER['REMOTE_ADDR']}',:col14,:col15,:col16,:col17,:col18,:col19,:col20,:col21,:col22,:col23,:col24,:col25,:col26)
             ",
             array(
-                $req['category'], $MB['idx'], $MB['id'], $req['writer'], $req['password'], $req['email'], $req['article'], $req['subject'], $ufile[1]['ufile_name'], $ufile[2]['ufile_name'], $wr_opt['secret'], $wr_opt['notice'], $wr_opt['email'], $ln_arr['ln_max'], 0, $req['data_1'], $req['data_2'], $req['data_3'], $req['data_4'], $req['data_5'], $req['data_6'], $req['data_7'], $req['data_8'], $req['data_9'], $req['data_10']
+                $req['category'], $MB['idx'], $MB['id'], $req['writer'], $req['password'], $req['email'], $req['article'], $req['subject'], $ufile[1]['ufile_name'], $ufile[2]['ufile_name'], $wr_opt['secret'], $wr_opt['notice'], $wr_opt['email'], $ln_arr['ln_max'], 0, $req['data_1'], $req['data_2'], $req['data_3'], $req['data_4'], $req['data_5'], $req['data_6'], $req['data_7'], $req['data_8'], $req['data_9'], $req['data_10'], $wdate
             )
         );
 
@@ -866,10 +869,15 @@ class Write_submit{
         }
 
         //return
+        $return_url = $req['thisuri'].'?mode=view&read='.$sql->fetch('idx').'&category='.urlencode($req['category_ed']);
+        if (isset($req['request']) && $req['request'] == 'manage') {
+            $return_url = './board?id='.$board_id.'&category='.urlencode($req['category_ed']);
+        }
+
         Valid::set(
             array(
                 'return' => 'alert->location',
-                'location' => $req['thisuri'].'?mode=view&read='.$sql->fetch('idx').'&category='.urlencode($req['category_ed'])
+                'location' => $return_url
             )
         );
         Valid::turn();
@@ -929,15 +937,23 @@ class Write_submit{
             $req['password'] = $org_arr['pwd'];
         }
 
+        //Manager 에서 등록한 경우 날짜 설정
+        $wdate = $org_arr['regdate'];
+        if (isset($req['request']) && $req['request'] == 'manage') {
+            if ($req['wdate_date']) {
+                $wdate = $req['wdate_date'].' '.$req['wdate_h'].':'.$req['wdate_i'].':'.$req['wdate_s'];
+            }
+        }
+
         //update
         $sql->query(
             "
             UPDATE {$sql->table("mod:board_data_".$board_id)}
-            SET category=:col1,writer=:col2,pwd=:col3,email=:col4,article=:col5,subject=:col6,file1=:col7,file2=:col8,use_secret=:col9,use_notice=:col10,use_html='Y',use_email=:col11,ip='{$_SERVER['REMOTE_ADDR']}',data_1=:col12,data_2=:col13,data_3=:col14,data_4=:col15,data_5=:col16,data_6=:col17,data_7=:col18,data_8=:col19,data_9=:col20,data_10=:col21
-            WHERE idx=:col22
+            SET category=:col1,writer=:col2,pwd=:col3,email=:col4,article=:col5,subject=:col6,file1=:col7,file2=:col8,use_secret=:col9,use_notice=:col10,use_html='Y',use_email=:col11,ip='{$_SERVER['REMOTE_ADDR']}',regdate=:col12,data_1=:col13,data_2=:col14,data_3=:col15,data_4=:col16,data_5=:col17,data_6=:col18,data_7=:col19,data_8=:col20,data_9=:col21,data_10=:col22
+            WHERE idx=:col23
             ",
             array(
-                $category, $req['writer'], $req['password'], $req['email'], $req['article'], $req['subject'], $ufile[1]['ufile_name'], $ufile[2]['ufile_name'], $wr_opt['secret'], $wr_opt['notice'], $wr_opt['email'], $req['data_1'], $req['data_2'], $req['data_3'], $req['data_4'], $req['data_5'], $req['data_6'], $req['data_7'], $req['data_8'], $req['data_9'], $req['data_10'],
+                $category, $req['writer'], $req['password'], $req['email'], $req['article'], $req['subject'], $ufile[1]['ufile_name'], $ufile[2]['ufile_name'], $wr_opt['secret'], $wr_opt['notice'], $wr_opt['email'], $wdate, $req['data_1'], $req['data_2'], $req['data_3'], $req['data_4'], $req['data_5'], $req['data_6'], $req['data_7'], $req['data_8'], $req['data_9'], $req['data_10'],
                 $req['read']
             )
         );
@@ -946,10 +962,15 @@ class Write_submit{
         Session::set_sess('BOARD_VIEW_'.$req['read'], $req['read']);
 
         //return
+        $return_url = $req['thisuri'].'?mode=view&read='.$req['read'].'&page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category_ed']);
+        if (isset($req['request']) && $req['request'] == 'manage') {
+            $return_url = './board-view?id='.$board_id.'&read='.$req['read'].'&page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category_ed']);
+        }
+
         Valid::set(
             array(
                 'return' => 'alert->location',
-                'location' => $req['thisuri'].'?mode=view&read='.$req['read'].'&page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category_ed'])
+                'location' => $return_url
             )
         );
         Valid::turn();
@@ -1084,10 +1105,15 @@ class Write_submit{
         }
 
         //return
+        $return_url = $req['thisuri'].'?mode=view&read='.$sql->fetch('idx').'&page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category_ed']);
+        if (isset($req['request']) && $req['request'] == 'manage') {
+            $return_url = './board?id='.$board_id.'&category='.urlencode($req['category_ed']).'&page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category_ed']);
+        }
+
         Valid::set(
             array(
                 'return' => 'alert->location',
-                'location' => $req['thisuri'].'?mode=view&read='.$sql->fetch('idx').'&page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category_ed'])
+                'location' => $return_url
             )
         );
         Valid::turn();

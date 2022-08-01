@@ -65,17 +65,21 @@ class Result extends \Controller\Make_Controller {
         //첨부파일 아이콘
         function file_ico($arr)
         {
+            global $boardconf;
+
             $is_img = false;
             $is_file = false;
 
-            for ($i = 1; $i<=2; $i++) {
-                $file_type = Func::get_filetype($arr['file'.$i]);
+            if ($boardconf['ico_file'] == 'Y') {
+                for ($i = 1; $i<=2; $i++) {
+                    $file_type = Func::get_filetype($arr['file'.$i]);
 
-                if (Func::chkintd('match', $file_type, SET_IMGTYPE)) {
-                    $is_img = true;
+                    if (Func::chkintd('match', $file_type, SET_IMGTYPE)) {
+                        $is_img = true;
 
-                } else if ($arr['file'.$i]) {
-                    $is_file = true;
+                    } else if ($arr['file'.$i]) {
+                        $is_file = true;
+                    }
                 }
             }
 
@@ -102,7 +106,9 @@ class Result extends \Controller\Make_Controller {
         //비밀글 아이콘
         function secret_ico($arr)
         {
-            if ($arr['use_secret'] == 'Y') {
+            global $boardconf;
+
+            if ($arr['use_secret'] == 'Y' && $boardconf['ico_secret'] == 'Y') {
                 return '<img src="'.MOD_BOARD_THEME_DIR.'/images/secret-ico.png" align="absmiddle" title="비밀글" alt="비밀글" />';
             }
         }
@@ -341,7 +347,9 @@ class Result extends \Controller\Make_Controller {
         }
 
         //add title
-        Func::add_title($boardconf['title']);
+        if (!$req['is_ftlist']) {
+            Func::add_title($boardconf['title']);
+        }
 
         //add stylesheet & javascript
         if (!$req['is_ftlist']) {
@@ -453,7 +461,7 @@ class Result extends \Controller\Make_Controller {
             LEFT OUTER JOIN {$sql->table("member")} member
             ON board.mb_idx=member.mb_idx
             WHERE board.use_notice='Y'
-            ORDER BY board.idx DESC
+            ORDER BY board.regdate DESC
             ", []
         );
         $notice_cnt = $sql->getcount();

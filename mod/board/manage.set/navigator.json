@@ -3,7 +3,9 @@
         "title" : "생성된 게시판",
         "href" : "result/result",
         "data-idx-href" : [
-            "result/modify"
+            "result/modify",
+            "result/board",
+            "result/write"
         ]
     },
     {

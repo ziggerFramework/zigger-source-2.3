@@ -56,7 +56,7 @@ class Result extends \Controller\Make_Controller {
             SELECT
             (
                 SELECT COUNT(*)
-                FROM {$sql->table("popup")}
+                FROM {$sql->table("banner")}
             ) bn_total
             ", []
         );

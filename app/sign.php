@@ -21,6 +21,8 @@ class Signin extends \Controller\Make_Controller {
 
     public function make()
     {
+        global $CONF;
+        
         $req = Method::request('get', 'redirect');
 
         if (IS_MEMBER) {
@@ -38,6 +40,8 @@ class Signin extends \Controller\Make_Controller {
         $this->set('redirect', $req['redirect']);
         $this->set('id_val', $id_val);
         $this->set('save_checked', $save_checked);
+        $this->set('show_sns_ka', $CONF['use_sns_ka']);
+        $this->set('show_sns_nv', $CONF['use_sns_nv']);
     }
 
     public function form()
@@ -206,6 +210,8 @@ class Signup extends \Controller\Make_Controller {
         }
 
         $this->set('siteconf', $CONF);
+        $this->set('show_sns_ka', $CONF['use_sns_ka']);
+        $this->set('show_sns_nv', $CONF['use_sns_nv']);
     }
 
 }

@@ -14,11 +14,15 @@ Control
 class Ctrl extends \Controller\Make_Controller {
 
     public function init(){
-        global $boardconf;
+        global $req, $boardconf;
 
         $this->layout()->view('');
 
-        $this->layout()->view(MOD_BOARD_THEME_PATH.'/board/'.$boardconf['theme'].'/ctrpop.tpl.php', false);
+        if ($req['request'] == 'manage') {
+            $this->layout()->view(MOD_BOARD_PATH.'/manage.set/html/ctrpop.tpl.php', false);
+        } else {
+            $this->layout()->view(MOD_BOARD_THEME_PATH.'/board/'.$boardconf['theme'].'/ctrpop.tpl.php', false);
+        }
     }
 
     public function func()
@@ -52,11 +56,11 @@ class Ctrl extends \Controller\Make_Controller {
 
     public function make()
     {
-        global $boardconf;
+        global $req, $boardconf;
 
         $boardlib = new Board_Library();
 
-        $req = Method::request('post', 'cnum,board_id');
+        $req = Method::request('post', 'cnum, board_id, page, category, where, keyword, sort, ordtg, ordsc, request');
         $boardconf = $boardlib->load_conf($req['board_id']);
 
 
@@ -68,6 +72,7 @@ class Ctrl extends \Controller\Make_Controller {
             }
         }
 
+        $this->set('req', $req);
         $this->set('slt_count', sizeof($req['cnum']));
         $this->set('board_opt_list', board_opt_list());
         $this->set('cnum_arr', $cnum_arr);
@@ -92,13 +97,13 @@ class Ctrl_submit {
 
     public function init()
     {
-        global $MB,$boardconf,$req,$cnum,$board_id,$t_board_id;
+        global $MB, $boardconf, $req, $cnum, $board_id, $t_board_id;
 
         $boardlib = new Board_Library();
 
         Method::security('referer');
         Method::security('request_post');
-        $req = Method::request('post', 'cnum, type, board_id, t_board_id, category, page, where, keyword, thisuri');
+        $req = Method::request('post', 'cnum, type, board_id, t_board_id, category, page, where, keyword, thisuri, request, sort, ordtg, ordsc, request');
 
         $board_id = $req['board_id'];
         $t_board_id = $req['t_board_id'];
@@ -256,10 +261,14 @@ class Ctrl_submit {
         );
 
         //return
+        $return_url = '?page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category']);
+        if (isset($req['request']) && $req['request'] == 'manage') {
+            $return_url = '?page='.$req['page'].'&sort='.$req['sort'].'&ordtg='.$req['ordtg'].'&ordsc='.$req['ordsc'].'&category='.urlencode($req['category']).'&id='.$board_id.'&where='.$req['where'].'&keyword='.$req['keyword'];
+        }
         Valid::set(
             array(
                 'return' => 'alert->location',
-                'location' => '?page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category']),
+                'location' => $return_url,
                 'msg' => '성공적으로 삭제 되었습니다.'
             )
         );
@@ -522,10 +531,14 @@ class Ctrl_submit {
         }
 
         //return
+        $return_url = '?page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category']);
+        if (isset($req['request']) && $req['request'] == 'manage') {
+            $return_url = '?page='.$req['page'].'&sort='.$req['sort'].'&ordtg='.$req['ordtg'].'&ordsc='.$req['ordsc'].'&category='.urlencode($req['category']).'&id='.$board_id.'&where='.$req['where'].'&keyword='.$req['keyword'];
+        }
         Valid::set(
             array(
                 'return' => 'alert->location',
-                'location' => '?page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category']),
+                'location' => $return_url,
                 'msg' => '성공적으로 이동 되었습니다.'
             )
         );

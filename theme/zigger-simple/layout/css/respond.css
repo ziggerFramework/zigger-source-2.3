@@ -36,6 +36,11 @@
 
     .tbltxt{font-size: 11px;line-height: 13px;}
 
+    /* notice box */
+    .article-notice{padding: 20px 15px;font-size: 14px;line-height: 20px;margin-bottom: 10px;}
+    .article-notice i{font-size: 20px;}
+    .article-notice em{font-size: 12px;line-height: 16px;}
+
     /* 기본 폼 */
     .tblform h4{margin-bottom: 10px;font-size: 14px;font-weight: bold;letter-spacing: -1px;}
     .tblform h4 em{margin-top: 5px;font-size: 12px;line-height: 15px;font-weight: normal;letter-spacing: -1px;}
@@ -222,7 +227,7 @@
     #blocked{width: auto;margin: 40px 20px;}
 
     /* Emailchk */
-    #emailchk{width: auto;margin: 40px auto;}
+    #emailchk{width: auto;margin: 40px 15px;}
 
     /* Zig alert */
     #zig-alert-wrap{top: 0;right: 5px;width: 300px;}

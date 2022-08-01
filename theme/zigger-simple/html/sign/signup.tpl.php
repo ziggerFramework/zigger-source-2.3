@@ -6,15 +6,20 @@
             이미 회원이신가요? <a href="<?php echo PH_DIR; ?>/sign/signin">지금 바로 회원 로그인</a>
         </span>
 
+        <?php if ($show_sns_ka == 'Y' || $show_sns_nv == 'Y') { ?>
         <fieldset class="snsbox">
             <h5>SNS Sign up</h5>
             <ul>
+                <?php if ($show_sns_ka == 'Y') { ?>
                 <li><a id="kakao-login" href="<?php echo PH_PLUGIN_DIR; ?>/snslogin/getlogin.php?get_sns=kakao"><img src="<?php echo PH_THEME_DIR; ?>/layout/images/login-sns-ico-k.jpg">Log in with Kakao</a></li>
+                <?php } ?>
+                <?php if ($show_sns_nv == 'Y') { ?>
                 <li><a id="naver-login" href="<?php echo PH_PLUGIN_DIR; ?>/snslogin/getlogin.php?get_sns=naver"><img src="<?php echo PH_THEME_DIR; ?>/layout/images/login-sns-ico-n.jpg">Log in with Naver</a></li>
+                <?php } ?>
             </ul>
         </fieldset>
-
         <p class="or">OR</p>
+        <?php } ?>
 
         <fieldset class="inp-wrap">
 

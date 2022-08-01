@@ -16,15 +16,19 @@ class Load extends \Controller\Make_Controller {
 
     public function init()
     {
-        global $MOD_CONF, $boardconf;
+        global $req, $MOD_CONF, $boardconf;
 
-        $req = Method::request('get', 'board_id, read');
+        $req = Method::request('get', 'request, board_id, read');
 
         $board_id = $req['board_id'];
         $boardlib = new Board_Library();
         $boardconf = $boardlib->load_conf($board_id);
 
-        $this->layout()->view(MOD_BOARD_THEME_PATH.'/board/'.$boardconf['theme'].'/comment.tpl.php');
+        if ($req['request'] == 'manage') {
+            $this->layout()->view(MOD_BOARD_PATH.'/manage.set/html/comment.tpl.php');
+        } else {
+            $this->layout()->view(MOD_BOARD_THEME_PATH.'/board/'.$boardconf['theme'].'/comment.tpl.php');
+        }
     }
 
     public function func()
@@ -76,8 +80,15 @@ class Load extends \Controller\Make_Controller {
         //회원 이름
         function print_writer($arr)
         {
+            global $req;
+
             if ($arr['mb_idx'] != 0) {
-                return '<a href="#" data-profile="'.$arr['mb_idx'].'">'.$arr['writer'].'</a>';
+                if (isset($req['request']) && $req['request'] == 'manage') {
+                    return '<a href="'.PH_MANAGE_DIR.'/member/modify?idx='.$arr['mb_idx'].'" target="_blank">'.$arr['writer'].'</a>';
+
+                } else {
+                    return '<a href="#" data-profile="'.$arr['mb_idx'].'">'.$arr['writer'].'</a>';
+                }
 
             } else {
                 return $arr['writer'];

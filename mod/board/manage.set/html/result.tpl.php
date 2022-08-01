@@ -39,7 +39,7 @@
             <col style="width: auto;" />
             <col style="width: auto;" />
             <col style="width: 200px;" />
-            <col style="width: 100px;" />
+            <col style="width: 220px;" />
         </colgroup>
         <thead>
             <tr>
@@ -61,7 +61,7 @@
                 <td class="no tac"><?php echo $list['no']; ?></td>
                 <td class="tac"><strong><?php echo $list['id']; ?></strong></td>
                 <td class="tac"><?php echo $list['title']; ?></td>
-                <td class="tac"><?php echo $list[0]['data_total']; ?>건</td>
+                <td class="tac"><a href="./board?id=<?php echo $list['id']; ?>"><strong><?php echo $list[0]['data_total']; ?></strong>건</a></td>
                 <td class="tac"><?php echo $list['list_level']; ?></td>
                 <td class="tac"><?php echo $list['read_level']; ?></td>
                 <td class="tac"><?php echo $list['write_level']; ?></td>
@@ -74,7 +74,8 @@
                     </form>
                 </td>
                 <td class="tac">
-                    <a href="./modify<?php echo $manage->lnk_def_param('&id='.$list['id']); ?>" class="btn1 small">관리</a>
+                    <a href="./board?id=<?php echo $list['id']; ?>" class="btn2 small">게시글 관리</a>
+                    <a href="./modify<?php echo $manage->lnk_def_param('&id='.$list['id']); ?>" class="btn1 small">설정 관리</a>
                 </td>
             </tr>
             <?php } ?>

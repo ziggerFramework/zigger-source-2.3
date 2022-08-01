@@ -15,12 +15,15 @@ class View extends \Controller\Make_Controller {
 
     public function init()
     {
-        $this->layout()->view('');
+        global $MOD_CONF;
+
+        $boardlib = new Board_Library();
+        $boardconf = $boardlib->load_conf($MOD_CONF['id']);
 
         if (View::$show_pwdform == 0) {
-            $this->layout()->view(MOD_BOARD_THEME_PATH.'/board/'.View::$boardconf['theme'].'/view.tpl.php');
+            $this->layout()->view(MOD_BOARD_THEME_PATH.'/board/'.$boardconf['theme'].'/view.tpl.php');
         } else {
-            $this->layout()->view(MOD_BOARD_THEME_PATH.'/board/'.View::$boardconf['theme'].'/password.tpl.php');
+            $this->layout()->view(MOD_BOARD_THEME_PATH.'/board/'.$boardconf['theme'].'/password.tpl.php');
         }
     }
 
@@ -509,7 +512,7 @@ class View extends \Controller\Make_Controller {
             $is_img_show = array();
 
             for ($i = 1; $i <= 2; $i++){
-                if (print_imgfile($i, $arr) != '') {
+                if (print_imgfile($arr)[$i] != '') {
                     $is_img_show[$i] = true;
                 } else {
                     $is_img_show[$i] = false;

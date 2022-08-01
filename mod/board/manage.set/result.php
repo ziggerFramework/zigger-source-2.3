@@ -2,11 +2,13 @@
 use Corelib\Func;
 use Corelib\Method;
 use Corelib\Valid;
+use Corelib\Session;
 use Make\Database\Pdosql;
 use Make\Library\Uploader;
 use Make\Library\Paging;
 use Make\Library\Mail;
 use Manage\ManageFunc;
+use Module\Board\Library as Board_Library;
 
 class Result extends \Controller\Make_Controller {
 
@@ -1062,6 +1064,1096 @@ class Modify_submit {
             )
         );
         Valid::turn();
+    }
+
+}
+
+/***
+Board
+***/
+class Board extends \Controller\Make_Controller {
+
+    public function init()
+    {
+        global $req, $boardconf;
+
+        $req = Method::request('get', 'id, read, category, page');
+
+        $boardlib = new Board_Library();
+        $boardconf = $boardlib->load_conf($req['id']);
+
+        $this->layout()->mng_head();
+        $this->layout()->view(MOD_BOARD_PATH.'/manage.set/html/board.tpl.php');
+        $this->layout()->mng_foot();
+    }
+
+    public function func()
+    {
+        function data_total()
+        {
+            global $req;
+
+            $sql = new Pdosql();
+
+            $sql->query(
+                "
+                SELECT *
+                FROM {$sql->table("mod:board_data_".$req['id'])}
+                WHERE use_notice='Y' or use_notice='N'
+                ", []
+            );
+            return Func::number($sql->getcount());
+        }
+
+        //전체 게시글 갯수
+        function total_cnt($notice_cnt, $total_cnt)
+        {
+            return Func::number($notice_cnt + $total_cnt);
+        }
+
+        //제목
+        function print_subject($arr)
+        {
+            global $boardconf;
+
+            if (!$arr['dregdate']) {
+
+                return reply_ico($arr).Func::strcut($arr['subject'],0,$boardconf['sbj_limit']);
+            } else {
+                return reply_ico($arr).'<strike>'.$arr['dregdate'].'에 삭제된 게시글입니다.'.'</strike>';
+            }
+        }
+
+        //링크
+        function get_link($arr, $thisuri, $board_id, $category)
+        {
+            global $manage;
+            return './board-view'.$manage->lnk_def_param('&id='.$board_id.'&read='.$arr['idx'].'&category='.$category);
+        }
+
+        //내용
+        function print_article($arr)
+        {
+            global $boardconf;
+
+            return Func::strcut(strip_tags(Func::htmldecode($arr['article'])), 0, $boardconf['txt_limit']);
+        }
+
+        //첨부파일 아이콘
+        function file_ico($arr)
+        {
+            global $boardconf;
+
+            $is_img = false;
+            $is_file = false;
+
+            if ($boardconf['ico_file'] == 'Y') {
+                for ($i = 1; $i<=2; $i++) {
+                    $file_type = Func::get_filetype($arr['file'.$i]);
+
+                    if (Func::chkintd('match', $file_type, SET_IMGTYPE)) {
+                        $is_img = true;
+
+                    } else if ($arr['file'.$i]) {
+                        $is_file = true;
+                    }
+                }
+            }
+
+            if ($is_img === true) {
+                return '<img src="'.MOD_BOARD_DIR.'/manage.set/images/picture-ico.png" align="absmiddle" title="이미지파일" alt="이미지파일" />';
+
+            } else if ($is_file === true) {
+                return '<img src="'.MOD_BOARD_DIR.'/manage.set/images/file-ico.png" align="absmiddle" title="파일" alt="파일" />';
+            }
+        }
+
+        //답글 아이콘
+        function reply_ico($arr)
+        {
+            $nbsp = '';
+            if ($arr['rn'] > 0) {
+                for ($i = 1; $i <= $arr['rn']; $i++) {
+                    $nbsp .= '&nbsp;&nbsp;';
+                }
+                return $nbsp.'<img src="'.MOD_BOARD_DIR.'/manage.set/images/reply-ico.png" align="absmiddle" title="답글" alt="답글" class="reply-ico" />&nbsp;';
+            }
+        }
+
+        //비밀글 아이콘
+        function secret_ico($arr)
+        {
+            global $boardconf;
+
+            if ($arr['use_secret'] == 'Y' && $boardconf['ico_secret'] == 'Y') {
+                return '<img src="'.MOD_BOARD_DIR.'/manage.set/images/secret-ico.png" align="absmiddle" title="비밀글" alt="비밀글" />';
+            }
+        }
+
+        //NEW 아이콘
+        function new_ico($arr)
+        {
+            global $boardconf;
+
+            $now_date = date('Y-m-d H:i:s');
+            $wr_date = date('Y-m-d H:i:s', strtotime($arr['regdate']));
+
+            if ( ((strtotime($now_date) - strtotime($wr_date)) / 60) < $boardconf['ico_new_case'] && $boardconf['ico_new'] == 'Y') {
+                return '<img src="'.MOD_BOARD_DIR.'/manage.set/images/new-ico.png" align="absmiddle" title="NEW" alt="NEW" />';
+            }
+        }
+
+        //HOT 아이콘
+        function hot_ico($arr)
+        {
+            global $boardconf;
+
+            $ico_hot_case = explode('|', $boardconf['ico_hot_case']);
+
+            if ($boardconf['ico_hot'] == 'Y') {
+                if (($ico_hot_case[1] == 'AND' && $arr['likes_cnt'] >= $ico_hot_case[0] && $arr['view'] >= $ico_hot_case[2]) || ($ico_hot_case[1] == 'OR' && ($arr['likes_cnt'] >= $ico_hot_case[0] || $arr['view'] >= $ico_hot_case[2]))) {
+                    return '<img src="'.MOD_BOARD_DIR.'/manage.set/images/hot-ico.png" align="absmiddle" title="HOT" alt="HOT" />';
+                }
+            }
+        }
+
+        //댓글 갯수
+        function comment_cnt($arr)
+        {
+            global $boardconf;
+
+            if ($arr['comment_cnt'] > 0 && $boardconf['use_comment'] == 'Y') {
+                return Func::number($arr['comment_cnt']);
+            }
+        }
+
+        //작성 버튼
+        function write_btn($page, $category, $thisuri)
+        {
+            global $manage, $MB, $boardconf;
+
+            if ($MB['level'] <= $boardconf['write_level']) {
+                return '<a href="write'.$manage->lnk_def_param('&id='.$boardconf['id'].'&category='.urlencode($category).'&wrmode=write').'" class="btn1">글 작성</a>';
+            }
+        }
+
+        //게시물 번호
+        function print_number($arr, $read, $paging)
+        {
+            return $paging->getnum();
+        }
+
+        //회원 이름
+        function print_writer($arr)
+        {
+            if ($arr['mb_idx'] != 0) {
+                return '<a href="'.PH_MANAGE_DIR.'/member/modify?idx='.$arr['mb_idx'].'" target="_blank">'.$arr['writer'].'</a>';
+
+            } else {
+                return $arr['writer'];
+            }
+        }
+
+        //카테고리
+        function category_sort($category, $where, $keyword, $thisuri)
+        {
+            global $boardconf, $req;
+
+            if (!$boardconf['category']) {
+                return;
+            }
+
+            $cat_exp = explode('|', $boardconf['category']);
+            $html = '';
+
+            for ($i = 0; $i<sizeOf($cat_exp); $i++) {
+                $html .= '<li><a href="board?id='.$req['id'].'&category='.urlencode($cat_exp[$i]).'"><em>'.$cat_exp[$i].'</em></a></li>'.PHP_EOL;
+            }
+
+            return $html;
+        }
+
+        //where selectbox 선택 처리
+        function where_slted($where)
+        {
+            $arr = array('all', 'subjectAndArticle', 'subject', 'article', 'writer', 'mb_id');
+            $opt = array();
+
+            foreach ($arr as $key => $value) {
+                if ($where == $value) {
+                    $opt[$value] = 'selected';
+
+                } else {
+                    $opt[$value] = '';
+                }
+            }
+
+            return $opt;
+        }
+
+        //list arr setting
+        function get_listarr($req, $arr, $paging, $thisuri, $keyword, $category)
+        {
+            global $PARAM;
+
+            $arr['view'] = Func::number($arr['view']);
+            $arr['date'] = Func::date($arr['regdate']);
+            $arr['datetime'] = Func::datetime($arr['regdate']);
+            $arr[0]['number'] = print_number($arr, $req['read'],$paging);
+            $arr[0]['get_link'] = get_link($arr, $thisuri, $req['id'], $category);
+            $arr[0]['secret_ico'] = secret_ico($arr);
+            $arr[0]['file_ico'] = file_ico($arr);
+            $arr[0]['new_ico'] = new_ico($arr);
+            $arr[0]['hot_ico'] = hot_ico($arr);
+            $arr[0]['subject'] = print_subject($arr);
+            $arr[0]['article'] = print_article($arr);
+            $arr[0]['comment_cnt'] = comment_cnt($arr);
+            $arr[0]['writer'] = print_writer($arr);
+
+            return $arr;
+        }
+    }
+
+    public function make()
+    {
+        global $PARAM, $manage, $searchby, $req, $boardconf;
+
+        $sql = new Pdosql();
+        $paging = new Paging();
+        $manage = new ManageFunc();
+
+        $board_id = $req['id'];
+
+        //board_id 검사
+        if (!$sql->table_exists("mod:board_data_".$req['id'])) {
+            Func::err_back('게시판이 존재하지 않습니다.');
+        }
+
+        $thisuri = Func::thisuri();
+
+        //카테고리 처리
+        $category = urldecode($req['category']);
+        $search = '';
+
+        if ($category) {
+            $search = 'AND board.category=\''.$req['category'].'\'';
+        }
+
+        //검색 키워드 처리
+        $keyword = htmlspecialchars(urlencode($PARAM['keyword']));
+
+        if ($keyword) {
+            $keyword = urldecode($PARAM['keyword']);
+            $where_arr = array('subject', 'article', 'writer', 'mb_id');
+
+            switch ($PARAM['where']) {
+                case 'subjectAndArticle' :
+                    $search .= 'AND (';
+                    $search .= 'board.subject like \'%'.$PARAM['keyword'].'%\'';
+                    $search .= 'OR board.article like \'%'.$PARAM['keyword'].'%\'';
+                    $search .= ')';
+                    break;
+
+                case 'subject' :
+                case 'article' :
+                case 'writer' :
+                case 'mb_id' :
+                    $search .= 'AND board.'.$PARAM['where'].' like \'%'.$PARAM['keyword'].'%\'';
+                    break;
+
+                default :
+                    $search .= 'AND (';
+                    foreach ($where_arr as $key => $value) {
+                        $search .= ($key > 0 ? ' OR ' : '').'board.'.$value.' like \'%'.$PARAM['keyword'].'%\'';
+                    }
+                    $search .= ')';
+            }
+        }
+
+        if ($boardconf['use_category'] == 'Y' && $boardconf['category'] != '') {
+            $is_category_show = true;
+
+        } else {
+            $is_category_show = false;
+        }
+
+        if ($boardconf['use_comment'] == 'Y') {
+            $is_comment_show = true;
+
+        } else {
+            $is_comment_show = false;
+        }
+
+        if ($boardconf['use_likes'] == 'Y') {
+            $is_likes_show = true;
+
+        } else {
+            $is_likes_show = false;
+        }
+
+        //notice
+        $sql->query(
+            "
+            SELECT *,
+            (
+                SELECT COUNT(*)
+                FROM {$sql->table("mod:board_cmt_".$board_id)}
+                WHERE bo_idx=board.idx
+            ) comment_cnt,
+            (
+                SELECT COUNT(*)
+                FROM {$sql->table("mod:board_like")}
+                WHERE id='$board_id' AND data_idx=board.idx AND likes>0
+            ) likes_cnt,
+            (
+                SELECT COUNT(*)
+                FROM {$sql->table("mod:board_like")}
+                WHERE id='$board_id' AND data_idx=board.idx AND unlikes>0
+            ) unlikes_cnt
+            FROM {$sql->table("mod:board_data_".$board_id)} board
+            LEFT OUTER JOIN {$sql->table("member")} member
+            ON board.mb_idx=member.mb_idx
+            WHERE board.use_notice='Y'
+            ORDER BY board.idx DESC
+            ", []
+        );
+        $notice_cnt = $sql->getcount();
+        $print_notice = array();
+
+        if ($notice_cnt > 0) {
+            do {
+                $arr = $sql->fetchs();
+                $print_notice[] = get_listarr($req, $arr, $paging, $thisuri, $keyword, $category);
+
+            } while ($sql->nextRec());
+        }
+
+        //list
+        $paging->thispage = $thisuri;
+        $paging->setlimit($boardconf['list_limit']);
+
+        $sql->query(
+            $paging->query(
+                "
+                SELECT *,
+                (
+                    SELECT COUNT(*)
+                    FROM {$sql->table("mod:board_cmt_".$board_id)}
+                    WHERE bo_idx=board.idx
+                ) comment_cnt,
+                (
+                    SELECT COUNT(*)
+                    FROM {$sql->table("mod:board_like")}
+                    WHERE id='$board_id' AND data_idx=board.idx AND likes>0
+                ) likes_cnt,
+                (
+                    SELECT COUNT(*)
+                    FROM {$sql->table("mod:board_like")}
+                    WHERE id='$board_id' AND data_idx=board.idx AND unlikes>0
+                ) unlikes_cnt
+                FROM {$sql->table("mod:board_data_".$board_id)} board
+                LEFT OUTER JOIN {$sql->table("member")} member
+                ON board.mb_idx=member.mb_idx
+                WHERE board.use_notice='N' $search
+                ORDER BY board.ln DESC, board.rn ASC, board.regdate DESC
+                ", []
+            )
+        );
+        $total_cnt = Func::number($paging->totalCount);
+        $print_arr = array();
+
+        if ($sql->getcount() > 0) {
+            do {
+                $arr = $sql->fetchs();
+                $print_arr[] = get_listarr($req, $arr, $paging, $thisuri, $keyword, $category);
+
+            } while($sql->nextRec());
+        }
+
+
+        $this->set('manage', $manage);
+        $this->set('write_btn', write_btn($req['page'], $category, $thisuri));
+        $this->set('category', $category);
+        $this->set('board_id', $req['id']);
+        $this->set('where', $PARAM['where']);
+        $this->set('keyword', $PARAM['keyword']);
+        $this->set('board_id', $req['id']);
+        $this->set('data_total', data_total());
+        $this->set('category_sort', category_sort($category, $PARAM['where'], $keyword, $thisuri));
+        $this->set('is_category_show', $is_category_show);
+        $this->set('is_comment_show', $is_comment_show);
+        $this->set('is_likes_show', $is_likes_show);
+        $this->set('pagingprint', $paging->pagingprint($manage->pag_def_param().'&id='.$req['id'].'&category='.$category));
+        $this->set('print_notice', $print_notice);
+        $this->set('print_arr', $print_arr);
+
+    }
+
+    public function form()
+    {
+        $form = new \Controller\Make_View_Form();
+        $form->set('id', 'board-listForm');
+        $form->set('type', 'static');
+        $form->set('target', 'view');
+        $form->set('method', 'get');
+        $form->run();
+    }
+
+    public function sch_form()
+    {
+        $form = new \Controller\Make_View_Form();
+        $form->set('id', 'board-sch');
+        $form->set('type', 'static');
+        $form->set('target', 'view');
+        $form->set('method', 'get');
+        $form->run();
+    }
+
+}
+
+/***
+Board Write
+***/
+class Write extends \Controller\Make_Controller {
+
+    static public $boardconf;
+
+    public function init(){
+        $this->layout()->mng_head();
+        $this->layout()->view(MOD_BOARD_PATH.'/manage.set/html/write.tpl.php');
+        $this->layout()->mng_foot();
+    }
+
+    public function func()
+    {
+        //category
+        function category_option($arr, $category)
+        {
+            $cat = explode('|', Write::$boardconf['category']);
+            $opt = '';
+
+            for ($i = 0; $i < sizeOf($cat); $i++) {
+                $slted = '';
+
+                if (isset($arr['category']) && urldecode($cat[$i]) == $arr['category']) {
+                    $slted = 'selected';
+                }
+                if (urldecode($cat[$i]) == $category) {
+                    $slted = 'selected';
+
+                }
+
+                $opt .= '<option value="'.$cat[$i].'" '.$slted.'>'.$cat[$i].'</option>';
+            }
+            return $opt;
+        }
+
+        //파일명
+        function uploaded_file($arr, $wrmode)
+        {
+            if ($wrmode != 'reply') {
+                $files = array();
+
+                for ($i = 1; $i <= 2; $i++) {
+                    $files[$i] = '';
+
+                    if (isset($arr['file'.$i])) {
+                        $fileinfo = Func::get_fileinfo($arr['file'.$i]);
+                        $files[$i] = $fileinfo['orgfile'];
+                    }
+
+                }
+
+                return $files;
+            }
+        }
+
+        //공지글 옵션
+        function opt_notice($arr, $wrmode)
+        {
+            global $MB;
+
+            $notice_opt = '<label><input type="checkbox" name="use_notice" id="use_notice" value="checked" /> 공지글 작성</label>';
+
+            if ($MB['level'] == 1 || $MB['level'] <= Write::$boardconf['ctr_level']) {
+                if (isset($arr['use_notice']) && $arr['use_notice'] == 'Y') {
+                    $notice_opt = '<label><input type="checkbox" name="use_notice" id="use_notice" value="checked" checked="checked" /> 공지글 작성</label>';
+
+                } else if ((isset($arr['rn']) && $arr['rn'] > 0) || $wrmode == 'reply') {
+                    $notice_opt =  '';
+                }
+
+            } else {
+                $notice_opt =  '';
+            }
+
+            return $notice_opt;
+        }
+
+        //비밀글 옵션
+        function opt_secret($arr)
+        {
+            $secret_opt = '';
+
+            if (Write::$boardconf['use_secret'] == 'Y' && ( ( isset($arr['use_secret']) && $arr['use_secret']=='Y' ) || Write::$boardconf['ico_secret_def'] == 'Y') ) {
+                $secret_opt = '<label><input type="checkbox" name="use_secret" id="use_secret" value="checked" checked="checked" /> 비밀글 작성</label>';
+
+            } else if (Write::$boardconf['use_secret'] == 'Y') {
+                $secret_opt = '<label><input type="checkbox" name="use_secret" id="use_secret" value="checked" /> 비밀글 작성</label>';
+
+            } else {
+                $secret_opt = '';
+            }
+
+            return $secret_opt;
+        }
+
+        //이메일 답변 옵션
+        function opt_return_email($arr)
+        {
+            $email_opt = '';
+            if (isset($arr['use_email']) && $arr['use_email'] == 'Y') {
+                $email_opt = '<label><input type="checkbox" name="use_email" id="use_email" value="checked" checked="checked" /> 이메일로 답글 알림 수신</label>';
+
+            } else {
+                $email_opt = '<label><input type="checkbox" name="use_email" id="use_email" value="checked" /> 이메일로 답글 알림 수신</label>';
+            }
+
+            return $email_opt;
+        }
+
+        //취소 버튼
+        function cancel_btn($page, $category)
+        {
+            global $manage, $board_id;
+
+            return '<a href="board'.$manage->lnk_def_param('&id='.$board_id.'&category='.$category).'" class="btn2">취소</a>';
+        }
+
+        //글쓰기 타이틀
+        function write_title($wrmode)
+        {
+            if ($wrmode == 'modify') {
+                return '글 수정';
+
+            } else if ($wrmode == 'reply') {
+                return '답글 작성';
+
+            } else {
+                return '새로운 글 작성';
+            }
+        }
+
+        //첨부 가능한 파일 사이즈
+        function print_filesize()
+        {
+            global $func;
+
+            return Func::getbyte(Write::$boardconf['file_limit'], 'M').'M';
+        }
+    }
+
+    public function make()
+    {
+        global $manage, $MB, $board_id;
+
+        $manage = new ManageFunc();
+        $sql = new Pdosql();
+        $boardlib = new Board_Library();
+
+        $req = Method::request('get', 'id, mode, wrmode, read, page, where, keyword, category');
+
+        $board_id = $req['id'];
+
+        //load config
+        Write::$boardconf = $boardlib->load_conf($board_id);
+
+        //수정 or 답글인 경우 원본 글 불러옴
+        if ($req['wrmode'] == 'modify' || $req['wrmode'] == 'reply') {
+            $sql->query(
+                "
+                SELECT board.*,ceil(board.ln) ceil_ln,
+                (
+                    SELECT COUNT(*)
+                    FROM {$sql->table("mod:board_data_".$board_id)}
+                    WHERE ln<=((ceil_ln/1000)*1000) AND ln>((ceil_ln/1000)*1000)-1000 AND rn>0
+                ) reply_cnt
+                FROM {$sql->table("mod:board_data_".$board_id)} board
+                WHERE board.idx=:col1
+                ",
+                array(
+                    $req['read']
+                )
+            );
+            $arr = $sql->fetchs();
+            $sql->specialchars = 1;
+            $sql->nl2br = 0;
+
+            if ($sql->getcount() < 1) {
+                Func::err_back('해당 글이 존재하지 않습니다.');
+            }
+
+            $arr['article'] = $sql->fetch('article');
+            $arr['wdate_date'] = substr($arr['regdate'], 0, 10);
+            $arr['wdate_h'] = substr($arr['regdate'], 11, 2);
+            $arr['wdate_i'] = substr($arr['regdate'], 14, 2);
+            $arr['wdate_s'] = substr($arr['regdate'], 17, 2);
+
+            if ($req['wrmode'] == 'reply') {
+                if ($arr['use_html'] == 'Y') {
+                    $arr['article'] = '<br /><br /><br /><div><strong>Org: '.$arr['subject'].'</strong><br />'.$arr['article'].'</div>';
+
+                } else {
+                    $arr['article'] = '\n\n\nOrg: '.$arr['subject'].'\n'.$arr['article'];
+                }
+                $arr['subject'] = 'Re: '.$arr['subject'];
+            }
+        } else {
+            $arr = null;
+        }
+
+        //check
+        if (!$board_id) {
+            Func::err_back('게시판이 지정되지 않았습니다.');
+        }
+
+        if (!$req['wrmode'] || $req['wrmode'] == 'reply') {
+            if (Write::$boardconf['write_point'] < 0) {
+                if ($MB['point'] < (0 - Write::$boardconf['write_point'])) {
+                    Func::err_back('포인트가 부족하여 글을 작성할 수 없습니다.');
+                }
+            }
+        }
+        if ($req['wrmode'] == 'reply' && Write::$boardconf['use_reply'] == 'N') {
+            Func::err_back('답변글을 등록할 수 없습니다.');
+        }
+
+        //삭제된 게시글인지 검사
+        if ($req['wrmode'] == 'modify' || $req['wrmode'] == 'reply') {
+            if ($arr['dregdate']) {
+                Func::err_back('삭제된 게시물입니다.');
+            }
+        }
+
+        //답글 모드인 경우 권한 검사
+        if ($req['wrmode'] == 'reply') {
+            if ($arr['use_notice'] == 'Y') {
+                Func::err_back('공지글에는 답글을 달 수 없습니다.');
+            }
+        }
+
+        //작성 폼 노출
+        if ($req['wrmode'] == 'modify' && $arr['mb_idx'] == '0') {
+            $is_writer_show = true;
+            $is_pwd_show = true;
+            $is_email_show = true;
+
+        } else {
+            $is_writer_show = false;
+            $is_pwd_show = false;
+            $is_email_show = false;
+        }
+
+        $is_file_show = array();
+
+        for ($i = 1; $i <= 2; $i++) {
+            if (Write::$boardconf['use_file'.$i] == 'Y') {
+                $is_file_show[$i] = true;
+
+            } else {
+                $is_file_show[$i] = false;
+
+            }
+
+            $is_filename_show[$i] = false;
+
+            if ($req['wrmode'] == 'modify') {
+                if ($arr['file'.$i] != '') {
+                    $is_filename_show[$i] = true;
+                }
+
+            } else {
+                $is_filename_show[$i] = false;
+            }
+        }
+
+        if (Write::$boardconf['use_category'] == 'Y' && Write::$boardconf['category'] != '' && $req['wrmode'] != 'reply' && $arr['rn'] == 0 && $arr['reply_cnt'] < 1) {
+            $is_category_show = true;
+
+        } else {
+            $is_category_show = false;
+        }
+
+        $write = array();
+        if (isset($arr)) {
+            foreach ($arr as $key => $value) {
+                $write[$key] = $value;
+            }
+
+
+        } else {
+            $write = array(
+                'subject' => '',
+                'article' => '',
+                'writer' => '',
+                'pwd' => '',
+                'email' => '',
+                'wdate_date' => '',
+                'wdate_h' => '',
+                'wdate_i' => '',
+                'wdate_s' => ''
+            );
+
+            for ($i = 1; $i <= 10; $i++) {
+                $write['data_'.$i] = '';
+            }
+        }
+
+        if ($req['wrmode'] != 'modify') {
+            $write['wdate_date'] = '';
+            $write['wdate_h'] = '';
+            $write['wdate_i'] = '';
+            $write['wdate_s'] = '';
+        }
+
+        $this->set('manage', $manage);
+        $this->set('write', $write);
+        $this->set('uploaded_file', uploaded_file($arr,$req['wrmode']));
+        $this->set('cancel_btn', cancel_btn($req['page'], $req['category']));
+        $this->set('is_category_show', $is_category_show);
+        $this->set('is_writer_show', $is_writer_show);
+        $this->set('is_pwd_show', $is_pwd_show);
+        $this->set('is_email_show', $is_email_show);
+        $this->set('is_file_show', $is_file_show);
+        $this->set('is_filename_show', $is_filename_show);
+
+        $this->set('board_id', $board_id);
+        $this->set('mode', $req['mode']);
+        $this->set('wrmode', $req['wrmode']);
+        $this->set('read', $req['read']);
+        $this->set('page', $req['page']);
+        $this->set('where', $req['where']);
+        $this->set('keyword', $req['keyword']);
+        $this->set('category', $req['category']);
+        $this->set('thisuri', Func::thisuri());
+        $this->set('write_title', write_title($req['wrmode']));
+        $this->set('category_option', category_option($arr, $req['category']));
+        $this->set('opt_notice', opt_notice($arr,$req['wrmode']));
+        $this->set('opt_secret', opt_secret($arr));
+        $this->set('opt_return_email', opt_return_email($arr));
+        $this->set('print_filesize', print_filesize());
+    }
+
+    public function form()
+    {
+        $form = new \Controller\Make_View_Form();
+        $form->set('id', 'board-writeForm');
+        $form->set('type', 'multipart');
+        $form->set('action', MOD_BOARD_DIR.'/controller/write/write-submit');
+        $form->run();
+    }
+
+}
+
+/***
+Board View
+***/
+class Board_view extends \Controller\Make_Controller {
+
+    static public $boardconf;
+
+    public function init(){
+        $this->layout()->mng_head();
+        $this->layout()->view(MOD_BOARD_PATH.'/manage.set/html/board-view.tpl.php');
+        $this->layout()->mng_foot();
+    }
+
+    public function func()
+    {
+        //비밀글 아이콘 출력
+        function secret_ico($arr)
+        {
+            if ($arr['use_secret'] == 'Y') {
+                return '<img src=\''.MOD_BOARD_DIR.'/manage.set/images/secret-ico.png\' align=\'absmiddle\' title=\'비밀글\' alt=\'비밀글\' />';
+            }
+        }
+
+        //수정 버튼
+        function modify_btn($arr, $read, $category)
+        {
+            global $manage, $board_id;
+
+            $is_btn_show = false;
+
+            if (!$arr['dregdate']) {
+                $is_btn_show = true;
+
+            }
+
+            if ($is_btn_show) {
+                return '<a href=\'write'.$manage->lnk_def_param('&wrmode=modify&id='.$board_id.'&category='.urlencode($category).'&read='.$read).'\' class=\'btn1\'>수정</a>';
+            }
+        }
+
+        //답글 버튼
+        function reply_btn($arr, $read, $category)
+        {
+            global $manage, $board_id;
+
+            $is_btn_show = true;
+
+            if ($arr['use_notice'] == 'Y' || Board_view::$boardconf['use_reply'] == 'N' || $arr['dregdate'] != '') {
+                $is_btn_show = false;
+
+            }
+
+            if ($is_btn_show) {
+                return '<a href=\'write'.$manage->lnk_def_param('&wrmode=reply&id='.$board_id.'&category='.urlencode($category).'&read='.$read).'\' class=\'btn1\'>답글</a>';
+            }
+        }
+
+        //리스트 버튼
+        function list_btn($category)
+        {
+            global $manage, $board_id;
+
+            return '<a href="board'.$manage->lnk_def_param('&id='.$board_id.'&category='.urlencode($category)).'" class="btn2">리스트</a>';
+        }
+
+        //첨부 이미지 출력
+        function print_imgfile($arr)
+        {
+            $files = array();
+            for ($i = 1; $i <= 2; $i++) {
+                $filetype = Func::get_filetype($arr['file'.$i]);
+                $fileinfo = Func::get_fileinfo($arr['file'.$i]);
+
+                if (Func::chkintd('match', $filetype,SET_IMGTYPE)) {
+                    if ($fileinfo['storage'] == 'N') {
+                        $files[$i] = '<img src=\''.PH_DOMAIN.MOD_BOARD_DATA_DIR.'/'.Board_view::$boardconf['id'].'/thumb/'.$fileinfo['repfile'].'\' alt=\'첨부된 이미지파일\' />';
+                    } else {
+                        $files[$i] = '<img src=\''.$fileinfo['replink'].'\' alt=\'첨부된 이미지파일\' />';
+                    }
+
+                } else {
+                    $files[$i] = null;
+                }
+            }
+            return $files;
+        }
+
+        //첨부파일명 및 용량(Byte) 출력
+        function print_file_name($arr)
+        {
+            $files = array();
+
+            for ($i = 1; $i <= 2; $i++) {
+                if ($arr['file'.$i]) {
+                    $fileinfo = Func::get_fileinfo($arr['file'.$i]);
+
+                    $files[$i] = '
+                    <a href=\''.MOD_BOARD_DIR.'/controller/file/down?board_id='.Board_view::$boardconf['id'].'&file='.urlencode($arr['file'.$i]).'&OUTLOAD=1\' target=\'_blank\'>'.Func::strcut($fileinfo['orgfile'],0,70).'</a>
+                    <span class=\'byte\'>('.number_format($fileinfo['byte'] / 1024, 0).'K)</span>
+                    <span class=\'cnt\'><strong>'.Func::number($arr['file'.$i.'_cnt']).'</strong> 회 다운로드</span>
+                    ';
+
+                } else {
+                    $files[$i] = null;
+                }
+            }
+            return $files;
+        }
+
+        //회원 이름
+        function print_writer($arr)
+        {
+            if ($arr['mb_idx'] != 0) {
+                return '<a href="'.PH_MANAGE_DIR.'/member/modify?idx='.$arr['mb_idx'].'" target="_blank">'.$arr['writer'].'</a>';
+
+            } else {
+                return $arr['writer'];
+            }
+        }
+    }
+
+    public function make()
+    {
+        global $manage, $board_id, $MB, $board_id;
+
+        $manage = new ManageFunc();
+        $sql = new Pdosql();
+        $sess = new Session();
+        $boardlib = new Board_Library();
+
+        $req = Method::request('get','id, mode, wrmode, read, page, where, keyword, category');
+
+        $board_id = $req['id'];
+
+        //add stylesheet & javascript
+        Func::add_stylesheet(PH_MANAGE_DIR.'/css/content_view.css');
+
+        //load config
+        Board_view::$boardconf = $boardlib->load_conf($board_id);
+
+        //원본 글 불러옴
+        $sql->query(
+            "
+            SELECT member.mb_profileimg,
+            (
+                SELECT COUNT(*)
+                FROM {$sql->table("mod:board_like")}
+                WHERE id='$board_id' AND data_idx=:col1 AND likes>0
+            ) likes_cnt,
+            (
+                SELECT COUNT(*)
+                FROM {$sql->table("mod:board_like")}
+                WHERE id='$board_id' AND data_idx=:col1 AND unlikes>0
+            ) unlikes_cnt,
+            board.*
+            FROM {$sql->table("mod:board_data_".$board_id)} board
+            LEFT OUTER JOIN {$sql->table("member")} member
+            ON board.mb_idx=member.mb_idx
+            WHERE board.idx=:col1
+            ",
+            array(
+                $req['read']
+            )
+        );
+
+        if ($sql->getcount() < 1) {
+            Func::err_back('해당 글이 존재하지 않습니다.');
+        }
+
+        $arr = $sql->fetchs();
+
+        $sql->specialchars = 0;
+        $sql->nl2br = 0;
+
+        $arr['article'] = $sql->fetch('article');
+
+        //게시물이 답글이며 회원에 대한 답글인 경우 부모글의 회원 idx 가져옴
+        if ($arr['rn'] > 0 && $arr['pwd'] == '') {
+            $sql->query(
+                "
+                SELECT *
+                FROM {$sql->table("mod:board_data_".$board_id)}
+                WHERE ln>:col1 AND rn=:col2
+                ORDER BY ln ASC
+                LIMIT 1
+                ",
+                array(
+                    $arr['ln'],
+                    $arr['rn'] - 1
+                )
+            );
+            $prt_mb_idx = $sql->fetch('mb_idx');
+        }
+
+        //view 노출
+        if ($arr['dregdate']) {
+            $is_dropbox_show = true;
+            $is_article_show = false;
+
+        } else {
+            $is_dropbox_show = false;
+            $is_article_show = true;
+        }
+
+        $is_file_show = array();
+
+        for ($i = 1; $i <= 2; $i++) {
+            if ($arr['file'.$i]) {
+                $is_file_show[$i] = true;
+
+            } else {
+                $is_file_show[$i] = false;
+            }
+        }
+
+        $is_img_show = array();
+
+        for ($i = 1; $i <= 2; $i++){
+            if (print_imgfile($arr)[$i] != '') {
+                $is_img_show[$i] = true;
+            } else {
+                $is_img_show[$i] = false;
+            }
+        }
+
+        if (Board_view::$boardconf['use_category'] == 'Y' && $arr['category'] && $arr['use_notice'] == 'N') {
+            $is_category_show = true;
+
+        } else {
+            $is_category_show = false;
+        }
+
+        if (Board_view::$boardconf['use_comment'] == 'Y') {
+            $is_comment_show = true;
+        } else {
+            $is_comment_show = false;
+        }
+
+        if (Board_view::$boardconf['use_likes'] == 'Y' && !$arr['dregdate']) {
+            $is_likes_show = true;
+        } else {
+            $is_likes_show = false;
+        }
+
+        if (Board_view::$boardconf['use_list'] == 'Y') {
+            $is_ftlist_show = true;
+        } else {
+            $is_ftlist_show = false;
+        }
+
+        if (Board_view::$boardconf['use_seek'] == 'Y') {
+            $is_seeklist_show = true;
+        } else {
+            $is_seeklist_show = false;
+        }
+
+        $arr['view'] = Func::number($arr['view']);
+        $arr['date'] = Func::date($arr['regdate']);
+        $arr['datetime'] = Func::datetime($arr['regdate']);
+        $arr['likes_cnt'] = Func::number($arr['likes_cnt']);
+        $arr['unlikes_cnt'] = Func::number($arr['unlikes_cnt']);
+
+        $view = array();
+
+        if (isset($arr)) {
+            foreach ($arr as $key => $value) {
+                $view[$key] = $value;
+            }
+        } else {
+            $view = null;
+        }
+
+        $this->set('manage', $manage);
+        $this->set('view', $view);
+        $this->set('is_dropbox_show', $is_dropbox_show);
+        $this->set('is_article_show', $is_article_show);
+        $this->set('is_file_show', $is_file_show);
+        $this->set('is_img_show', $is_img_show);
+        $this->set('is_category_show', $is_category_show);
+        $this->set('is_comment_show', $is_comment_show);
+        $this->set('is_likes_show', $is_likes_show);
+        $this->set('is_ftlist_show', $is_ftlist_show);
+        $this->set('is_seeklist_show', $is_seeklist_show);
+        $this->set('secret_ico', secret_ico($arr));
+        $this->set('print_writer', print_writer($arr));
+        $this->set('print_imgfile', print_imgfile($arr));
+        $this->set('print_file_name', print_file_name($arr));
+        $this->set('list_btn', list_btn($req['category']));
+        $this->set('modify_btn', modify_btn($arr, $req['read'], $req['category']));
+        $this->set('reply_btn', reply_btn($arr, $req['read'], $req['category']));
+        $this->set('mode', $req['mode']);
+        $this->set('wrmode', $req['wrmode']);
+        $this->set('board_id', $board_id);
+        $this->set('category', $req['category']);
+        $this->set('read', $req['read']);
+        $this->set('page', $req['page']);
+        $this->set('where', $req['where']);
+        $this->set('keyword', $req['keyword']);
+        $this->set('thisuri', Func::thisuri());
     }
 
 }

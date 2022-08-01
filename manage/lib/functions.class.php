@@ -121,9 +121,6 @@ class ManageFunc{
         global $PARAM;
         echo '
             <input type="hidden" name="page" value="'.$PARAM['page'].'" />
-            <input type="hidden" name="mod" value="'.$PARAM['mod'].'" />
-            <input type="hidden" name="href" value="'.$PARAM['href'].'" />
-            <input type="hidden" name="p" value="'.$PARAM['p'].'" />
             <input type="hidden" name="sort" value="'.$PARAM['sort'].'" />
             <input type="hidden" name="ordtg" value="'.$PARAM['ordtg'].'" />
             <input type="hidden" name="ordsc" value="'.$PARAM['ordsc'].'" />

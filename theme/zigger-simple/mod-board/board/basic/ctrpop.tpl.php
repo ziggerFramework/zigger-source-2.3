@@ -3,6 +3,14 @@
     <a href="#" class="close"><i class="fa fa-times"></i></a>
 </div>
 <form <?php echo $this->form(); ?> class="cont">
+    <input type="hidden" name="page" value="<?php echo $req['page']; ?>" />
+    <input type="hidden" name="category" value="<?php echo $req['category']; ?>" />
+    <input type="hidden" name="where" value="<?php echo $req['where']; ?>" />
+    <input type="hidden" name="keyword" value="<?php echo $req['keyword']; ?>" />
+    <input type="hidden" name="sort" value="<?php echo $req['sort']; ?>" />
+    <input type="hidden" name="ordtg" value="<?php echo $req['ordtg']; ?>" />
+    <input type="hidden" name="ordsc" value="<?php echo $req['ordsc']; ?>" />
+    <input type="hidden" name="request" value="<?php echo $req['request']; ?>" />
     <input type="hidden" name="type" value="" />
     <input type="hidden" name="board_id" value="<?php echo $board_id; ?>" />
     <input type="hidden" name="cnum" value="<?php echo $cnum_arr; ?>" />

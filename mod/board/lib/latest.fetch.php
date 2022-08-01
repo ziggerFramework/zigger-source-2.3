@@ -194,7 +194,7 @@ class Latest_fetch extends \Controller\Make_Controller {
                     WHERE id='{$boardinfo['id']}' AND data_idx=board.idx AND likes>0
                 ) likes_cnt
                 FROM {$sql->table("mod:board_data_".$boardinfo['id'])} board
-                WHERE board.use_notice='N' AND board.rn=0 AND board.dregdate IS NULL
+                WHERE board.rn=0 AND board.dregdate IS NULL
                 ORDER BY $orderby
                 LIMIT {$FETCH_CONF['limit']}
                 ", []

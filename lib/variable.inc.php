@@ -136,6 +136,14 @@ for ($i=1; $i <= 10; $i++) {
     $MB['type'][$i] = $vars[$i - 1];
 }
 
+//회원 정보 필수값 확인
+if (IS_MEMBER && $MB['level'] > 1 && !strstr(Func::thisuri(), '/member/') && !strstr(Func::thisuri(), '/sign/') && !strstr(Func::thisuri(), '/manage/')) {
+    if ($CONF['use_mb_phone'] == 'Y' && !$MB['phone']) $field = '휴대전화번호';
+    if ($CONF['use_mb_telephone'] == 'Y' && !$MB['telephone']) $field = '전화번호';
+    if ($CONF['use_mb_address'] == 'Y' && $MB['address'] == '||') $field = '주소';
+    if (isset($field)) Func::err_location('회원정보에 필수 정보('.$field.')가 누락되어 회원관리 페이지로 이동합니다.\n정보 등록후 이용해주세요.', PH_DOMAIN.'/member/info');
+}
+
 //업데이트 초기화 확인
 Func::chk_update_config_field(
     array(
