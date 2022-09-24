@@ -506,6 +506,9 @@ class Func {
     //현재 URI 반환
     static public function thisuri()
     {
+        if (!strstr($_SERVER['QUERY_STRING'], 'rewritepage=')) {
+            return '/';
+        }
         $uri = $_SERVER['REQUEST_URI'];
         $qry = substr($_SERVER['QUERY_STRING'], strpos($_SERVER['QUERY_STRING'],'&')+1);
         $uri = str_replace('?'.$qry, '', $uri);

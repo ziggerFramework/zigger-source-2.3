@@ -46,7 +46,7 @@
 #board-list .list .tmb .link{position: absolute;top: 1px;left: 1px;width: calc(100% - 2px);height: calc(100% - 2px);z-index: 3;background-size: cover;background-position: center center;}
 #board-list .list .info{position: relative;padding: 20px 15px;z-index: 3;}
 #board-list .list .info .tit{position: relative;display: block;color: #000000;letter-spacing: -1px;}
-#board-list .list .info .tit .sbj{display: block;width: 100%;padding-right: 50px;color: #000000;font-size: 15px;font-weight: 300;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;text-align: left;box-sizing: border-box;z-index: 3;}
+#board-list .list .info .tit .sbj{display: block;width: 100%;padding-right: 50px;color: #000000;font-size: 15px;font-weight: 500;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;text-align: left;box-sizing: border-box;z-index: 3;}
 #board-list .list .info .txt{display: block;font-size: 13px;line-height: 16px;height: 50px;overflow: hidden;letter-spacing: -1px;color: #999;margin-top: 10px;}
 #board-list .list .info .chk{position: relative;z-index: 2;}
 #board-list .list .info .cmt{position: absolute;top: 8px;right: 0;font-size: 12px;font-weight: bold;margin-left: 5px;color: #e4002b;font-family: Arial,Tahoma;}
@@ -71,7 +71,7 @@
 #board-write .uploaded{display: block;margin-bottom: 10px;font-size: 12px;color: #000000;}
 
 #board-view .view-tit{border-top: 2px solid #333333;}
-#board-view .view-tit h3{position: relative;padding: 20px 20px;line-height: 22px;border-bottom: 1px solid #dddddd;font-size: 18px;font-weight: 300;color: #000000;box-shadow: 0 2px 0 rgba(0,0,0,0.05);}
+#board-view .view-tit h3{position: relative;padding: 20px 20px;line-height: 22px;border-bottom: 1px solid #dddddd;font-size: 18px;font-weight: 500;color: #000000;box-shadow: 0 2px 0 rgba(0,0,0,0.05);}
 #board-view .view-tit h3 em{position: relative;color: #666666;margin-right: 20px;font-size: 13px;font-style: normal;}
 #board-view .view-tit h3 em:after{content: '';display: block;width: 1px;height: 12px;position: absolute;top: 50%;margin-top: -6px;right: -12px;background: #dddddd;}
 #board-view .view-tit h3 img{width: 15px;height: 15px;}
@@ -113,7 +113,7 @@
 #board-seek > li{position: relative;border: 1px solid rgba(0,0,0,0.1);margin-bottom: -1px;padding: 0 200px 0 110px;line-height: 50px;}
 #board-seek > li strong{position: absolute;top: 0;left: 0;text-align: center;width: 90px;height: 100%;background: #f7f7f7;font-weight: normal;color: #000;letter-spacing: -1px;}
 #board-seek > li strong i{color: #999;margin-left: 4px;}
-#board-seek > li .sbj{text-decoration: none;word-break: break-all;font-size: 15px;letter-spacing: -1px;color: #333;font-weight: 300;display: block;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
+#board-seek > li .sbj{text-decoration: none;word-break: break-all;font-size: 15px;letter-spacing: -1px;color: #333;font-weight: 500;display: block;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
 #board-seek > li .sbj .cmt{font-size: 12px;font-weight: bold;margin-left: 10px;color: #e4002b;font-family: Arial,Tahoma;}
 #board-seek > li .writer{position: absolute;top: 0;right: 100px;}
 #board-seek > li .date{position: absolute;top: 0;right: 20px;font-size: 12px;color: #999;}
@@ -161,7 +161,7 @@
 /* layer popup */
 #ctrpop{display: none;position: fixed;top: 50%;left: 50%;z-index: 301;padding-top: 60px;margin-top: -190px;margin-left: -200px;width: 400px;height: 380px;background: #fff;border-radius: 2px;overflow: hidden;box-shadow: 0 0 20px rgba(0,0,0,0.03);box-sizing: border-box;}
 #ctrpop .tit{position: absolute;top: 0;left: auto;z-index: 302;width: 100%;line-height: 60px;padding: 0 25px;background: #fafafa;box-sizing: border-box;border-bottom: 1px solid #eee;}
-#ctrpop .tit h2{color: #000;font-size: 16px;font-weight: 300;letter-spacing: -1px;}
+#ctrpop .tit h2{color: #000;font-size: 16px;font-weight: 500;letter-spacing: -1px;}
 #ctrpop .tit .close{display: block;position: absolute;top: 0;right: 0;width: 60px;height: 60px;line-height: 60px;text-decoration: none;font-size: 16px;color: #333;text-align: center;}
 #ctrpop .cont{width: 100%;height: 100%;overflow-y: auto;padding: 15px 20px 15px 20px;box-sizing: border-box;}
 #ctrpop .cont p{display: block;text-align: center;margin-bottom: 10px;}
@@ -175,7 +175,7 @@
 
 #mbpop{display: none;position: fixed;top: 50%;left: 50%;z-index: 301;padding-top: 60px;margin-top: -190px;margin-left: -200px;width: 400px;height: 380px;background: #fff;border-radius: 2px;overflow: hidden;box-shadow: 0 0 20px rgba(0,0,0,0.03);box-sizing: border-box;}
 #mbpop .tit{position: absolute;top: 0;left: auto;z-index: 302;width: 100%;line-height: 60px;padding: 0 25px;background: #fafafa;box-sizing: border-box;border-bottom: 1px solid #eee;}
-#mbpop .tit h2{color: #000;font-size: 16px;font-weight: 300;letter-spacing: -1px;}
+#mbpop .tit h2{color: #000;font-size: 16px;font-weight: 500;letter-spacing: -1px;}
 #mbpop .tit .close{display: block;position: absolute;top: 0;right: 0;width: 60px;height: 60px;line-height: 60px;text-decoration: none;font-size: 16px;color: #333;text-align: center;}
 #mbpop .cont{height: 100%;padding: 20px 30px;overflow-y: auto;box-sizing: border-box;}
 #mbpop .mb-tbl{width: 100%;}
@@ -218,7 +218,7 @@
     #board-list table.notice td.chk{position: absolute;top: 6px;right: 0;display: block;border: none;}
     #board-list table.notice td.no{font-size: 10px;}
     #board-list table.notice td.sbj{display: block;width: auto;padding-top: 15px;border-bottom: none;padding-right: 30px;}
-    #board-list table.notice td.sbj a{display: block;font-size: 14px;line-height: 18px;font-weight: 300;color: #333;}
+    #board-list table.notice td.sbj a{display: block;font-size: 14px;line-height: 18px;font-weight: 500;color: #333;}
     #board-list table.notice td.writer{width: 70px;}
     #board-list table.notice td.sbj .cat{margin-right: 0;padding-right: 0;font-size: 11px;display: block;}
     #board-list table.notice td.sbj .cat:after{display: none;}
@@ -229,7 +229,7 @@
     #board-list table.notice td.like{display: none;}
     #board-list table.notice td.mobile-info{display: block;width: 100%;border-top: none;text-align: left;margin-bottom: -1px;padding-top: 0;padding-bottom: 15px;}
     #board-list table.notice td.mobile-info ul li{display: inline-block;vertical-align: top;margin-right: 15px;font-size: 11px;letter-spacing: -1px;color: #999;}
-    #board-list table.notice td.mobile-info ul li > strong{font-weight: 300;color: #666;margin-right: 3px;}
+    #board-list table.notice td.mobile-info ul li > strong{font-weight: 500;color: #666;margin-right: 3px;}
 
     #board-list .list > li{width: 49%;}
     #board-list .list .info{padding: 15px 10px;}

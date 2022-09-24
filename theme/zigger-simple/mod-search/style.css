@@ -11,7 +11,7 @@
 .sch-box{position: relative;margin-bottom: 50px;}
 
 .sch-tit{position: relative;padding-bottom: 20px;}
-.sch-tit h3{font-size: 18px;color: #333;font-weight: 300;letter-spacing: -1px;}
+.sch-tit h3{font-size: 18px;color: #333;font-weight: 500;letter-spacing: -1px;}
 .sch-tit .more{position: absolute;top: 10px;right: 0;font-size: 13px;color: #999;letter-spacing: -1px;}
 .sch-tit .more i{font-size: 12px;display: inline-block;vertical-align: middle;margin-left: 5px;}
 

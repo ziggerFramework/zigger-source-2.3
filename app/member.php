@@ -421,11 +421,10 @@ class Info_submit {
             $sql->query(
                 "
                 UPDATE {$sql->table("member")}
-                SET mb_pwd=password(:col1),mb_name=:col2,mb_gender=:col3,mb_phone=:col4,mb_address=:col5,mb_telephone=:col6,mb_email_chg=:col7,mb_profileimg=:col8,
-                WHERE mb_idx=:col9 AND mb_dregdate IS NULL
+                SET mb_pwd={$sql->set_password($req['pwd'])},mb_name=:col1,mb_gender=:col2,mb_phone=:col3,mb_address=:col4,mb_telephone=:col5,mb_email_chg=:col6,mb_profileimg=:col7
+                WHERE mb_idx=:col8 AND mb_dregdate IS NULL
                 ",
                 array(
-                    $req['pwd'],
                     $req['name'],
                     $req['gender'],
                     $mb_phone,
@@ -441,11 +440,10 @@ class Info_submit {
             $sql->query(
                 "
                 UPDATE {$sql->table("member")}
-                SET mb_pwd=:col1,mb_name=:col2,mb_gender=:col3,mb_phone=:col4,mb_address=:col5,mb_telephone=:col6,mb_email_chg=:col7,mb_profileimg=:col8
-                WHERE mb_idx=:col9 AND mb_dregdate IS NULL
+                SET mb_pwd={$sql->set_password($MB['pwd'])},mb_name=:col1,mb_gender=:col2,mb_phone=:col3,mb_address=:col4,mb_telephone=:col5,mb_email_chg=:col6,mb_profileimg=:col7
+                WHERE mb_idx=:col8 AND mb_dregdate IS NULL
                 ",
                 array(
-                    $MB['pwd'],
                     $req['name'],
                     $req['gender'],
                     $mb_phone,

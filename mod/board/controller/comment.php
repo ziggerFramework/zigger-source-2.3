@@ -107,6 +107,14 @@ class Load extends \Controller\Make_Controller {
                 return $style;
             }
         }
+
+        //댓글 내용 치환
+        function replace_comment($arr)
+        {
+            //내용에 URL이 있다면 a태그로 치환
+            $filters = "#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#";
+            return preg_replace($filters, "<a href=\"$0\" target=\"_blank\">$0</a>", $arr['comment']);
+        }
     }
 
     public function make()
@@ -187,12 +195,13 @@ class Load extends \Controller\Make_Controller {
                 do {
                     $arr = $sql->fetchs();
 
+                    $arr['comment'] = replace_comment($arr);
                     $arr['date'] = Func::date($arr['regdate']);
                     $arr['datetime'] = Func::datetime($arr['regdate']);
                     $arr[0]['reply_style'] = reply_style($arr);
-                    $arr[0]['reply_btn'] = reply_btn($arr,$view);
-                    $arr[0]['modify_btn'] = modify_btn($arr,$view);
-                    $arr[0]['delete_btn'] = delete_btn($arr,$view);
+                    $arr[0]['reply_btn'] = reply_btn($arr, $view);
+                    $arr[0]['modify_btn'] = modify_btn($arr, $view);
+                    $arr[0]['delete_btn'] = delete_btn($arr, $view);
                     $arr[0]['profileimg'] = print_profileimg($arr);
                     $arr[0]['writer'] = print_writer($arr);
 

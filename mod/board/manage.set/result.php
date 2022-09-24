@@ -1233,7 +1233,7 @@ class Board extends \Controller\Make_Controller {
             global $manage, $MB, $boardconf;
 
             if ($MB['level'] <= $boardconf['write_level']) {
-                return '<a href="write'.$manage->lnk_def_param('&id='.$boardconf['id'].'&category='.urlencode($category).'&wrmode=write').'" class="btn1">글 작성</a>';
+                return '<a href="write'.$manage->lnk_def_param('&id='.$boardconf['id'].'&category='.urlencode($category).'&wrmode=').'" class="btn1">글 작성</a>';
             }
         }
 

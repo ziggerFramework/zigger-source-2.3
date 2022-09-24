@@ -90,7 +90,7 @@
     #mo-tnb li{display: inline-block;vertical-align: top;width: 50%;box-sizing: border-box;border: 1px solid #dddddd;border-width: 0 1px 1px 0;}
     #mo-tnb li:first-child{border-left: none;}
     #mo-tnb li a{display: block;line-height: 35px;text-align: center;font-size: 13px;letter-spacing: -1px;color: #666666;background: #f7f7f7;text-decoration: none;}
-    #mo-tnb li a em{font-style: normal;margin-left: 5px;font-weight: 600;color: #000;}
+    #mo-tnb li a em{font-style: normal;margin-left: 5px;font-weight: 700;color: #000;}
 
     #mo-sch{position: relative;margin-bottom: 10px;}
     #mo-sch legend{display: none;}
@@ -102,7 +102,7 @@
 
     #mo-gnb{margin: 0 -10px;}
     #mo-gnb > li{border-bottom: 1px solid #eaeaea;}
-    #mo-gnb > li > a{position: relative;display: block;line-height: 45px;font-size: 14px;color: #000000;text-decoration: none;font-weight: 300;padding: 0 15px 0 25px;letter-spacing: -1px;}
+    #mo-gnb > li > a{position: relative;display: block;line-height: 45px;font-size: 14px;color: #000000;text-decoration: none;font-weight: 500;padding: 0 15px 0 25px;letter-spacing: -1px;}
     #mo-gnb > li > ul{display: none;background: #f7f7f7;padding: 0;}
     #mo-gnb > li > ul > li{border-top: 1px solid #ddd;}
     #mo-gnb > li > ul > li > a{position: relative;display: block;line-height: 45px;font-size: 14px;color: #333;letter-spacing: -1px;text-decoration: none;padding: 0 15px 0 25px;}

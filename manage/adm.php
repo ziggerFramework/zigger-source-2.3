@@ -215,11 +215,11 @@ class Info_submit{
             $sql->query(
                 "
                 UPDATE {$sql->table("member")}
-                SET mb_id=:col1,mb_name=:col2,mb_pwd=password(:col3),mb_email=:col4,mb_profileimg=:col5,mb_gender=:col6,mb_phone=:col7,mb_telephone=:col8,mb_address=:col9
-                WHERE mb_adm='Y' AND mb_idx=:col10
+                SET mb_id=:col1,mb_name=:col2,mb_pwd={$sql->set_password($req['pwd'])},mb_email=:col3,mb_profileimg=:col4,mb_gender=:col5,mb_phone=:col6,mb_telephone=:col7,mb_address=:col8
+                WHERE mb_adm='Y' AND mb_idx=:col9
                 ",
                 array(
-                    $req['id'], $req['name'], $req['pwd'], $req['email'], $profileimg_name, $req['gender'], $req['phone'], $req['telephone'], $req['address1'].'|'.$req['address2'].'|'.$req['address3'], $MB['idx']
+                    $req['id'], $req['name'], $req['email'], $profileimg_name, $req['gender'], $req['phone'], $req['telephone'], $req['address1'].'|'.$req['address2'].'|'.$req['address3'], $MB['idx']
                 )
             );
 

@@ -96,9 +96,20 @@ class Uploader {
     //저장 위치 검사 및 생성
     public function chkpath()
     {
-        if (!is_dir($this->path)) {
-            @mkdir($this->path, 0707);
-            @chmod($this->path, 0707);
+        $paths = explode('/', $this->path);
+
+        $path_sum = '';
+        foreach ($paths as $key => $value) {
+            if ($key > 0) {
+                $path_sum .= '/'.$value;
+            } else {
+                $path_sum = '/'.$value;
+            }
+
+            if (!is_dir($path_sum)) {
+                @mkdir($path_sum, 0707);
+                @chmod($path_sum, 0707);
+            }
         }
     }
 

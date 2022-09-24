@@ -243,6 +243,10 @@ ajaxFileSubmit = {
 		var ajaxAction = $form.attr('ajax-action');
 
 		ajaxFileSubmit_val = true;
+
+        if ($form.attr('action')) {
+            return false;
+        }
 		$form.attr('action', ajaxAction);
 		$form.ajaxForm({
 			'cache' : false,
@@ -254,6 +258,7 @@ ajaxFileSubmit = {
 			'success' : function(data) {
 				returnAjaxSubmit($form,data);
 				$form.find('button,:button').attr('disabled', false);
+                ajaxFileSubmit_val = false;
 			}
 		});
 		$form.submit();

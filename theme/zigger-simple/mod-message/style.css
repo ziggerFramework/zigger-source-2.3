@@ -2,7 +2,7 @@
 
 #message-send{display: none;position: fixed;top: 50%;left: 50%;z-index: 301;padding-top: 60px;margin-top: -300px;margin-left: -350px;width: 700px;height: 600px;background: #fff;overflow: hidden;box-shadow: 0 0 20px rgba(0,0,0,0.03);box-sizing: border-box;}
 #message-send .tit{position: absolute;top: 0;left: auto;z-index: 302;width: 100%;line-height: 60px;padding: 0 25px;background: #fafafa;box-sizing: border-box;border-bottom: 1px solid #eee;}
-#message-send .tit h2{color: #000;font-size: 16px;font-weight: 300;letter-spacing: -1px;}
+#message-send .tit h2{color: #000;font-size: 16px;font-weight: 500;letter-spacing: -1px;}
 #message-send .tit .close{display: block;position: absolute;top: 0;right: 0;width: 60px;height: 60px;line-height: 60px;text-decoration: none;font-size: 16px;color: #333;text-align: center;}
 #message-send .cont{height: 100%;padding: 30px;overflow-y: auto;box-sizing: border-box;}
 #message-send .table_wrt tbody tr:first-child > *{border-top: none;}
@@ -14,7 +14,7 @@
 .msg-history{margin-top: 40px;}
 .msg-history li{padding: 25px;margin: 0 0 -1px 0;border: 1px solid #eee;background: #fafafa;}
 .msg-history li p{font-size: 14px;}
-.msg-history li .name{display: block;margin-bottom: 10px;font-size: 14px;color: #333;font-weight: 300;}
+.msg-history li .name{display: block;margin-bottom: 10px;font-size: 14px;color: #333;font-weight: 500;}
 .msg-history li .date{display: block;margin-top: 10px;font-size: 13px;color: #999;}
 
 /* for mobile */

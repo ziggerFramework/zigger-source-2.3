@@ -86,9 +86,7 @@
                         <td class="tac"><?php echo $list[0]['writer']; ?></td>
                         <td class="tac"><?php echo $list['regdate']; ?></td>
                         <td class="tac"><?php echo $list['view']; ?></td>
-                        <?php if ($is_likes_show) { ?>
                         <td class="tac"><strong><?php echo $list['likes_cnt']; ?></strong>/<?php echo $list['unlikes_cnt']; ?></td>
-                        <?php } ?>
                     </tr>
                 <?php } ?>
             </tbody>
@@ -121,9 +119,7 @@
                     <td class="tac"><?php echo $list[0]['writer']; ?></td>
                     <td class="tac"><?php echo $list['regdate']; ?></td>
                     <td class="tac"><?php echo $list['view']; ?></td>
-                    <?php if ($is_likes_show) { ?>
                     <td class="tac"><strong><?php echo $list['likes_cnt']; ?></strong>/<?php echo $list['unlikes_cnt']; ?></td>
-                    <?php } ?>
                 </tr>
                 <?php } ?>
             </tbody>

@@ -62,6 +62,13 @@ class Pdosql {
         return $this->fetch('booleans');
     }
 
+    //문자열 password 처리
+    public function set_password($str)
+    {
+        $str = "CONCAT('*', UPPER(SHA1(UNHEX(SHA1('$str')))))";
+        return $str;
+    }
+
     //테이블 명칭 조합 후 반환
     public function table($tblName)
     {

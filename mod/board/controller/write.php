@@ -504,7 +504,7 @@ class Write_submit{
                 $wr_opt['secret'] = 'N';
             }
 
-        } else if(!$req['wrmode']) {
+        } else if(!$req['wrmode'] || $req['wrmode'] == 'write') {
             $wr_opt['secret'] = 'N';
 
         } else {
@@ -529,7 +529,7 @@ class Write_submit{
 
         //check
         if ($MB['level'] > Write::$boardconf['write_level'] && $MB['level'] > Write::$boardconf['ctr_level']) {
-            $this->error('','글 작성 권한이 없습니다.');
+            Valid::error('','글 작성 권한이 없습니다.');
         }
 
         Valid::get(
@@ -662,10 +662,10 @@ class Write_submit{
         if (!$req['wrmode'] || $req['wrmode'] == 'reply') {
             if (Write::$boardconf['write_point'] < 0) {
                 if (!IS_MEMBER) {
-                    $this->error('', '포인트 설정으로 인해 비회원은 글을 작성할 수 없습니다.');
+                    Valid::error('', '포인트 설정으로 인해 비회원은 글을 작성할 수 없습니다.');
                 }
                 if ($MB['point'] < (0 - Write::$boardconf['write_point'])) {
-                    $this->error('', '포인트가 부족하여 글을 작성할 수 없습니다.');
+                    Valid::error('', '포인트가 부족하여 글을 작성할 수 없습니다.');
                 }
 
                 $point = 0 - Write::$boardconf['write_point'];
@@ -911,7 +911,7 @@ class Write_submit{
             );
 
             if ($sql->getCount() > 1) {
-                $this->error('', '답글이 있는 게시글은 공지사항 옵션을 사용할 수 없습니다.');
+                Valid::error('', '답글이 있는 게시글은 공지사항 옵션을 사용할 수 없습니다.');
             }
         }
 
