@@ -237,32 +237,32 @@ ajaxFileSubmit = {
 	'init' : function($form) {
 		this.action($form);
 	},
-	'action' : function($form) {
+    'action' : function($form) {
         ckeEditor_action();
 
-		var ajaxAction = $form.attr('ajax-action');
+        var ajaxAction = $form.attr('ajax-action');
 
-		ajaxFileSubmit_val = true;
+        ajaxFileSubmit_val = true;
 
         if ($form.attr('action')) {
             return false;
         }
-		$form.attr('action', ajaxAction);
-		$form.ajaxForm({
-			'cache' : false,
-			'type' : 'POST',
-			'dataType' : 'HTML',
-			'beforeSend' : function() {
-				$form.find('button,:button').attr('disabled', true);
-			},
-			'success' : function(data) {
-				returnAjaxSubmit($form,data);
-				$form.find('button,:button').attr('disabled', false);
+        $form.attr('action', ajaxAction);
+        $form.ajaxForm({
+            'cache' : false,
+            'type' : 'POST',
+            'dataType' : 'HTML',
+            'beforeSend' : function() {
+                $form.find('button,:button').attr('disabled', true);
+            },
+            'success' : function(data) {
+                returnAjaxSubmit($form,data);
+                $form.find('button,:button').attr('disabled', false);
                 ajaxFileSubmit_val = false;
-			}
-		});
-		$form.submit();
-	}
+            }
+        });
+        $form.submit();
+    }
 }
 
 ///

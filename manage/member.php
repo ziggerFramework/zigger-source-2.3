@@ -302,10 +302,10 @@ class Regist_submit {
             INSERT INTO {$sql->table("member")}
             (mb_id,mb_email,mb_pwd,mb_name,mb_level,mb_gender,mb_phone,mb_telephone,mb_address,mb_email_chk,mb_regdate,mb_1,mb_2,mb_3,mb_4,mb_5,mb_6,mb_7,mb_8,mb_9,mb_10,mb_exp)
             VALUES
-            (:col1,:col2,password(:col3),:col4,:col5,:col6,:col7,:col8,:col9,:col10,now(),:col11,:col12,:col13,:col14,:col15,:col16,:col17,:col18,:col19,:col20,:col21)
+            (:col1,:col2,{$sql->set_password($req['pwd'])},:col3,:col4,:col5,:col6,:col7,:col8,:col9,now(),:col10,:col11,:col12,:col13,:col14,:col15,:col16,:col17,:col18,:col19,:col20)
             ",
             array(
-                $req['id'], $req['email'], $req['pwd'], $req['name'], $req['level'], $req['gender'], $req['phone'], $req['telephone'], $req['address1'].'|'.$req['address2'].'|'.$req['address3'], $mbchk_var, $req['mb_1'], $req['mb_2'], $req['mb_3'], $req['mb_4'], $req['mb_5'], $req['mb_6'], $req['mb_7'], $req['mb_8'], $req['mb_9'], $req['mb_10'], $mb_exp
+                $req['id'], $req['email'], $req['name'], $req['level'], $req['gender'], $req['phone'], $req['telephone'], $req['address1'].'|'.$req['address2'].'|'.$req['address3'], $mbchk_var, $req['mb_1'], $req['mb_2'], $req['mb_3'], $req['mb_4'], $req['mb_5'], $req['mb_6'], $req['mb_7'], $req['mb_8'], $req['mb_9'], $req['mb_10'], $mb_exp
             )
         );
 
@@ -313,10 +313,10 @@ class Regist_submit {
             "
             SELECT mb_idx
             FROM {$sql->table("member")}
-            WHERE mb_id=:col1 AND mb_pwd=password(:col2) AND mb_dregdate IS NULL
+            WHERE mb_id=:col1 AND mb_pwd={$sql->set_password($req['pwd'])} AND mb_dregdate IS NULL
             ",
             array(
-                $req['id'], $req['pwd']
+                $req['id']
             )
         );
         $mb_idx = $sql->fetch('mb_idx');
@@ -677,11 +677,11 @@ class Modify_submit {
             $sql->query(
                 "
                 UPDATE {$sql->table("member")}
-                SET mb_pwd=password(:col1),mb_name=:col2,mb_gender=:col3,mb_phone=:col4,mb_telephone=:col5,mb_address=:col6,mb_point=:col7,mb_profileimg=:col8,mb_level=:col9,mb_email=:col10,mb_email_chk=:col11,mb_1=:col12,mb_2=:col13,mb_3=:col14,mb_4=:col15,mb_5=:col16,mb_6=:col17,mb_7=:col18,mb_8=:col19,mb_9=:col20,mb_10=:col21,mb_exp=:col22
-                WHERE mb_adm!='Y' AND mb_dregdate IS NULL AND mb_idx=:col23
+                SET mb_pwd={$sql->set_password($req['pwd'])},mb_name=:col1,mb_gender=:col2,mb_phone=:col3,mb_telephone=:col4,mb_address=:col5,mb_point=:col6,mb_profileimg=:col7,mb_level=:col8,mb_email=:col9,mb_email_chk=:col10,mb_1=:col11,mb_2=:col12,mb_3=:col13,mb_4=:col14,mb_5=:col15,mb_6=:col16,mb_7=:col17,mb_8=:col18,mb_9=:col19,mb_10=:col20,mb_exp=:col21
+                WHERE mb_adm!='Y' AND mb_dregdate IS NULL AND mb_idx=:col22
                 ",
                 array(
-                    $req['pwd'], $req['name'], $req['gender'], $req['phone'], $req['telephone'], $req['address1'].'|'.$req['address2'].'|'.$req['address3'], $req['point'], $profileimg_name, $req['level'], $req['email'], $req['email_chk'], $req['mb_1'], $req['mb_2'], $req['mb_3'], $req['mb_4'], $req['mb_5'], $req['mb_6'], $req['mb_7'], $req['mb_8'], $req['mb_9'], $req['mb_10'], $mb_exp, $req['idx']
+                    $req['name'], $req['gender'], $req['phone'], $req['telephone'], $req['address1'].'|'.$req['address2'].'|'.$req['address3'], $req['point'], $profileimg_name, $req['level'], $req['email'], $req['email_chk'], $req['mb_1'], $req['mb_2'], $req['mb_3'], $req['mb_4'], $req['mb_5'], $req['mb_6'], $req['mb_7'], $req['mb_8'], $req['mb_9'], $req['mb_10'], $mb_exp, $req['idx']
                 )
             );
 

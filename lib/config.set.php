@@ -3,8 +3,8 @@ header('Content-Type: text/html; charset=UTF-8');
 header('P3P: CP="ALL CURa ADMa DEVa TAIa OUR BUS IND PHY ONL UNI PUR FIN COM NAV INT DEM CNT STA POL HEA PRE LOC OTC"');
 header('Expires: 0');
 header('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT');
-header('Cache-Control: no-store, no-cache, must-revalidate'); // HTTP/1.1
-header('Cache-Control: pre-check=0, post-check=0, max-age=0'); // HTTP/1.1
+header('Cache-Control: no-store, no-cache, must-revalidate'); // HTTP 1.1
+header('Cache-Control: pre-check=0, post-check=0, max-age=0'); // HTTP 1.1
 header('Pragma: no-cache'); // HTTP 1.0
 
 //////////////////////////////

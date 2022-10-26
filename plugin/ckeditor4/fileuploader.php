@@ -71,6 +71,9 @@ if ($fileinfo['storage'] == 'Y') {
 
 } else {
     $return_src = PH_DOMAIN.'/data/'.PH_PLUGIN_CKEDITOR.'/thumb/'.$fileinfo['repfile'];
+    if (Func::get_filetype($fileinfo['repfile']) == 'gif') {
+        $return_src = PH_DOMAIN.'/data/'.PH_PLUGIN_CKEDITOR.'/'.$fileinfo['repfile'];
+    }
 }
 
 echo '

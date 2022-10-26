@@ -30,6 +30,8 @@ class Index extends \Controller\Make_Controller {
         $Message_Library = new Message_Library();
         $Alarm_Library = new Alarm_Library();
 
+        Func::getlogin(SET_NOAUTH_MSG);
+
         $this->set('message_new_count', Func::number($Message_Library->get_new_count()));
         $this->set('alarm_new_count', Func::number($Alarm_Library->get_new_count()));
         $this->set('point_total_count', Func::number($MB['point']));
@@ -440,10 +442,11 @@ class Info_submit {
             $sql->query(
                 "
                 UPDATE {$sql->table("member")}
-                SET mb_pwd={$sql->set_password($MB['pwd'])},mb_name=:col1,mb_gender=:col2,mb_phone=:col3,mb_address=:col4,mb_telephone=:col5,mb_email_chg=:col6,mb_profileimg=:col7
-                WHERE mb_idx=:col8 AND mb_dregdate IS NULL
+                SET mb_pwd=:col1,mb_name=:col2,mb_gender=:col3,mb_phone=:col4,mb_address=:col5,mb_telephone=:col6,mb_email_chg=:col7,mb_profileimg=:col8
+                WHERE mb_idx=:col9 AND mb_dregdate IS NULL
                 ",
                 array(
+                    $MB['pwd'],
                     $req['name'],
                     $req['gender'],
                     $mb_phone,

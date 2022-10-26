@@ -40,6 +40,12 @@ if (!file_exists('../data/dbconn.temp.php')) {
         Func::err_location('Database 접속에 실패했습니다.', './index.php');
     }
 
+    $stmt = $pdo->query("SELECT COUNT(*) AS has_table FROM Information_schema.tables WHERE table_schema='{$req['name']}' AND table_name='{$req['pfx']}member';");
+    $stmt->execute();
+    if ($stmt->fetch()['has_table'] != 0) {
+        Func::err_location('이미 Database Table이 생성되었습니다. Table삭제 후 재설치 바랍니다.', './index.php');
+    }
+
     include_once './scheme/core.'.$req['engine'].'.sql';
     include_once './scheme/modules.'.$req['engine'].'.sql';
 

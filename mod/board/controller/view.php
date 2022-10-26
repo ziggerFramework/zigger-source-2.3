@@ -123,6 +123,9 @@ class View extends \Controller\Make_Controller {
                 if (Func::chkintd('match', $filetype,SET_IMGTYPE)) {
                     if ($fileinfo['storage'] == 'N') {
                         $files[$i] = '<img src=\''.PH_DOMAIN.MOD_BOARD_DATA_DIR.'/'.View::$boardconf['id'].'/thumb/'.$fileinfo['repfile'].'\' alt=\'첨부된 이미지파일\' />';
+                        if (Func::get_filetype($fileinfo['repfile']) == 'gif') {
+                            $files[$i] = '<img src=\''.PH_DOMAIN.MOD_BOARD_DATA_DIR.'/'.View::$boardconf['id'].'/'.$fileinfo['repfile'].'\' alt=\'첨부된 이미지파일\' />';
+                        }
                     } else {
                         $files[$i] = '<img src=\''.$fileinfo['replink'].'\' alt=\'첨부된 이미지파일\' />';
                     }
@@ -474,7 +477,11 @@ class View extends \Controller\Make_Controller {
             switch ($arr['use_secret']) {
 
                 case 'N' :
-                    Func::getlogin(SET_NOAUTH_MSG);
+                    if (!IS_MEMBER) {
+                        Func::getlogin(SET_NOAUTH_MSG);
+                    } else {
+                        Func::err_back('접근 권한이 없습니다.');
+                    }
                     break;
 
                 case 'Y' :

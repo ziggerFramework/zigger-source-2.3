@@ -259,7 +259,7 @@
                     <th>게시판 관리 권한</th>
                     <td>
                         <select name="ctr_level" class="inp">
-                            <?php for ($i = 1; $i <= 9; $i++) { ?>
+                            <?php for ($i = 1; $i <= 10; $i++) { ?>
                                 <option value="<?php echo $i; ?>" <?php if($i == 1){ echo "selected"; }; ?>><?php echo $i; ?> (<?php echo $MB['type'][$i]; ?>)</option>
                             <?php } ?>
                         </select>
@@ -271,8 +271,8 @@
                     <th>리스트 접근 권한</th>
                     <td>
                         <select name="list_level" class="inp">
-                            <?php for ($i = 1; $i <= 9; $i++){ ?>
-                            <option value="<?php echo $i; ?>" <?php if($i == 9){ echo "selected"; }; ?>><?php echo $i; ?> (<?php echo $MB['type'][$i]; ?>)</option>
+                            <?php for ($i = 1; $i <= 10; $i++){ ?>
+                            <option value="<?php echo $i; ?>" <?php if($i == 10){ echo "selected"; }; ?>><?php echo $i; ?> (<?php echo $MB['type'][$i]; ?>)</option>
                             <?php } ?>
                         </select>
                         이상
@@ -282,8 +282,8 @@
                     <th>조회 권한</th>
                     <td>
                         <select name="read_level" class="inp">
-                            <?php for ($i = 1; $i <= 9; $i++){ ?>
-                                <option value="<?php echo $i; ?>" <?php if($i == 9){ echo "selected"; }; ?>><?php echo $i; ?> (<?php echo $MB['type'][$i]; ?>)</option>
+                            <?php for ($i = 1; $i <= 10; $i++){ ?>
+                                <option value="<?php echo $i; ?>" <?php if($i == 10){ echo "selected"; }; ?>><?php echo $i; ?> (<?php echo $MB['type'][$i]; ?>)</option>
                             <?php } ?>
                         </select>
                         이상
@@ -293,8 +293,8 @@
                     <th>글작성 권한</th>
                     <td>
                         <select name="write_level" class="inp">
-                            <?php for ($i = 1; $i <= 9; $i++){ ?>
-                            <option value="<?php echo $i; ?>" <?php if($i == 9){ echo "selected"; }; ?>><?php echo $i; ?> (<?php echo $MB['type'][$i]; ?>)</option>
+                            <?php for ($i = 1; $i <= 10; $i++){ ?>
+                            <option value="<?php echo $i; ?>" <?php if($i == 10){ echo "selected"; }; ?>><?php echo $i; ?> (<?php echo $MB['type'][$i]; ?>)</option>
                             <?php } ?>
                         </select>
                         이상
@@ -304,8 +304,8 @@
                     <th>비밀글 조회 권한</th>
                     <td>
                         <select name="secret_level" class="inp">
-                            <?php for ($i = 1; $i <= 9; $i++){ ?>
-                            <option value="<?php echo $i; ?>" <?php if($i == 9){ echo "selected"; }; ?>><?php echo $i; ?> (<?php echo $MB['type'][$i]; ?>)</option>
+                            <?php for ($i = 1; $i <= 1; $i++){ ?>
+                            <option value="<?php echo $i; ?>" <?php if($i == 1){ echo "selected"; }; ?>><?php echo $i; ?> (<?php echo $MB['type'][$i]; ?>)</option>
                             <?php } ?>
                         </select>
                         이상
@@ -315,8 +315,8 @@
                     <th>코멘트 작성 권한</th>
                     <td>
                         <select name="comment_level" class="inp">
-                            <?php for ($i = 1; $i <= 9; $i++){ ?>
-                            <option value="<?php echo $i; ?>" <?php if($i == 9){ echo "selected"; }; ?>><?php echo $i; ?> (<?php echo $MB['type'][$i]; ?>)</option>
+                            <?php for ($i = 1; $i <= 10; $i++){ ?>
+                            <option value="<?php echo $i; ?>" <?php if($i == 10){ echo "selected"; }; ?>><?php echo $i; ?> (<?php echo $MB['type'][$i]; ?>)</option>
                             <?php } ?>
                         </select>
                         이상
@@ -326,8 +326,8 @@
                     <th>답글 작성 권한</th>
                     <td>
                         <select name="reply_level" class="inp">
-                            <?php for ($i = 1; $i <= 9; $i++){ ?>
-                            <option value="<?php echo $i; ?>" <?php if($i == 9){ echo "selected"; }; ?>><?php echo $i; ?> (<?php echo $MB['type'][$i]; ?>)</option>
+                            <?php for ($i = 1; $i <= 10; $i++){ ?>
+                            <option value="<?php echo $i; ?>" <?php if($i == 10){ echo "selected"; }; ?>><?php echo $i; ?> (<?php echo $MB['type'][$i]; ?>)</option>
                             <?php } ?>
                         </select>
                         이상
@@ -337,8 +337,8 @@
                     <th>글삭제 권한</th>
                     <td>
                         <select name="delete_level" class="inp">
-                            <?php for ($i = 1; $i <= 9; $i++){ ?>
-                            <option value="<?php echo $i; ?>" <?php if($i == 9){ echo "selected"; }; ?>><?php echo $i; ?> (<?php echo $MB['type'][$i]; ?>)</option>
+                            <?php for ($i = 1; $i <= 10; $i++){ ?>
+                            <option value="<?php echo $i; ?>" <?php if($i == 10){ echo "selected"; }; ?>><?php echo $i; ?> (<?php echo $MB['type'][$i]; ?>)</option>
                             <?php } ?>
                         </select>
                         이상
