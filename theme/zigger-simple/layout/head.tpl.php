@@ -13,7 +13,7 @@
                     <legend>통합검색</legend>
                     <input type="text" name="keyword" id="keyword" class="inp" />
                     <label for="keyword" class="sound_only_ele">검색어 <strong>필수 입력</strong></label>
-                    <button type="submit" class="sbm"><i class="fas fa-search"></i></button>
+                    <button type="submit" class="sbm">검색</button>
                 </fieldset>
             </form>
         </div>
@@ -90,7 +90,7 @@
                 <fieldset>
                     <legend>통합검색</legend>
                     <input type="text" name="keyword" class="inp" />
-                    <button type="submit" class="sbm"><i class="fas fa-search"></i></button>
+                    <button type="submit" class="sbm">검색</button>
                 </fieldset>
             </form>
         </div>
@@ -100,6 +100,7 @@
             <li>
                 <a href="<?php echo $gnb['href']; ?>" data-category-key="<?php echo $gnb['idx']; ?>"><?php echo $gnb['title']; ?></a>
                 <?php if(count($gnb['2d'])>0){ ?>
+                <div class="sound_only_ele">하위 메뉴</div>
                 <ul>
                     <?php foreach($gnb['2d'] as $gnb2){ ?>
                     <li>

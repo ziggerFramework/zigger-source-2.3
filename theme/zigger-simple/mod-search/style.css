@@ -6,7 +6,8 @@
 .sch-form fieldset:after{display: block;content: '';clear: both;}
 .sch-form fieldset > *{float: left;}
 .sch-form fieldset .inp{width: calc(100% - 45px);height: 45px;padding: 0 20px;font-size: 16px;letter-spacing: -1px;border: none;border-right: none;background: transparent;font-weight: normal;color: #999;}
-.sch-form fieldset .sbm{width: 45px;height: 45px;background: #fff;border: none;font-size: 16px;color: #999;background: transparent;}
+.sch-form fieldset .sbm{position: relative;width: 45px;height: 45px;background: #fff;border: none;font-size: 16px;color: #999;background: transparent;text-indent: -999em;}
+.sch-form fieldset .sbm:after{content: '\f002';display: block;position: absolute;top: 0;left: 0;width: 100%;line-height: 45px;text-align: center;font-weight: bold;font-family: 'Font Awesome 5 Free';text-indent: 0;}
 
 .sch-box{position: relative;margin-bottom: 50px;}
 
@@ -32,6 +33,7 @@
     .sch-form{width: 100%;margin: 20px auto 40px auto;}
     .sch-form fieldset .inp{width: calc(100% - 40px);height: 40px;padding: 0 10px;font-size: 14px;}
     .sch-form fieldset .sbm{width: 40px;height: 40px;font-size: 14px;}
+    .sch-form fieldset .sbm:after{line-height: 40px;}
 
     .sch-box{margin-bottom: 20px;}
 

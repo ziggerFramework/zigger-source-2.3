@@ -98,7 +98,8 @@
     #mo-sch fieldset:after{display: block;content: '';clear: both;}
     #mo-sch fieldset > *{float: left;}
     #mo-sch fieldset .inp{border: none;width: calc(100% - 35px);height: 35px;padding-left: 15px;background: transparent;}
-    #mo-sch fieldset .sbm{width: 35px;height: 35px;border: none;color: #999;font-size: 13px;background: transparent;}
+    #mo-sch fieldset .sbm{position: relative;width: 35px;height: 35px;border: none;color: #999;font-size: 13px;background: transparent;text-indent: -999em;}
+    #mo-sch fieldset .sbm:after{content: '\f002';display: block;position: absolute;top: 0;left: 0;width: 100%;line-height: 35px;text-align: center;font-weight: bold;font-family: 'Font Awesome 5 Free';text-indent: 0;}
 
     #mo-gnb{margin: 0 -10px;}
     #mo-gnb > li{border-bottom: 1px solid #eaeaea;}

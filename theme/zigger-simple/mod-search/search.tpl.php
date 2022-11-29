@@ -6,7 +6,7 @@
     <legend>통합검색</legend>
     <fieldset>
         <input type="text" name="keyword" class="inp" value="<?php echo $keyword; ?>" />
-        <button type="submit" class="sbm"><i class="fas fa-search"></i></button>
+        <button type="submit" class="sbm">검색</button>
     </fieldset>
 </form>
 

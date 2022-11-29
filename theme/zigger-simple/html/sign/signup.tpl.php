@@ -46,10 +46,10 @@
             </span>
 
             <label for="pwd2">Password 확인 <p class="sound_only_ele"><strong>필수 입력</strong></p></label>
-            <input type="password" name="pwd2" id="pwd2" title="Password 확인" class="inp" requied />
+            <input type="password" name="pwd2" id="pwd2" title="Password 확인" class="inp" required />
 
             <label for="name">사용자 이름</label>
-            <input type="text" name="name" id="name" title="사용자 이름" class="inp" requied />
+            <input type="text" name="name" id="name" title="사용자 이름" class="inp" required />
 
             <?php if ($siteconf['use_mb_gender'] != 'N') { ?>
             <div class="labelWrap">
