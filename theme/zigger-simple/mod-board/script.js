@@ -48,6 +48,9 @@ $(function() {
             'success' : function(data) {
                 $ctrpop.html(data).fadeIn(100);
                 $ctrpopBG.fadeIn(100);
+
+                //접근성 위해 layer로 focus 이동.
+                $mbpop.find('.close').focus();
             }
         });
     });
@@ -55,6 +58,10 @@ $(function() {
     //close
     $(document).on('click', '#ctrpop .close', function(e) {
         e.preventDefault();
+
+        //접근성 위해 layer띄운 요소로 focus 이동.
+        $('*[data-tab-index='+NOW_TABINDEX+']').focus();
+        
         $ctrpop.fadeOut(100);
         $ctrpopBG.fadeOut(100);
     });
@@ -120,6 +127,9 @@ $(function() {
             'success' : function(data) {
                 $mbpop.html(data).fadeIn(100);
                 $mbpopBG.fadeIn(100);
+
+                //접근성 위해 layer로 focus 이동.
+                $mbpop.find('.close').focus();
             }
         });
     });
@@ -127,6 +137,10 @@ $(function() {
     //close
     $(document).on('click', '#mbpop .close', function(e) {
         e.preventDefault();
+
+        //접근성 위해 layer띄운 요소로 focus 이동.
+        $('*[data-tab-index='+NOW_TABINDEX+']').focus();
+
         $mbpop.fadeOut(100);
         $mbpopBG.fadeOut(100);
     });

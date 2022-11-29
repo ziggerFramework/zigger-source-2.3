@@ -9,6 +9,7 @@
 	</div>
 
 	<table class="table listtbl">
+        <caption>포인트 내역</caption>
 		<colgroup>
 			<col style="width: 70px;" />
 			<col style="width: 70px;" />
@@ -18,11 +19,11 @@
 		</colgroup>
 		<thead>
 			<tr>
-				<th>No.</th>
-				<th>적립</th>
-				<th>차감</th>
-				<th class="tal">포인트 변동 사유</th>
-				<th>변동일</th>
+				<th scope="col">No.</th>
+				<th scope="col">적립</th>
+				<th scope="col">차감</th>
+				<th scope="col" class="tal">포인트 변동 사유</th>
+				<th scope="col">변동일</th>
 			</tr>
 		</thead>
 		<tbody>

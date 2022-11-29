@@ -192,7 +192,8 @@ class Uploader {
                 'credentials' => array(
                     'key' => $CONF['s3_key3'],
                     'secret'  => $CONF['s3_key4'],
-                )
+                ),
+                'use_path_style_endpoint' => ($CONF['s3_path_style'] == 'Y') ? true : false
             )
         );
 

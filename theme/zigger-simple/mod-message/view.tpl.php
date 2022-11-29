@@ -5,31 +5,32 @@
 <?php $this->message_tab(); ?>
 
 <table class="table_wrt">
+    <caption>메시지 보기</caption>
     <colgroup>
         <col style="width: 150px;" />
         <col style="width: auto;" />
     </colgroup>
     <tbody>
         <tr>
-            <th>보낸 회원</th>
+            <th scope="row">보낸 회원</th>
             <td>
                 <strong><?php echo $view['f_mb_name'] ?></strong> (<?php echo $view['f_mb_id'] ?>)
             </td>
         </tr>
         <tr>
-            <th>받는 회원</th>
+            <th scope="row">받는 회원</th>
             <td>
                 <strong><?php echo $view['t_mb_name'] ?></strong> (<?php echo $view['t_mb_id'] ?>)
             </td>
         </tr>
         <tr>
-            <th>발송</th>
+            <th scope="row">발송</th>
             <td>
                 <?php echo $view['regdate'] ?>
             </td>
         </tr>
         <tr>
-            <th>읽음</th>
+            <th scope="row">읽음</th>
             <td>
                 <?php
                 if (!$view['chked']) {
@@ -41,7 +42,7 @@
             </td>
         </tr>
         <tr>
-            <th>내용</th>
+            <th scope="row">내용</th>
             <td>
                 <?php echo $view['article'] ?>
 

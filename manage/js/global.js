@@ -77,6 +77,24 @@ function label_active() {
         }
     });
 }
+function label_custom() {
+    $('input[type=radio], input[type=checkbox]').each(function(i) {
+        var $this = $(this);
+        var $label = $this.parent('label');
+        var label_for = $(this).attr('name') + '_' + Math.floor(Math.random() * 9999) + '_' + i;
+
+        if ($label.length && !$label.hasClass('added_labelCustom') && !$label.hasClass('__label')) {
+            var $this_clone = $this.clone().attr('id', label_for);
+            $this.remove();
+            $label.addClass('added_labelCustom').attr('for', label_for).before($this_clone);
+        }
+    });
+}
+$(function() {
+    label_custom();
+})
+setInterval(label_custom, 100);
+
 $(window).on({
     'load' : label_active
 });
@@ -427,7 +445,7 @@ $(function(){
         get_sms_timer = setTimeout(get_sms_printbyte, 100);
     }
 
-    //수신 범위 지장
+    //수신 범위 지정
     $('#smsSendForm input[name=type]').on({
         'click' : function(e){
             var type = $(this).val();

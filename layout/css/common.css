@@ -30,12 +30,13 @@ h1,h2,h3,h4,h5,h6{margin: 0;padding: 0;text-align: left;}
 ul{font-family: empty;font-size: 0;}
 li{display: block;}
 table{border-collapse: collapse; border-spacing: 0;}
+table caption{display: none;}
 ::-moz-selection {background-color: rgba(0,0,0,0.4);color: #ffffff;}
 ::selection {background-color: rgba(0,0,0,0.4);color: #ffffff;}
-::-webkit-input-placeholder{color: #98908b;}
-:-moz-placeholder{color: #98908b;}
-::-moz-placeholder{color: #98908b;}
-:-ms-input-placeholder{color: #98908b;}
+::-webkit-input-placeholder{color: rgba(0,0,0,0.4);}
+:-moz-placeholder{color: rgba(0,0,0,0.4);}
+::-moz-placeholder{color: rgba(0,0,0,0.4);}
+:-ms-input-placeholder{color: rgba(0,0,0,0.4);}
 a:link{text-decoration:none; color:#666666;}
 a:visited {text-decoration:none; color:#666666;}
 a:active {text-decoration:none; color:#666666;}
@@ -43,7 +44,7 @@ a:hover{text-decoration:underline; color:#000000;}
 
 /* Reset Webkit Browsers */
 *{ -webkit-text-size-adjust:none;-webkit-border-radius:0;-webkit-overflow-scrolling: touch; }
-button,input[type=button],input[type=submit],input[type=image]{-webkit-appearance: none;outline: none;}
+button,input[type=button],input[type=submit],input[type=image]{-webkit-appearance: none;}
 input[type=text],input[type=password],input[type=number],textarea{-webkit-appearance: none;-webkit-border-radius: 0;outline: none;}
 
 /* Remove Styles  */

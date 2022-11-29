@@ -11,6 +11,7 @@
 </div>
 
 <table class="table listtbl">
+    <caption>보낸 메시지함</caption>
 	<colgroup>
 		<col style="width: 70px;" />
 		<col style="width: 250px;" />
@@ -20,11 +21,11 @@
 	</colgroup>
 	<thead>
 		<tr>
-			<th>No.</th>
-			<th>받는회원</th>
-			<th class="tal">내용</th>
-			<th>발송일</th>
-			<th>수신확인</th>
+			<th scope="col">No.</th>
+			<th scope="col">받는회원</th>
+			<th scope="col" class="tal">내용</th>
+			<th scope="col">발송일</th>
+			<th scope="col">수신확인</th>
 		</tr>
 	</thead>
 	<tbody>

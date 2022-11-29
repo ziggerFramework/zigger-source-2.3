@@ -278,9 +278,10 @@ CREATE TABLE IF NOT EXISTS `{$req['pfx']}visitcount` (
     `ip` varchar(255) default NULL,
     `device` varchar(255) default NULL,
     `browser` varchar(255) default NULL,
-    `regdate` datetime default NULL,
+    `regdate` varchar(10) default NULL,
     PRIMARY KEY  (`idx`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+ALTER TABLE `{$req['pfx']}visitcount` ADD UNIQUE KEY `fkey1` (`ip`,`regdate`);
 
 CREATE TABLE `{$req['pfx']}dataupload` (
     `idx` int(11) NOT NULL auto_increment,

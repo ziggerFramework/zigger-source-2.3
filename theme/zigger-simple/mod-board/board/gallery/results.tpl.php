@@ -17,6 +17,7 @@
 	<!-- category -->
 	<?php if ($is_category_show) { ?>
 	<div id="board-cat">
+        <h3>게시판 카테고리</h3>
 		<?php echo $print_category; ?>
 	</div>
 	<?php } ?>
@@ -25,23 +26,24 @@
 	<div id="board-list">
 
 		<?php if ($is_ctr_show) { ?>
-		<label><input type="checkbox" class="cnum_allchk" /> 게시글 전체 선택</label>
+		<label><input type="checkbox" class="cnum_allchk" alt="게시글 전체 선택" /> 게시글 전체 선택</label>
 		<?php } ?>
 
         <!-- 공지글 -->
 		<?php if (count($print_notice)>0) { ?>
 		<table class="notice mt15">
+            <caption>게시판 리스트</caption>
 			<colgroup>
 				<?php if ($is_ctr_show) { ?>
-				<col style="width: 50px;" />
+				<col scope="col" style="width: 50px;" />
 				<?php } ?>
-				<col style="width: 60px;" />
-				<col style="width: auto;" />
-				<col style="width: 120px;" />
-				<col style="width: 60px;" />
-				<col style="width: 50px;" />
+				<col scope="col" style="width: 60px;" />
+				<col scope="col" style="width: auto;" />
+				<col scope="col" style="width: 120px;" />
+				<col scope="col" style="width: 60px;" />
+				<col scope="col" style="width: 50px;" />
 				<?php if ($is_likes_show) { ?>
-				<col style="width: 70px;" />
+				<col scope="col" style="width: 70px;" />
 				<?php } ?>
 			</colgroup>
 
@@ -111,10 +113,12 @@
 							<input type="checkbox" name="cnum[]" value="<?php echo $list['idx']; ?>" />
 							<?php } ?>
 							<?php echo $list[0]['secret_ico']; ?>
-							<?php echo $list[0]['subject']; ?>
+							<?php echo $list[0]['subject']; ?>qjklwefhjkqwhefljkhqwjklefhjklqwhefjkqwhefjkhqwljkfe
 						</a>
-						<?php echo $list[0]['new_ico']; ?>
-						<?php echo $list[0]['hot_ico']; ?>
+                        <?php echo $list[0]['new_ico']; ?>
+                        <?php echo $list[0]['hot_ico']; ?>
+
+
 						<?php if ($is_comment_show) { ?>
 						<span class="cmt"><?php echo $list[0]['comment_cnt']; ?></span>
 						<?php } ?>

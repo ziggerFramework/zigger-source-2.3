@@ -80,6 +80,15 @@ select.inp{padding-right: 0;}
 textarea{width: 100%;height: 200px;border: 1px solid #dddddd;font-size: 13px;line-height: 22px;color: #000000;padding: 10px;background: #ffffff;border: 1px solid #cccccc;box-sizing: border-box;border-radius: 2px;}
 textarea:focus{border-color: #6963db;background: #f2f1fa;}
 
+input[type=radio]{display: none;}
+input[type=radio] + label{position: relative;padding-left: 23px;line-height: 20px;display: inline-block;vertical-align: middle;}
+input[type=radio] + label:before{content: '';display: block;border-radius: 2px;border: 1px solid #ddd;position: absolute;top: 50%;transform: translate(0, -50%);left: 0;width: 16px;height: 16px;line-height: 16px;text-align: center;font-weight: bold;font-size: 10px;}
+input[type=radio]:checked + label:before{content: '\f00c';font-family: "Font Awesome 5 Free";color: #6963db;border-color: #6963db;}
+input[type=checkbox]{display: none;}
+input[type=checkbox] + label{position: relative;padding-left: 23px;line-height: 20px;display: inline-block;vertical-align: middle;}
+input[type=checkbox] + label:before{content: '';display: block;border-radius: 2px;border: 1px solid #ddd;position: absolute;top: 50%;transform: translate(0, -50%);left: 0;width: 16px;height: 16px;line-height: 16px;text-align: center;font-weight: bold;font-size: 10px;}
+input[type=checkbox]:checked + label:before{content: '\f00c';font-family: "Font Awesome 5 Free";color: #6963db;border-color: #6963db;}
+
 /* Button */
 .btn-wrap{position: relative;margin: 40px;text-align: center;min-height: 33px;}
 .btn-wrap .left{text-align: left;}

@@ -296,6 +296,17 @@
                     </td>
                 </tr>
                 <tr>
+                    <th>Endpoint 유형</th>
+                    <td>
+                        <label class="mr10"><input type="radio" name="s3_path_style" value="N" <?php echo $s3_path_style['N']; ?> /> 가상 호스팅 방식</label>
+                        <label><input type="radio" name="s3_path_style" value="Y" <?php echo $s3_path_style['Y']; ?> /> 경로 방식</label>
+                        <span class="tbl_sment">
+                            S3 Endpoint 가 가상호스팅 방식(https://버킷명.s3.amazonaws.com/파일명)인 경우 '가상 호스팅 방식'을 선택<br />
+                            경로 방식(https://s3.us-west-2.amazonaws.com/버킷명/파일명.jpg)인 경우 '경로 방식'을 선택
+                        </span>
+                    </td>
+                </tr>
+                <tr>
                     <th>Endpoint</th>
                     <td>
                         <input type="text" name="s3_key1" class="inp w50p" title="Object Storage Endpoint" value="<?php echo $write['s3_key1']; ?>" placeholder="https://s3.ap-northeast-2.amazonaws.com" />

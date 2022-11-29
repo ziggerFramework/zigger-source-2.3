@@ -78,11 +78,11 @@ class Write extends \Controller\Make_Controller {
         {
             global $MB;
 
-            $notice_opt = '<label><input type="checkbox" name="use_notice" id="use_notice" value="checked" />공지글 작성</label>';
+            $notice_opt = '<label><input type="checkbox" name="use_notice" id="use_notice" value="checked" alt="공지글 작성" />공지글 작성</label>';
 
             if ($MB['level'] == 1 || $MB['level'] <= Write::$boardconf['ctr_level']) {
                 if (isset($arr['use_notice']) && $arr['use_notice'] == 'Y') {
-                    $notice_opt = '<label><input type="checkbox" name="use_notice" id="use_notice" value="checked" checked="checked" />공지글 작성</label>';
+                    $notice_opt = '<label><input type="checkbox" name="use_notice" id="use_notice" value="checked" checked="checked" alt="공지글 작성" />공지글 작성</label>';
 
                 } else if ((isset($arr['rn']) && $arr['rn'] > 0) || $wrmode == 'reply') {
                     $notice_opt =  '';
@@ -101,10 +101,10 @@ class Write extends \Controller\Make_Controller {
             $secret_opt = '';
 
             if (Write::$boardconf['use_secret'] == 'Y' && ( ( isset($arr['use_secret']) && $arr['use_secret']=='Y' ) || Write::$boardconf['ico_secret_def'] == 'Y') ) {
-                $secret_opt = '<label><input type="checkbox" name="use_secret" id="use_secret" value="checked" checked="checked" />비밀글 작성</label>';
+                $secret_opt = '<label><input type="checkbox" name="use_secret" id="use_secret" value="checked" checked="checked" alt="비밀글 작성" />비밀글 작성</label>';
 
             } else if (Write::$boardconf['use_secret'] == 'Y') {
-                $secret_opt = '<label><input type="checkbox" name="use_secret" id="use_secret" value="checked" />비밀글 작성</label>';
+                $secret_opt = '<label><input type="checkbox" name="use_secret" id="use_secret" value="checked" alt="비밀글 작성" />비밀글 작성</label>';
 
             } else {
                 $secret_opt = '';
@@ -118,10 +118,10 @@ class Write extends \Controller\Make_Controller {
         {
             $email_opt = '';
             if (isset($arr['use_email']) && $arr['use_email'] == 'Y') {
-                $email_opt = '<label><input type="checkbox" name="use_email" id="use_email" value="checked" checked="checked" />이메일로 답글 알림 수신</label>';
+                $email_opt = '<label><input type="checkbox" name="use_email" id="use_email" value="checked" checked="checked" alt="이메일로 답글 알림 수신" />이메일로 답글 알림 수신</label>';
 
             } else {
-                $email_opt = '<label><input type="checkbox" name="use_email" id="use_email" value="checked" />이메일로 답글 알림 수신</label>';
+                $email_opt = '<label><input type="checkbox" name="use_email" id="use_email" value="checked" alt="이메일로 답글 알림 수신" />이메일로 답글 알림 수신</label>';
             }
 
             return $email_opt;

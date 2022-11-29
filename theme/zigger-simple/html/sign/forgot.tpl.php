@@ -7,8 +7,8 @@
         </span>
 
         <fieldset class="inp-wrap">
-            <label for="email">회원 E-mail</label>
-            <input type="text" name="email" id="email" title="회원 E-mail" class="inp" />
+            <label for="email">회원 E-mail <p class="sound_only_ele"><strong>필수 입력</strong></p></label>
+            <input type="text" name="email" id="email" title="회원 E-mail" class="inp" required />
             <span class="tbltxt">
                 · 회원가입시 등록한 E-mail 입력 <br />
                 · E-mail로 회원 로그인 ID 와 임시 Password 가 발송됩니다.

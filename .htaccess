@@ -14,3 +14,11 @@ RewriteRule ^([a-zA-Z0-9/_-]+)$ index.php?rewritepage=$1&%1 [L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule .? index.php?rewritepage=error/code404% [L]
+
+# Remove if 'AllowOverride Options' is not supported by 'Apache'
+php_flag display_startup_errors On
+php_flag display_errors On
+php_flag html_errors On
+php_flag log_errors On
+php_value error_reporting -1
+php_value error_log ./data/php-error-logs.log

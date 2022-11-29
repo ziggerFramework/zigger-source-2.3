@@ -92,9 +92,8 @@ class Pdosql {
     }
 
     //Query
-    public function query($query, $param = [])
+    public function query($query, $param = [], $dspError = true)
     {
-
 
         try {
 
@@ -121,7 +120,12 @@ class Pdosql {
 
         }
         catch (\PDOException $e) {
-            Func::core_err(ERR_MSG_5.'<br />'.$e->getMessage());
+            if ($dspError === true) {
+                Func::core_err(ERR_MSG_5.'<br />'.$e->getMessage());
+
+            } else {
+                return false;
+            }
         }
     }
 

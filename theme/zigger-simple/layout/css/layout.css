@@ -2,17 +2,28 @@
 
 html{overflow-x: hidden;}
 
+/* Accessibility */
+#skip-to-article a{position: fixed;top: 0;left: 0;width: 0;height: 0;line-height: 80px;background: #333;text-align: center;z-index: 400;opacity: 0.95;display: block;text-decoration: none;text-align: center;font-size: 30px;color: #fff;letter-spacing: -1px;overflow: hidden;}
+#skip-to-article a:focus{width: 100%;height: 80px;}
+.sound_only_ele{width: 0 !important;height: 0 !important;overflow: hidden !important;border: none !important;background: none !important;text-indent: -999em !important;position: absolute !important;top: 0 !important;left: 0 !important;}
+
 /* Input */
 .inp{background: #ffffff;border: 1px solid #cccccc;color: #000000;height: 33px;line-height: 33px;vertical-align: top;padding: 0 10px;box-sizing: border-box;border-radius: 2px !important;}
 .inp.w100{width: 300px;}
 .inp.wfull{width: 100%;}
 .inp.w50{width: 150px;}
 .inp.w33{width: 170px;}
-.inp:focus{border-color: #6963db;background: #f2f1fa;}
+.inp:focus{border-color: #6963db;background-color: #f2f1fa;}
 select.inp{padding-right: 0;}
 textarea{padding: 10px;width: 100%;min-height: 200px;background: #ffffff;color: #000000;border: 1px solid #cccccc;box-sizing: border-box;border-radius: 2px !important;}
-textarea:focus{border-color: #6963db;background: #f2f1fa;}
+textarea:focus{border-color: #6963db;background-color: #f2f1fa;}
 input[readonly], select[readonly], textarea[readonly]{background: #f7f7f7;}
+
+.inp[required],
+.inp.required,
+textarea[required],
+textarea.required{background-image: url('../images/input-required-bull.png');background-repeat: no-repeat;background-position: calc(100% - 5px) 5px;}
+
 
 /* Captcha */
 #zigger-captcha a img{width: 20px;height: auto;}
@@ -73,7 +84,7 @@ input[readonly], select[readonly], textarea[readonly]{background: #f7f7f7;}
 .article-tab > li a{display: block;line-height: 45px;text-align: center;padding: 0 40px;background: #eee;font-size: 16px;letter-spacing: -1px;color: #000;border-radius: 45px;text-decoration: none;}
 .article-tab > li.on a{background: #6963db;color: #fff;}
 
-/* notice box */
+/* Notice box */
 .article-notice{display: block;border: 1px solid #0073bb;background: #f1faff;border-radius: 2px;padding: 35px 0;text-align: center;font-size: 18px;line-height: 25px;font-weight: 500;letter-spacing: -1px;color: #333333;margin-bottom: 20px;}
 .article-notice i{font-size: 30px;color: #0073bb;display: block;margin: 0 auto;margin-bottom: 10px;}
 .article-notice em{display: block;font-style: normal;font-weight: normal;text-align: center;font-size: 13px;line-height: 20px;color: #666666;margin-top: 10px;letter-spacing: -1px;}
@@ -96,7 +107,7 @@ input[readonly], select[readonly], textarea[readonly]{background: #f7f7f7;}
 .validt{display: block;color: #5b5252;font-size: 12px;margin: 0 0 10px 0;padding: 0 10px;line-height: 30px;background: #fde8e9;border: #f4cdcf;border-radius: 3px;}
 .validt.checked{color: #999999;background: #f7f7f7;border-color: #e5e5e5;}
 
-/* 기본 폼 */
+/* Form layout */
 .tblform h4{margin-bottom: 20px;font-weight: 500;font-size: 20px;color: #000000;letter-spacing: -0.03em;}
 .tblform h4 em{display: block;margin-top: 15px;font-size: 14px;line-height: 20px;color: #999;font-style: normal;}
 .tblform h5{margin-bottom: 10px;font-weight: 500;font-size: 16px;color: #000000;letter-spacing: -0.03em;}
@@ -147,9 +158,12 @@ input[readonly], select[readonly], textarea[readonly]{background: #f7f7f7;}
 #gnb > li > a{display: block;line-height: 60px;padding: 0 45px;font-size: 14px;color: #ffffff;letter-spacing: -0.03em;font-weight: 500;text-decoration: none;transition: all 0.1s;}
 #gnb > li:hover > a,
 #gnb > li.on > a{background: #6963db;}
+#gnb > li:focus-within > a,
+#gnb > li.on > a{background: #6963db;}
 
 #gnb > li > ul{position: absolute;top: 60px;left: 0;width: 250px;border: 1px solid rgba(0,0,0,0.08);background: #ffffff;visibility: hidden;opacity: 0;transition: all 0.1s;box-shadow: 3px 3px 3px rgba(0,0,0,0.03);}
-#gnb > li:hover > ul{visibility: visible;opacity: 1;}
+#gnb > li:hover > ul,
+#gnb > li:focus-within > ul{visibility: visible;opacity: 1;}
 #gnb > li > ul > li{position: relative;border-top: 1px solid #eaeaea;}
 #gnb > li > ul > li:first-child{border-top: none;}
 #gnb > li > ul > li > a{display: block;padding: 0 20px;line-height: 50px;font-size: 14px;color: #333333;font-weight: 500;letter-spacing: -0.03em;text-decoration: none;transition: all 0.1s;}
@@ -196,7 +210,7 @@ input[readonly], select[readonly], textarea[readonly]{background: #f7f7f7;}
 #fnb li a{font-style: normal;letter-spacing: -1px;color: #666;}
 
 #main #content,
-#sub #content{position: relative;width: 1200px;margin: 50px auto;}
+#sub #content{position: relative;width: 1200px;margin: 60px auto;}
 
 /* Main */
 #main .vis{position: relative;left: 50%;width: 100vw;height: 500px;margin-top: -60px;margin-left: -50vw;margin-bottom: 40px;text-align: center;background: #fafafa;}
@@ -290,6 +304,9 @@ input[readonly], select[readonly], textarea[readonly]{background: #f7f7f7;}
 #signin .labelWrap label{display: inline-block;vertical-align: top;margin: 0 10px 10px 0;}
 #signin .mb_email{display: block;margin-bottom: 5px;font-size: 13px;font-weight: 700;color: #333;letter-spacing: -1px;}
 #signin .lvBtn{display: block;margin-top: 10px;font-size: 13px;color: #999;letter-spacing: -1px;}
+
+#signinForm .inp[required],
+#forgotForm .inp[required]{background-image: none;}
 
 #policy-agree-box{font-size: 15px;line-height: 25px;color: #666;letter-spacing: -1px;}
 #policy-agree-box h4{display: block;margin-bottom: 25px;font-size: 20px;color: #333;font-weight: 500;letter-spacing: -1px;}

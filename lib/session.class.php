@@ -169,15 +169,24 @@ class SessionHandler extends \Make\Database\Pdosql {
 
 }
 
-$sess_init = new SessionHandler();
-session_set_save_handler(
-    array($sess_init, 'open'),
-    array($sess_init, 'close'),
-    array($sess_init, 'read'),
-    array($sess_init, 'write'),
-    array($sess_init, 'destroy'),
-    array($sess_init, 'gc')
-);
+if (SET_SESS_FILE !== true) {
+    $sess_init = new SessionHandler();
+    session_set_save_handler(
+        array($sess_init, 'open'),
+        array($sess_init, 'close'),
+        array($sess_init, 'read'),
+        array($sess_init, 'write'),
+        array($sess_init, 'destroy'),
+        array($sess_init, 'gc')
+    );
+
+} else {
+    if (!is_dir(PH_SESSION_FILE_PATH)) {
+        @mkdir(PH_SESSION_FILE_PATH, 0707);
+        @chmod(PH_SESSION_FILE_PATH, 0707);
+    }
+    session_save_path(PH_SESSION_FILE_PATH);
+}
 
 if (ini_get('session.auto_start') != 1) {
     session_start();

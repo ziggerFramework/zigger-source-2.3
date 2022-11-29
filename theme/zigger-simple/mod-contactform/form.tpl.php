@@ -30,18 +30,20 @@
                     ?>
 
                     <tr>
-                        <th><em>*</em> 문의자 이름</th>
+                        <th>문의자 이름</th>
                         <td>
-                            <input type="text" name="name" title="문의자 이름" class="inp w50" />
+                            <label for="name" class="sound_only_ele">문의자 이름 <strong>필수 입력</strong></label>
+                            <input type="text" name="name" id="name" title="문의자 이름" class="inp w50" required />
                         </td>
                     </tr>
 
                     <?php } ?>
 
                     <tr>
-                        <th><em>*</em> 이메일</th>
+                        <th>이메일</th>
                         <td>
-                            <input type="text" name="email" title="이메일" value="<?php echo $MB['email']; ?>" class="inp w100" />
+                            <label for="email" class="sound_only_ele">이메일 - 문의에 대한 답변은 이메일로 발송 됩니다. <strong>필수 입력</strong></label>
+                            <input type="text" name="email" id="email" title="이메일" value="<?php echo $MB['email']; ?>" class="inp w100" required />
                             <span class="tbltxt">
                                 · 문의에 대한 답변은 이메일로 발송 됩니다.<br />
                                 · 정확하게 입력해 주시기 바랍니다.
@@ -49,18 +51,20 @@
                         </td>
                     </tr>
                     <tr>
-                        <th><em>*</em> 연락처</th>
+                        <th>연락처</th>
                         <td>
-                            <input type="text" name="phone" title="연락처" value="<?php echo $MB['phone']; ?>" class="inp w100" />
+                            <label for="phone" class="sound_only_ele">연락처 - 하이픈(-) 없이 입력 하세요. <strong>필수 입력</strong></label>
+                            <input type="text" name="phone" id="phone" title="연락처" value="<?php echo $MB['phone']; ?>" class="inp w100" required />
                             <span class="tbltxt">
                                 · 하이픈(-) 없이 입력 하세요.
                             </span>
                         </td>
                     </tr>
                     <tr>
-                        <th><em>*</em> 문의 내용</th>
+                        <th>문의 내용</th>
                         <td>
-                            <textarea name="article" title="문의 내용"></textarea>
+                            <label for="article" class="sound_only_ele">문의 내용 <strong>필수 입력</strong></label>
+                            <textarea name="article" id="article" title="문의 내용" required></textarea>
                         </td>
                     </tr>
 
@@ -73,6 +77,7 @@
                         <th><em>*</em> Captcha</th>
                         <td>
                             <?php echo $captcha; ?>
+                            <label for="captcha" class="sound_only_ele">Captcha <strong>필수 입력</strong></label>
                         </td>
                     </tr>
 

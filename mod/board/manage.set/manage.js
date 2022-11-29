@@ -93,16 +93,16 @@ $(function() {
 var use_notice_opt = function($this) {
     var chked = $this.is(':checked');
     if (chked) {
-        $('#use_email').parents('label').hide();
-        $('#category').prop('disabled', true);
+        $('input[name=use_email]').next('label').hide();
+        $('select[name=category]').prop('disabled', true);
 
     } else {
-        $('#use_email').parents('label').show();
-        $('#category').prop('disabled', false);
+        $('input[name=use_email]').next('label').show();
+        $('select[name=category]').prop('disabled', false);
     }
 }
 $(function() {
-    var $opt = $('#use_notice');
+    var $opt = $('input[name=use_notice]');
     $opt.on({
         'click' : function() {
             use_notice_opt($opt);

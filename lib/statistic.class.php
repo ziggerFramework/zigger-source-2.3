@@ -42,7 +42,7 @@ class Statistic {
                         $_SERVER['REMOTE_ADDR'],
                         $device,
                         $_SERVER['HTTP_USER_AGENT']
-                    )
+                    ), false
                 );
 
             } else if ($MB['idx'] != $sql->fetch('mb_idx') && $sql->fetch('mb_idx') != '') {

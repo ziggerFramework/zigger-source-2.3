@@ -23,6 +23,7 @@ define('PH_DATA_DIR', PH_DIR.'/data'); //Data 경로
 define('PH_DATA_PATH', PH_PATH.'/data'); //Data PHP 경로
 define('PH_MANAGE_DIR', PH_DIR.'/manage'); //Manage 경로
 define('PH_MANAGE_PATH', PH_PATH.'/manage'); //Manage PHP 경로
+define('PH_SESSION_FILE_PATH', PH_PATH.'/data/sessions'); //파일세션 생성 경로
 
 //////////////////////////////
 // Zigger 개발 환경 상수
@@ -62,7 +63,8 @@ define('SET_ALRAUTH_MSG', '이미 로그인 되어 있습니다.'); //접근 권
 //개발 옵션 상수
 define('SET_MAX_UPLOAD', 5242880); //Core 기본 업로드 byte
 define('SET_SESS_LIFE', 86400); //세션 유지 시간 (초 단위)
-define('SET_LIST_LIMIT', 15); //리스트 기본 노출 갯수
+define('SET_SESS_FILE', false); //파일세션 사용 여부 (true: 파일세션, false: DB세션)
+define('SET_LIST_LIMIT', 15); //리스트 기본 노출 개수
 define('SET_DATE', 'Y.m.d'); //날짜 출력 포멧
 define('SET_DATETIME', 'Y.m.d H:i:s'); //날짜+시간 출력 포멧
 define('SET_BLANK_IMG', PH_DOMAIN.'/layout/images/blank-tmb.jpg'); //이미지가 없는 경우 대체될 blank 썸네일 경로
@@ -73,8 +75,10 @@ define('SET_MOBILE_DEVICE', preg_replace("/\s+/", "", 'iphone, lgtelecom, skt, m
 define('SET_CACHE_HASH', '?cache='.md5(date('Ymd'))); //CSS, JS 갱신을 위한 캐시 값 설정 (매일 갱신)
 
 //PHP ini 설정
+ini_set('session.gc_probability', 1);
+ini_set('session.gc_divisor', 100);
+ini_set("session.gc_maxlifetime", SET_SESS_LIFE);
 ini_set('display_errors', 1);
-// ini_set('error_reporting', 'E_ALL & ~E_DEPRECATED & ~E_STRICT & ~E_NOTICE & ~E_WARNING');
 
 //////////////////////////////
 // Zigger 플러그인 상수

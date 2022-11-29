@@ -304,7 +304,7 @@
                     <th>비밀글 조회 권한</th>
                     <td>
                         <select name="secret_level" class="inp">
-                            <?php for ($i = 1; $i <= 1; $i++){ ?>
+                            <?php for ($i = 1; $i <= 10; $i++){ ?>
                             <option value="<?php echo $i; ?>" <?php if($i == 1){ echo "selected"; }; ?>><?php echo $i; ?> (<?php echo $MB['type'][$i]; ?>)</option>
                             <?php } ?>
                         </select>

@@ -13,6 +13,7 @@
 </div>
 
 <table class="table listtbl">
+    <caption>나의 알림함</caption>
 	<colgroup>
 		<col style="width: 70px;" />
 		<col style="width: 250px;" />
@@ -21,10 +22,10 @@
 	</colgroup>
 	<thead>
 		<tr>
-			<th>No.</th>
-			<th>출처</th>
-			<th class="tal">내용</th>
-			<th>수신시간</th>
+			<th scope="col">No.</th>
+			<th scope="col">출처</th>
+			<th scope="col" class="tal">내용</th>
+			<th scope="col">수신시간</th>
 		</tr>
 	</thead>
 	<tbody>

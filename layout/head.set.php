@@ -73,6 +73,7 @@ foreach ($MODULE as $key => $value) {
 var PH_DIR = '<?php echo PH_DIR; ?>';
 var PH_DOMAIN = '<?php echo PH_DOMAIN; ?>';
 var PH_PLUGIN_DIR = '<?php echo PH_PLUGIN_DIR; ?>';
+var NOW_TABINDEX = 0;
 </script>
 <script src="<?php echo PH_DIR; ?>/layout/js/jquery.min.js<?php echo SET_CACHE_HASH; ?>"></script>
 <script src="<?php echo PH_DIR; ?>/layout/js/jquery.common.js<?php echo SET_CACHE_HASH; ?>"></script>

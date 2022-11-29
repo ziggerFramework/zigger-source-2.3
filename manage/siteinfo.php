@@ -387,6 +387,7 @@ class Plugins extends \Controller\Make_Controller {
         $this->set('print_target', $manage->print_target());
         $this->set('use_recaptcha', set_checked($arr, 'use_recaptcha'));
         $this->set('use_s3', set_checked($arr, 'use_s3'));
+        $this->set('s3_path_style', set_checked($arr, 's3_path_style'));
         $this->set('use_sns_ka', set_checked($arr, 'use_sns_ka'));
         $this->set('use_sns_nv', set_checked($arr, 'use_sns_nv'));
         $this->set('use_smtp', set_checked($arr, 'use_smtp'));
@@ -419,7 +420,7 @@ class Plugins_submit {
 
         Method::security('referer');
         Method::security('request_post');
-        $req = Method::request('post', 'use_recaptcha, recaptcha_key1, recaptcha_key2, use_sns_ka, sns_ka_key1, sns_ka_key2, use_sns_nv, sns_nv_key1, sns_nv_key2, use_smtp, smtp_server, smtp_port, smtp_id, smtp_pwd, use_s3, s3_key1, s3_key2, s3_key3, s3_key4, s3_key5, use_sms, use_feedsms, sms_toadm, sms_from, sms_key1, sms_key2, sms_key3, sms_key4, use_rss, rss_boards');
+        $req = Method::request('post', 'use_recaptcha, recaptcha_key1, recaptcha_key2, use_sns_ka, sns_ka_key1, sns_ka_key2, use_sns_nv, sns_nv_key1, sns_nv_key2, use_smtp, smtp_server, smtp_port, smtp_id, smtp_pwd, use_s3, s3_key1, s3_key2, s3_key3, s3_key4, s3_key5, s3_path_style, use_sms, use_feedsms, sms_toadm, sms_from, sms_key1, sms_key2, sms_key3, sms_key4, use_rss, rss_boards');
         $manage->req_hidden_inp('post');
 
         if ($req['use_recaptcha'] == 'Y') {
@@ -611,6 +612,7 @@ class Plugins_submit {
             's3_key3' => $req['s3_key3'],
             's3_key4' => $req['s3_key4'],
             's3_key5' => $req['s3_key5'],
+            's3_path_style' => $req['s3_path_style'],
             'use_sms' => $req['use_sms'],
             'use_feedsms' => $req['use_feedsms'],
             'sms_toadm' => $req['sms_toadm'],

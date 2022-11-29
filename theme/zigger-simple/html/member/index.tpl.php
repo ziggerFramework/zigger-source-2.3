@@ -37,17 +37,18 @@
 
     <h5>기본 정보</h5>
     <table class="table_wrt">
+        <caption>회원 기본 정보</caption>
         <colgroup>
             <col style="width: 150px;">
             <col style="width: auto;">
         </colgroup>
         <tbody>
             <tr>
-                <th>아이디</th>
+                <th scope="row">아이디</th>
                 <td><?php echo $MB['id']; ?></td>
             </tr>
             <tr>
-                <th>이메일</th>
+                <th scope="row">이메일</th>
                 <td>
                     <?php
                     if ($MB['email']) {
@@ -59,11 +60,11 @@
                 </td>
             </tr>
             <tr>
-                <th>이름</th>
+                <th scope="row">이름</th>
                 <td><?php echo $MB['name']; ?></td>
             </tr>
             <tr>
-                <th>회원 등급</th>
+                <th scope="row">회원 등급</th>
                 <td><?php echo $MB['type'][$MB['level']]; ?></td>
             </tr>
         </tbody>
@@ -74,21 +75,22 @@
 
     <h5 class="mt30">활동 정보</h5>
     <table class="table_wrt">
+        <caption>회원 활동 정보</caption>
         <colgroup>
             <col style="width: 150px;">
             <col style="width: auto;">
         </colgroup>
         <tbody>
             <tr>
-                <th>회원가입일</th>
+                <th scope="row">회원가입일</th>
                 <td><?php echo $MB['regdate']; ?></td>
             </tr>
             <tr>
-                <th>최근 로그인</th>
+                <th scope="row">최근 로그인</th>
                 <td><?php echo $MB['lately']; ?></td>
             </tr>
             <tr>
-                <th>최근 로그인 IP</th>
+                <th scope="row">최근 로그인 IP</th>
                 <td><?php echo $MB['lately_ip']; ?></td>
             </tr>
         </tbody>

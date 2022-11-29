@@ -17,6 +17,7 @@
 	<!-- category -->
 	<?php if ($is_category_show) { ?>
 	<div id="board-cat">
+        <h3>게시판 카테고리</h3>
 		<?php echo $print_category; ?>
 	</div>
 	<?php } ?>
@@ -24,6 +25,7 @@
 	<!-- list -->
 	<div id="board-list">
 		<table>
+            <caption>게시판 리스트</caption>
 			<colgroup>
 				<?php if ($is_ctr_show) { ?>
 				<col style="width: 50px;" />
@@ -40,15 +42,15 @@
 			<thead>
 				<tr>
                     <?php if ($is_ctr_show) { ?>
-                    <th><input type="checkbox" class="cnum_allchk" /></th>
+                    <th scope="col"><input type="checkbox" class="cnum_allchk" alt="게시글 전체 선택" /></th>
                     <?php } ?>
-                    <th>No.</th>
-                    <th>제목</th>
-                    <th>작성자</th>
-                    <th>날짜</th>
-                    <th>조회</th>
+                    <th scope="col">No.</th>
+                    <th scope="col">제목</th>
+                    <th scope="col">작성자</th>
+                    <th scope="col">날짜</th>
+                    <th scope="col">조회</th>
                     <?php if ($is_likes_show) { ?>
-                    <th class="like">좋아요</td>
+                    <th scope="col" class="like">좋아요</td>
                     <?php } ?>
 				</tr>
 			</thead>

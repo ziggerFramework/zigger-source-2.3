@@ -42,9 +42,7 @@
 						옵션
 					</th>
 					<td>
-						<?php echo $opt_notice; ?><br />
-                        <?php echo $opt_secret; ?><br />
-                        <?php echo $opt_return_email; ?>
+						<?php echo $opt_notice; ?> &nbsp;&nbsp;&nbsp; <?php echo $opt_secret; ?> &nbsp;&nbsp;&nbsp; <?php echo $opt_return_email; ?>
 					</td>
 				</tr>
 

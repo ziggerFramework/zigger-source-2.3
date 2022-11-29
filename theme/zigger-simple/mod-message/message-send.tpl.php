@@ -9,19 +9,24 @@
     <form action="<?php $this->form(); ?>">
         <input type="hidden" name="reply_parent_idx" value="<?php echo $reply_parent_idx; ?>" />
     	<table class="table_wrt">
+            <caption>새로운 메시지 발송</caption>
     		<colgroup>
     			<col style="width: 120px;" />
     			<col style="width: auto;" />
     		</colgroup>
     		<tbody>
     			<tr>
-    				<th>받는회원</th>
-    				<td><input type="text" name="to_mb_id" placeholder="아이디 입력" class="inp" title="받는 회원" value="<?php echo $to_mb_id; ?>" /></td>
+    				<th scope="row">받는회원</th>
+    				<td>
+                        <label for="to_mb_id" class="sound_only_ele">아이디 입력 <strong>필수 입력</strong></label>
+                        <input type="text" name="to_mb_id" id="to_mb_id" placeholder="아이디 입력" class="inp" title="받는 회원" value="<?php echo $to_mb_id; ?>" required />
+                    </td>
     			</tr>
     			<tr>
-    				<th>내용</th>
+    				<th scope="row">내용</th>
     				<td>
-                        <textarea name="article" title="메시지 내용"></textarea>
+                        <label for="article" class="sound_only_ele">메시지 내용 - 5글자 이상 입력해주세요. <strong>필수 입력</strong></label>
+                        <textarea name="article" id="article" title="메시지 내용" required></textarea>
                         <span class="tbltxt">5글자 이상 입력해주세요.</span>
                     </td>
     			</tr>

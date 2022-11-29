@@ -31,6 +31,9 @@ $(function() {
             'success' : function(data) {
                 $mbpop.html(data).fadeIn(100);
                 $mbpopBG.fadeIn(100);
+
+                //접근성 위해 layer로 focus 이동.
+                $mbpop.find('.close').focus();
             }
         });
     });
@@ -38,8 +41,12 @@ $(function() {
     //close
     $(document).on('click', '#message-send .close', function(e) {
         e.preventDefault();
-        $mbpop.fadeOut(100);
-        $mbpopBG.fadeOut(100);
+
+        //접근성 위해 layer띄운 요소로 focus 이동.
+        $('*[data-tab-index='+NOW_TABINDEX+']').focus();
+
+        $mbpop.remove();
+        $mbpopBG.remove();
     });
 
 });

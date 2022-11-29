@@ -90,12 +90,12 @@ class Make_Controller {
         return $this;
     }
 
-    public function view($viewer = '', $makedo = true)
+    public function view($viewer = '', $makedo = true, $makename = 'make')
     {
         global $CONF, $MB, $MODULE, $THEME, $NAVIGATOR;
 
         if ($makedo == true) {
-            $this->make();
+            $this->{$makename}();
         }
 
         if ($viewer != '') {

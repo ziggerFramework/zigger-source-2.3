@@ -218,7 +218,6 @@ ajaxSubmit = {
             'data' : $form.find('input, select, textarea').serialize(),
             'dataType' : 'html',
             'beforeSend' : function() {
-
                 $form.find('button,:button').attr('disabled', true);
             },
             'success' : function(data) {
@@ -232,7 +231,6 @@ ajaxSubmit = {
 ///
 // Ajax Submit With File
 ///
-ajaxFileSubmit_val = false;
 ajaxFileSubmit = {
 	'init' : function($form) {
 		this.action($form);
@@ -241,27 +239,45 @@ ajaxFileSubmit = {
         ckeEditor_action();
 
         var ajaxAction = $form.attr('ajax-action');
+        var formData = new FormData();
 
-        ajaxFileSubmit_val = true;
+        $form.find('input, select, textarea').each(function() {
+            var ele_name = $(this).attr('name');
+            var ele_type = $(this).attr('type');
 
-        if ($form.attr('action')) {
-            return false;
-        }
-        $form.attr('action', ajaxAction);
-        $form.ajaxForm({
-            'cache' : false,
+            switch (ele_type) {
+                case 'file' :
+                    formData.append(ele_name, $(this)[0].files[0]);
+                    break;
+
+                case 'checkbox' :
+                case 'radio' :
+                    if ($(this).prop('checked') == false) {
+                        return;
+                    }
+
+                default :
+                    formData.append(ele_name, $(this)[0].value);
+            }
+        });
+
+        $.ajax({
             'type' : 'POST',
-            'dataType' : 'HTML',
+            'url' : ajaxAction,
+            'cache' : false,
+            'async' : true,
+            'data' : formData,
+            'contentType' : false,
+            'processData' : false,
+            'dataType' : 'html',
             'beforeSend' : function() {
                 $form.find('button,:button').attr('disabled', true);
             },
             'success' : function(data) {
                 returnAjaxSubmit($form,data);
-                $form.find('button,:button').attr('disabled', false);
-                ajaxFileSubmit_val = false;
+                $form.find('button, :button').attr('disabled', false);
             }
         });
-        $form.submit();
     }
 }
 
@@ -282,10 +298,8 @@ setAjaxForm = {
 
 			switch (ajaxType) {
 				case 'multipart' :
-					if (ajaxFileSubmit_val !== true) {
-						e.preventDefault();
-						ajaxFileSubmit.init($(this));
-					}
+					e.preventDefault();
+					ajaxFileSubmit.init($(this));
 					break;
 
 				case 'html' :
@@ -379,6 +393,36 @@ formBeforeConfirm = {
 }
 $(function(){
     formBeforeConfirm.init();
+})
+
+///
+// Setting Tabindex
+///
+make_elements_tabindex = {
+    'init' : function() {
+        this.action();
+    },
+    'action' : function() {
+        $('button, input, a, *[tabindex]').each(function(i) {
+            $(this).attr('data-tab-index', i);
+        });
+
+        $(window).on({
+            'load' : function() {
+                $('button, input, a, *[tabindex]').on({
+                    'click' : function(e) {
+                        var tab_index = $(this).data('tab-index');
+                        if (tab_index) {
+                            NOW_TABINDEX = tab_index;
+                        }
+                    }
+                })
+            }
+        })
+    }
+}
+$(function() {
+    make_elements_tabindex.init();
 })
 
 ///

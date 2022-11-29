@@ -24,11 +24,11 @@
         <?php } ?>
 
         <fieldset class="inp-wrap">
-            <label for="id">User ID</label>
-            <input type="text" name="id" id="id" title="User ID" class="inp" value="<?php echo $id_val; ?>" />
+            <label for="id">User ID <p class="sound_only_ele"><strong>필수 입력</strong></p></label>
+            <input type="text" name="id" id="id" title="User ID" class="inp" value="<?php echo $id_val; ?>" required />
 
-            <label for="pwd">Password</label>
-            <input type="password" name="pwd" id="pwd" title="Password" class="inp" />
+            <label for="pwd">Password <p class="sound_only_ele"><strong>필수 입력</strong></p></label>
+            <input type="password" name="pwd" id="pwd" title="Password" class="inp" required />
 
             <div class="tar mb15">
                 <label><input type="checkbox" name="save" value="checked" <?php echo $save_checked; ?> /> 회원 아이디를 저장 하겠습니다.</label>
