@@ -61,7 +61,7 @@ define('SET_NOAUTH_MSG', '로그인 후에 이용 가능합니다.'); //접근 �
 define('SET_ALRAUTH_MSG', '이미 로그인 되어 있습니다.'); //접근 권한이 없는 경우 문구
 
 //개발 옵션 상수
-define('SET_MAX_UPLOAD', 5242880); //Core 기본 업로드 byte
+define('SET_MAX_UPLOAD', 5242880); //Core 기본 업로드 최대 용량 (byte 단위)
 define('SET_SESS_LIFE', 86400); //세션 유지 시간 (초 단위)
 define('SET_SESS_FILE', false); //파일세션 사용 여부 (true: 파일세션, false: DB세션)
 define('SET_LIST_LIMIT', 15); //리스트 기본 노출 개수

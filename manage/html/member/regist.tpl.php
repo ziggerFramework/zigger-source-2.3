@@ -70,14 +70,14 @@
                 <tr>
                     <th>휴대전화</th>
                     <td>
-                        <input type="text" name="phone" class="inp" title="휴대전화" />
+                        <input type="text" name="phone" class="inp" title="휴대전화" placeholder="optional" />
                         <span class="tbl_sment">하이픈(-) 없이 숫자만 입력</span>
                     </td>
                 </tr>
                 <tr>
                     <th>전화번호</th>
                     <td>
-                        <input type="text" name="telephone" class="inp" title="전화번호" />
+                        <input type="text" name="telephone" class="inp" title="전화번호" placeholder="optional" />
                         <span class="tbl_sment">하이픈(-) 없이 숫자만 입력</span>
                     </td>
                 </tr>

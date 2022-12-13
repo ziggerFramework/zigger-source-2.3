@@ -1,4 +1,5 @@
 <?php
+
 use Corelib\Func;
 use Corelib\Method;
 use Corelib\Session;
@@ -94,9 +95,9 @@ class Sigin_submit {
 
         $sql->query(
             "
-            select *
-            from {$sql->table("member")}
-            where mb_id=:col1 AND mb_dregdate IS NULL AND mb_pwd={$sql->set_password($req['pwd'])}
+            SELECT *
+            FROM {$sql->table("member")}
+            WHERE mb_id=:col1 AND mb_dregdate IS NULL AND mb_pwd={$sql->set_password($req['pwd'])}
             ",
             array(
                 $req['id']
@@ -317,7 +318,7 @@ class signup_submit {
             //중복 확인
             $sql->query(
                 "
-                SELECT *
+                SELECT COUNT(*) AS total
                 FROM {$sql->table("member")}
                 WHERE mb_phone=:col1 AND mb_dregdate IS NULL
                 ",
@@ -325,14 +326,14 @@ class signup_submit {
                     $req['phone']
                 )
             );
-            if ($sql->getcount() > 0) {
+            if ($sql->fetch('total') > 0) {
                 Valid::error('phone', '이미 등록된 휴대전화 번호입니다.');
             }
 
             //인증여부 확인
             $sql->query(
                 "
-                SELECT *
+                SELECT COUNT(*) AS total
                 FROM {$sql->table("mbchk")}
                 WHERE chk_code=:col1 AND chk_mode='pchk' AND chk_chk='Y' AND chk_dregdate IS NULL
                 ORDER BY chk_regdate DESC
@@ -342,7 +343,7 @@ class signup_submit {
                     $req['phone'].':'.$req['phone_code']
                 )
             );
-            if ($sql->getcount() < 1) {
+            if ($sql->fetch('total') < 1) {
                 Valid::error('phone', '인증되지 않은 휴대전화 번호입니다. 휴대전화를 인증해주세요.');
             }
 
@@ -400,7 +401,7 @@ class signup_submit {
         //아이디 중복 검사
         $sql->query(
             "
-            SELECT *
+            SELECT COUNT(*) AS total
             FROM {$sql->table("member")}
             WHERE mb_id=:col1 AND mb_dregdate IS NULL
             ",
@@ -409,14 +410,14 @@ class signup_submit {
             )
         );
 
-        if ($sql->getcount() > 0) {
+        if ($sql->fetch('total') > 0) {
             Valid::error('id', '이미 존재하는 아이디입니다.');
         }
 
         //이메일 중복 검사
         $sql->query(
             "
-            SELECT *
+            SELECT COUNT(*) AS total
             FROM {$sql->table("member")}
             WHERE mb_email=:col1 AND mb_dregdate IS NULL
             ",
@@ -425,7 +426,7 @@ class signup_submit {
             )
         );
 
-        if ($sql->getcount() > 0) {
+        if ($sql->fetch('total') > 0) {
             Valid::error('email', '이미 사용중인 이메일입니다. \'회원정보 찾기\' 페이지에서 로그인 정보를 찾을 수 있습니다.');
         }
 
@@ -546,7 +547,7 @@ class Signup_check_id {
 
         $sql->query(
             "
-            SELECT *
+            SELECT COUNT(*) total
             FROM {$sql->table("member")}
             WHERE mb_id=:col1 AND mb_dregdate IS NULL
             ",
@@ -555,7 +556,7 @@ class Signup_check_id {
             )
         );
 
-        if ($sql->getcount() > 0) {
+        if ($sql->fetch('total') > 0) {
             Valid::error('id', '이미 존재하는 아이디입니다.');
         }
 
@@ -597,7 +598,7 @@ class Signup_check_email {
 
         $sql->query(
             "
-            SELECT *
+            SELECT COUNT(*) total
             FROM {$sql->table("member")}
             WHERE mb_email=:col1 AND mb_dregdate IS NULL
             ",
@@ -606,7 +607,7 @@ class Signup_check_email {
             )
         );
 
-        if ($sql->getcount() > 0) {
+        if ($sql->fetch('total') > 0) {
             Valid::error('email', '이미 존재하는 이메일입니다.');
         }
 
@@ -698,7 +699,7 @@ class Emailchk extends \Controller\Make_Controller {
         $chk_mode = $sql->fetch('chk_mode');
 
         //인증코드 검사 및 실패시
-        if ($sql->getcount() < 1) {
+        if ($sql->fetch('total') < 1) {
             $msg = '인증 요청 내역을 확인할 수 없습니다.<br />다시 확인 후 시도해 주세요.';
             $succ_var = false;
         }
@@ -934,16 +935,18 @@ class Forgot_submit {
         //회원정보 확인
         $sql->query(
             "
-            SELECT *
+            SELECT *, COUNT(*) AS total
             FROM {$sql->table("member")}
             WHERE mb_email=:col1 AND mb_dregdate IS NULL
+            ORDER BY mb_regdate DESC
+            LIMIT 1
             ",
             array(
                 $req['email']
             )
         );
 
-        if ($sql->getcount() < 1) {
+        if ($sql->fetch('total') < 1) {
             Valid::error('email', '회원 정보를 찾을 수 없습니다. 이메일 주소를 확인해 주세요.');
         }
 
@@ -1024,7 +1027,7 @@ class phonechk_submit {
         //다른 회원이 사용중인 휴대전화 번호인지 검사
         $sql->query(
             "
-            SELECT *
+            SELECT COUNT(*) AS total
             FROM {$sql->table("member")}
             WHERE mb_phone=:col1 AND mb_dregdate IS NULL
             ",
@@ -1032,7 +1035,7 @@ class phonechk_submit {
                 $req['phone']
             )
         );
-        if ($sql->getcount() > 0) {
+        if ($sql->fetch('total') > 0) {
             Valid::error('phone', '이미 등록된 휴대전화 번호입니다.');
         }
 
@@ -1093,7 +1096,7 @@ class phonechk_confirm_submit {
         //코드 검증
         $sql->query(
             "
-            SELECT *
+            SELECT COUNT(*) AS total
             FROM {$sql->table("mbchk")}
             WHERE chk_code=:col1 AND chk_mode='pchk' AND chk_dregdate IS NULL
             ",
@@ -1102,7 +1105,7 @@ class phonechk_confirm_submit {
             )
         );
 
-        if ($sql->getcount() < 1) {
+        if ($sql->fetch('total') < 1) {
             Valid::error('phone_code', '인증코드가 올바르지 않습니다.');
         }
 

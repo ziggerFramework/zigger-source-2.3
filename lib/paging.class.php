@@ -114,7 +114,7 @@ class Paging
     }
 
     //페이징 출력
-    public function pagingprint($addParam)
+    public function pagingprint($addParam = '')
     {
         if (isset($addParam)) {
             $this->setparam($addParam);

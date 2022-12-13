@@ -74,7 +74,7 @@
                     ?>
 
                     <tr>
-                        <th><em>*</em> Captcha</th>
+                        <th>Captcha</th>
                         <td>
                             <?php echo $captcha; ?>
                             <label for="captcha" class="sound_only_ele">Captcha <strong>필수 입력</strong></label>

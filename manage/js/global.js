@@ -464,8 +464,8 @@ $(function(){
     }
     $('#smsSendForm .resv-btn').on({
         'click' : function() {
-            var chked = $(this).find(':checkbox').prop('checked');
-            if (chked == true) {
+            var chked = $(this).prev(':checkbox').prop('checked');
+            if (chked == false) {
                 get_sms_resv('show');
 
             } else {

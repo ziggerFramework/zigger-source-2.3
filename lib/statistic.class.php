@@ -19,7 +19,7 @@ class Statistic {
 
             $sql->query(
                 "
-                SELECT *
+                SELECT COUNT(*) AS visit_count
                 FROM {$sql->table("visitcount")}
                 WHERE ip=:col1 AND regdate>=DATE_SUB(now(),interval 1 hour)
                 ",
@@ -28,7 +28,7 @@ class Statistic {
                 )
             );
 
-            if ($sql->getcount() < 1) {
+            if ($sql->fetch('visit_count') < 1) {
                 $sql->query(
                     "
                     INSERT into {$sql->table("visitcount")}

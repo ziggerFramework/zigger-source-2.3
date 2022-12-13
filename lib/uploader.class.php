@@ -143,7 +143,10 @@ class Uploader {
     {
         $sql = new Pdosql();
 
-        $fileinfo = Func::get_fileinfo($org_file);
+        $org_file_name = basename($org_file);
+        $replace_filename_name = basename($replace_filename);
+
+        $fileinfo = Func::get_fileinfo($org_file_name);
 
         $sql->query(
             "
@@ -157,12 +160,15 @@ class Uploader {
             return;
         }
 
+        $replave_path = str_replace(PH_DATA_PATH, '', $replace_filename);
+        $replave_path = str_replace('/'.$replace_filename_name, '', $replave_path);
+
         $sql->query(
             "
             INSERT INTO {$sql->table("dataupload")}
             (filepath,orgfile,repfile,storage,byte,regdate)
             VALUES
-            ('{$fileinfo['filepath']}','{$fileinfo['orgfile']}','{$replace_filename}','{$fileinfo['storage']}',{$fileinfo['byte']},now())
+            ('{$replave_path}','{$fileinfo['orgfile']}','{$replace_filename_name}','{$fileinfo['storage']}',{$fileinfo['byte']},now())
             ", []
         );
     }
@@ -180,7 +186,7 @@ class Uploader {
     }
 
     //S3
-    private function get_s3_action($type, $filename, $copy_filename = '')
+    private function get_s3_action($type, $filename, $copy_filename = '', $tmp = true)
     {
         global $CONF;
 
@@ -200,7 +206,12 @@ class Uploader {
         //upload
         if ($type == 'upload') {
 
-            $awsSource = fopen($this->file['tmp_name'],'rb');
+            if ($tmp === false) {
+                $savefile = $this->file;
+            } else {
+                $savefile = $this->file['tmp_name'];
+            }
+            $awsSource = fopen($savefile,'rb');
 
             try {
                 $s3->putObject([
@@ -228,6 +239,7 @@ class Uploader {
 
             } catch (S3Exception $e) {
                 if ($e->getMessage()) {
+                    Func::err_print(ERR_MSG_13);
                     return false;
                 }
             }
@@ -238,8 +250,8 @@ class Uploader {
             try {
                 $s3->copyObject([
                     'Bucket' => $CONF['s3_key2'],
-                    'CopySource' => $CONF['s3_key2'].'/'.str_replace(PH_DATA_PATH.'/', '', $this->path).'/'.basename($filename),
-                    'Key' => str_replace(PH_DATA_PATH.'/', '', $this->path).'/'.basename($copy_filename),
+                    'CopySource' => $CONF['s3_key2'].'/'.str_replace(PH_DATA_PATH.'/', '', $filename),
+                    'Key' => str_replace(PH_DATA_PATH.'/', '', $copy_filename),
                     'ACL' => 'public-read'
                 ]);
 
@@ -264,9 +276,6 @@ class Uploader {
 
         //s3
         if ($fileinfo['storage'] == 'Y') {
-            $orgfile = str_replace(PH_PATH.'/', '', $old_file);
-            $repfile = str_replace(PH_PATH.'/', '', $new_file);
-
             $this->get_s3_action('copy', $old_file, $new_file);
 
         //local
@@ -278,11 +287,11 @@ class Uploader {
 
         }
 
-        $this->record_datacopy($old_filename, $new_filename);
+        $this->record_datacopy($old_file, $new_file);
     }
 
     //save
-    public function upload($file)
+    public function upload($file, $tmp = true)
     {
         global $CONF;
 
@@ -291,12 +300,17 @@ class Uploader {
         //s3
         if (isset($CONF['use_s3']) && $CONF['use_s3'] == 'Y') {
 
-            $this->get_s3_action('upload', $file);
+            $this->get_s3_action('upload', $file, '', $tmp);
 
         //local
         } else {
 
-            if (!$this->file_upload = move_uploaded_file($this->file['tmp_name'], $this->path.'/'.$file)) {
+            if ($tmp === false) {
+                $savefile = $this->file;
+            } else {
+                $savefile = $this->file['tmp_name'];
+            }
+            if (!$this->file_upload = move_uploaded_file($savefile, $this->path.'/'.$file)) {
                 $chked = false;
             }
 
@@ -352,11 +366,11 @@ class Uploader {
     //에디터 사진 삭제
     public function edt_drop($article)
     {
-        $this->path = PH_PATH.'/ckeditor/';
+        echo $this->path = PH_PLUGIN_PATH.'/'.PH_PLUGIN_CKEDITOR;
         preg_match_all("/ckeditor\/[a-zA-Z0-9-_\.]+.(jpg|gif|png|bmp)/i", $article,$sEditor_images_ex);
 
         for ($i=0; $i < count($sEditor_images_ex[0]); $i++) {
-            $this->name = str_replace('ckeditor4/', '', $this->sEditor_images_ex[0][$i]);
+            $this->name = str_replace(PH_PLUGIN_CKEDITOR.'/', '', $this->sEditor_images_ex[0][$i]);
             if ($this->isfile($this->name)) {
                 $this->filedrop($this->name);
             }

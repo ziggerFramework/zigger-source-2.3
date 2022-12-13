@@ -228,7 +228,7 @@ class Info_submit {
 
             $sql->query(
                 "
-                SELECT *
+                SELECT COUNT(*) AS total
                 FROM {$sql->table("member")}
                 WHERE mb_email=:col1 AND mb_email!=:col2 AND mb_dregdate IS NULL
                 ",
@@ -238,7 +238,7 @@ class Info_submit {
                 )
             );
 
-            if ($sql->getcount() > 0) {
+            if ($sql->fetch('total') > 0) {
                 Valid::error('email', '다른 회원이 사용중인 이메일입니다.');
             }
             $mb_email_chg = $req['email'];
@@ -311,7 +311,7 @@ class Info_submit {
             //중복 확인
             $sql->query(
                 "
-                SELECT *
+                SELECT COUNT(*) AS total
                 FROM {$sql->table("member")}
                 WHERE mb_phone=:col1 AND mb_dregdate IS NULL
                 ",
@@ -319,14 +319,14 @@ class Info_submit {
                     $req['phone']
                 )
             );
-            if ($sql->getcount() > 0) {
+            if ($sql->fetch('total') > 0) {
                 Valid::error('phone', '이미 등록된 휴대전화 번호입니다.');
             }
 
             //인증여부 확인
             $sql->query(
                 "
-                SELECT *
+                SELECT COUNT(*) AS total
                 FROM {$sql->table("mbchk")}
                 WHERE chk_code=:col1 AND chk_mode='pchk' AND chk_chk='Y' AND chk_dregdate IS NULL
                 ORDER BY chk_regdate DESC
@@ -336,7 +336,7 @@ class Info_submit {
                     $req['phone'].':'.$req['phone_code']
                 )
             );
-            if ($sql->getcount() < 1) {
+            if ($sql->fetch('total') < 1) {
                 Valid::error('phone', '인증되지 않은 휴대전화 번호입니다. 휴대전화를 인증해주세요.');
             }
 
@@ -596,9 +596,10 @@ class Warning extends \Controller\Make_Controller {
 
         $sql->query(
             "
-            SELECT *
+            SELECT *, COUNT(*) AS total
             FROM {$sql->table("blockmb")}
             WHERE (ip=:col1 OR ip=:col2 OR ip=:col3 OR ip=:col4) OR (mb_idx=:col5 AND mb_id=:col6)
+            LIMIT 1
             ",
             array(
                 $ip_qry[0],
@@ -610,7 +611,7 @@ class Warning extends \Controller\Make_Controller {
             )
         );
 
-        if ($sql->getcount() < 1) {
+        if ($sql->fetch('total') < 1) {
             Func::err_location('차단 내역이 없습니다.', PH_DOMAIN);
         }
 

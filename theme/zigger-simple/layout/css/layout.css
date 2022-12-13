@@ -152,15 +152,16 @@ textarea.required{background-image: url('../images/input-required-bull.png');bac
 #gnb > li:after{content: '';display: block;position: absolute;top: 50%;margin-top: -10px;right: -1px;width: 1px;height: 20px;background: rgba(0,0,0,0.6);}
 #gnb > li:first-child:before{content: '';display: block;position: absolute;top: 50%;margin-top: -10px;left: 0;width: 1px;height: 20px;background: rgba(0,0,0,0.6);}
 #gnb > li:hover:after,
+#gnb > li:focus-within:after,
 #gnb > li.on:after{display: none;}
 #gnb > li:hover:before,
+#gnb > li:focus-within:before,
 #gnb > li.on:before{display: none;}
 #gnb > li > a{display: block;line-height: 60px;padding: 0 45px;font-size: 14px;color: #ffffff;letter-spacing: -0.03em;font-weight: 500;text-decoration: none;transition: all 0.1s;}
 #gnb > li:hover > a,
 #gnb > li.on > a{background: #6963db;}
 #gnb > li:focus-within > a,
 #gnb > li.on > a{background: #6963db;}
-
 #gnb > li > ul{position: absolute;top: 60px;left: 0;width: 250px;border: 1px solid rgba(0,0,0,0.08);background: #ffffff;visibility: hidden;opacity: 0;transition: all 0.1s;box-shadow: 3px 3px 3px rgba(0,0,0,0.03);}
 #gnb > li:hover > ul,
 #gnb > li:focus-within > ul{visibility: visible;opacity: 1;}
@@ -168,12 +169,15 @@ textarea.required{background-image: url('../images/input-required-bull.png');bac
 #gnb > li > ul > li:first-child{border-top: none;}
 #gnb > li > ul > li > a{display: block;padding: 0 20px;line-height: 50px;font-size: 14px;color: #333333;font-weight: 500;letter-spacing: -0.03em;text-decoration: none;transition: all 0.1s;}
 #gnb > li > ul > li:hover,
+#gnb > li > ul > li:focus-within,
 #gnb > li > ul > li.on{z-index: 2;}
 #gnb > li > ul > li:hover > a,
+#gnb > li > ul > li:focus-within > a,
 #gnb > li > ul > li.on > a{background: #fafafa;color: #000000;}
-
 #gnb > li > ul > li > ul{position: absolute;top: 20px;left: 230px;margin-left: 0;width: 250px;border: 1px solid rgba(0,0,0,0.08);background: #fafafa;visibility: hidden;opacity: 0;transition: all 0.1s;box-shadow: 3px 3px 3px rgba(0,0,0,0.03);}
-#gnb > li > ul > li:hover > ul{visibility: visible;opacity: 1;}
+#gnb > li > ul > li:hover > ul,
+#gnb > li > ul > li:focus-within > ul{visibility: visible;opacity: 1;}
+#gnb > li.on > a{background: #6963db;}
 #gnb > li > ul > li > ul > li{border-top: 1px solid #eaeaea;}
 #gnb > li > ul > li > ul > li:first-child{border-top: none;}
 #gnb > li > ul > li > ul > li > a{display: block;padding: 0 20px;line-height: 50px;font-size: 14px;color: #333333;font-weight: 500;letter-spacing: -0.03em;text-decoration: none;transition: all 0.1s;}
@@ -277,8 +281,10 @@ textarea.required{background-image: url('../images/input-required-bull.png');bac
 #lnb > li > ul li{border-top: 1px solid #eeeeee;}
 #lnb > li > ul li:first-child{border-top: none;}
 #lnb > li > ul li a{display: block;font-size: 14px;color: #333333;letter-spacing: -0.03em;text-decoration: none;line-height: 45px;transition: all 0.1s;}
-#lnb > li > ul li:hover a{background: #fafafa;}
-#lnb > li:hover > ul{visibility: visible;opacity: 1;}
+#lnb > li > ul li:hover a,
+#lnb > li > ul li:focus-within a{background: #fafafa;}
+#lnb > li:hover > ul,
+#lnb > li:focus-within > ul{visibility: visible;opacity: 1;}
 
 #signin{width: 425px;margin: 80px auto;}
 #signin h4{font-size: 30px;color: #3f4044;letter-spacing: -1px;font-weight: 700;text-align: center;}

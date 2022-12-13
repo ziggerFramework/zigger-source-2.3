@@ -18,7 +18,7 @@ class Library {
         if (IS_MEMBER) {
             $sql->query(
                 "
-                SELECT *
+                SELECT COUNT(*) AS total
                 FROM {$sql->table("mod:alarm")}
                 WHERE to_mb_idx=:col1 AND chked='N'
                 ",
@@ -26,7 +26,7 @@ class Library {
                     MB_IDX
                 )
             );
-            $total_count = $sql->getcount();
+            $total_count = $sql->fetch('total');
 
         }
 

@@ -103,6 +103,8 @@ class Pdosql {
 
             if (is_array($param)) {
                 for ($i=1; $i <= count($param); $i++) {
+                    if (!strstr($query, ':col'.$i)) continue;
+
                     $this->stmt->bindParam(':col'.$i, $param[$i-1]);
                     $qryString = str_replace(':col'.$i, $param[$i-1], $qryString);
                 }
@@ -111,7 +113,9 @@ class Pdosql {
             $this->stmt->execute();
             $this->REC_COUNT = $this->stmt->rowCount();
 
-            if ( strpos(strtolower($query),'select') !== false && ( strpos(strtolower($query),'insert') === false && strpos(strtolower($query),'update') === false ) ) {
+            $qryLower = strtolower($query);
+
+            if ( strpos($qryLower, 'select') !== false && ( strpos($qryLower, 'insert') === false && strpos($qryLower, 'update') === false ) ) {
                 $this->ROW = $this->stmt->fetch(\PDO::FETCH_ASSOC);
             }
             $this->ROW_NUM = 0;

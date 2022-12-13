@@ -44,18 +44,18 @@
                     <th>수신 범위</th>
                     <td>
                         <select name="level_from" class="inp">
-                            <?php for($i=1;$i<=10;$i++){ ?>
+                            <?php for($i=1;$i<=9;$i++){ ?>
                             <option value="<?php echo $i; ?>" <?php if($i==1){ echo "selected"; }?>><?php echo $i; ?> (<?php echo $MB['type'][$i]; ?>)</option>
                             <?php } ?>
                         </select>
                         &nbsp;&nbsp;부터&nbsp;&nbsp;
                         <select name="level_to" class="inp">
-                            <?php for($i=1;$i<=10;$i++){ ?>
+                            <?php for($i=1;$i<=9;$i++){ ?>
                             <option value="<?php echo $i; ?>" <?php if($i==1){ echo "selected"; }?>><?php echo $i; ?> (<?php echo $MB['type'][$i]; ?>)</option>
                             <?php } ?>
                         </select>
                         &nbsp;&nbsp;까지&nbsp;&nbsp;
-                        <span class="tbl_sment">작은 숫자의 레벨 부터 입력. ex) 1 ~ 10</span>
+                        <span class="tbl_sment">작은 숫자의 레벨 부터 입력. ex) 1 ~ 9</span>
                     </td>
                 </tr>
                 <tr>

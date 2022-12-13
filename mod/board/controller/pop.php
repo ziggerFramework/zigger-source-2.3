@@ -30,6 +30,8 @@ class Ctrl extends \Controller\Make_Controller {
         //게시판 목록
         function board_opt_list()
         {
+            global $req;
+
             $sql = new Pdosql();
 
             $sql->query(
@@ -46,7 +48,12 @@ class Ctrl extends \Controller\Make_Controller {
 
             do {
                 $arr = $sql->fetchs();
-                $opt .= '<option value="'.$arr['cfg_value'].'">'.$arr['board_name'].'('.$arr['cfg_value'].')</option>';
+
+                $opt_slted = '';
+                if ($req['board_id'] == $arr['cfg_value']) {
+                    $opt_slted = 'selected';
+                }
+                $opt .= '<option value="'.$arr['cfg_value'].'" '.$opt_slted.'>'.$arr['board_name'].'('.$arr['cfg_value'].')</option>';
 
             } while ($sql->nextRec());
 
@@ -280,7 +287,7 @@ class Ctrl_submit {
     ///
     private function get_move()
     {
-        global $cnum, $req, $board_id, $t_board_id, $ln_where;
+        global $CONF, $cnum, $req, $board_id, $t_board_id, $ln_where;
 
         $uploader = new Uploader();
 
@@ -383,7 +390,10 @@ class Ctrl_submit {
                         if ($arr['file'.$fn] != '') {
                             $filename[$fn] = $uploader->replace_filename($arr['file'.$fn]);
                             $uploader->filecopy($old_path.'/'.$arr['file'.$fn],$tar_path.'/'.$filename[$fn]);
-                            $uploader->filecopy($old_path.'/thumb/'.$arr['file'.$fn],$tar_path.'/thumb/'.$filename[$fn]);
+
+                            if ($uploader->isfile($old_path.'/thumb/'.$arr['file'.$fn]) && $CONF['use_s3'] == 'Y') {
+                                $uploader->filecopy($old_path.'/thumb/'.$arr['file'.$fn],$tar_path.'/thumb/'.$fn_re);
+                            }
 
                             $uploader->path = $old_path;
                             $uploader->drop($arr['file'.$fn]);
@@ -550,7 +560,7 @@ class Ctrl_submit {
     ///
     private function get_copy()
     {
-        global $cnum, $req, $board_id, $t_board_id;
+        global $CONF, $cnum, $req, $board_id, $t_board_id;
 
         $uploader = new Uploader();
         $sql = new Pdosql();
@@ -615,7 +625,11 @@ class Ctrl_submit {
                     if ($arr['file'.$fn] != '') {
                         $fn_re = $uploader->replace_filename($arr['file'.$fn]);
                         $uploader->filecopy($old_path.'/'.$arr['file'.$fn],$tar_path.'/'.$fn_re);
-                        $uploader->filecopy($old_path.'/thumb/'.$arr['file'.$fn],$tar_path.'/thumb/'.$fn_re);
+
+                        if ($uploader->isfile($old_path.'/thumb/'.$arr['file'.$fn]) && $CONF['use_s3'] == 'Y') {
+                            $uploader->filecopy($old_path.'/thumb/'.$arr['file'.$fn],$tar_path.'/thumb/'.$fn_re);
+                        }
+
                         $filename[$fn] = $fn_re;
 
                     } else {

@@ -104,7 +104,7 @@ class Tomember_submit{
 
         Method::security('referer');
         Method::security('request_post');
-        $req = Method::request('post', 'type, to_mb, to_phone, level_from, level_to, tpl, subject, memo, use_resv, resv_date, resv_hour, resv_min');
+        $req = Method::request('post', 'type, to_mb, to_phone, level_from, level_to, subject, memo, use_resv, resv_date, resv_hour, resv_min');
         $file = Method::request('file', 'image');
         $manage->req_hidden_inp('post');
 
