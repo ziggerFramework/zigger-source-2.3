@@ -26,7 +26,7 @@ class Delete extends \Controller\Make_Controller {
 
     public function make()
     {
-        global $MB, $MOD_CONF, $board_id;
+        global $CONF, $MB, $MOD_CONF, $board_id;
 
         $sql = new Pdosql();
         $boardlib = new Board_Library();
@@ -204,8 +204,11 @@ class Delete extends \Controller\Make_Controller {
                     if ($f_arr['file'.$i] != '') {
                         $uploader->path = MOD_BOARD_DATA_PATH.'/'.$board_id;
                         $uploader->drop($f_arr['file'.$i]);
-                        $uploader->path = MOD_BOARD_DATA_PATH.'/'.$board_id.'/thumb/';
-                        $uploader->drop($f_arr['file'.$i]);
+
+                        if ($uploader->isfile(MOD_BOARD_DATA_PATH.'/'.$board_id.'/thumb/'.$f_arr['file'.$i]) && $CONF['use_s3'] == 'Y') {
+                            $uploader->path = MOD_BOARD_DATA_PATH.'/'.$board_id.'/thumb/';
+                            $uploader->drop($f_arr['file'.$i]);
+                        }
                     }
                 }
             } while ($sql->nextRec());

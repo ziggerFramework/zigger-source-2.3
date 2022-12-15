@@ -150,7 +150,7 @@ class Ctrl_submit {
     ///
     private function get_del()
     {
-        global $cnum, $req, $board_id, $del_where_sum;
+        global $CONF, $cnum, $req, $board_id, $del_where_sum;
 
         $uploader = new Uploader();
         $sql = new Pdosql();
@@ -234,8 +234,11 @@ class Ctrl_submit {
                     if ($del_arr['file'.$i]) {
                         $uploader->path = MOD_BOARD_DATA_PATH.'/'.$board_id;
                         $uploader->drop($del_arr['file'.$i]);
-                        $uploader->path = MOD_BOARD_DATA_PATH.'/'.$board_id.'/thumb';
-                        $uploader->drop($del_arr['file'.$i]);
+
+                        if ($uploader->isfile(MOD_BOARD_DATA_PATH.'/'.$board_id.'/thumb/'.$del_arr['file'.$i]) && $CONF['use_s3'] == 'N') {
+                            $uploader->path = MOD_BOARD_DATA_PATH.'/'.$board_id.'/thumb';
+                            $uploader->drop($del_arr['file'.$i]);
+                        }
                     }
                 }
             } while ($sql->nextRec());
@@ -391,7 +394,7 @@ class Ctrl_submit {
                             $filename[$fn] = $uploader->replace_filename($arr['file'.$fn]);
                             $uploader->filecopy($old_path.'/'.$arr['file'.$fn],$tar_path.'/'.$filename[$fn]);
 
-                            if ($uploader->isfile($old_path.'/thumb/'.$arr['file'.$fn]) && $CONF['use_s3'] == 'Y') {
+                            if ($uploader->isfile($old_path.'/thumb/'.$arr['file'.$fn])) {
                                 $uploader->filecopy($old_path.'/thumb/'.$arr['file'.$fn],$tar_path.'/thumb/'.$fn_re);
                             }
 
@@ -626,7 +629,7 @@ class Ctrl_submit {
                         $fn_re = $uploader->replace_filename($arr['file'.$fn]);
                         $uploader->filecopy($old_path.'/'.$arr['file'.$fn],$tar_path.'/'.$fn_re);
 
-                        if ($uploader->isfile($old_path.'/thumb/'.$arr['file'.$fn]) && $CONF['use_s3'] == 'Y') {
+                        if ($uploader->isfile($old_path.'/thumb/'.$arr['file'.$fn])) {
                             $uploader->filecopy($old_path.'/thumb/'.$arr['file'.$fn],$tar_path.'/thumb/'.$fn_re);
                         }
 

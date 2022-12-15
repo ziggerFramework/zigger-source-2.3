@@ -160,15 +160,15 @@ class Uploader {
             return;
         }
 
-        $replave_path = str_replace(PH_DATA_PATH, '', $replace_filename);
-        $replave_path = str_replace('/'.$replace_filename_name, '', $replave_path);
+        $replace_path = str_replace(PH_DATA_PATH, '', $replace_filename);
+        $replace_path = str_replace('/'.$replace_filename_name, '', $replace_path);
 
         $sql->query(
             "
             INSERT INTO {$sql->table("dataupload")}
             (filepath,orgfile,repfile,storage,byte,regdate)
             VALUES
-            ('{$replave_path}','{$fileinfo['orgfile']}','{$replace_filename_name}','{$fileinfo['storage']}',{$fileinfo['byte']},now())
+            ('{$replace_path}','{$fileinfo['orgfile']}','{$replace_filename_name}','{$fileinfo['storage']}',{$fileinfo['byte']},now())
             ", []
         );
     }
@@ -223,7 +223,7 @@ class Uploader {
 
             } catch (S3Exception $e) {
                 if ($e->getMessage()) {
-                    Func::err_print(ERR_MSG_13);
+                    Func::err_print($e->getMessage());
                     return false;
                 }
             }

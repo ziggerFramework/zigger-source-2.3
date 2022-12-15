@@ -55,7 +55,7 @@
             </colgroup>
             <thead>
                 <tr>
-                    <th><input type="checkbox" class="cnum_allchk" /></th>
+                    <th><label><input type="checkbox" class="cnum_allchk" /></label></th>
                     <th>No.</th>
                     <th>제목</th>
                     <th>작성자</th>
@@ -68,7 +68,7 @@
             <tbody id="boardNoticeDataList">
                 <?php foreach ($print_notice as $list) { ?>
                     <tr>
-                        <td class="chk"><input type="checkbox" name="cnum[]" value="<?php echo $list['idx']; ?>" /></td>
+                        <td class="chk"><label><input type="checkbox" name="cnum[]" value="<?php echo $list['idx']; ?>" /></label></td>
                         <td class="no tac"><strong>공지</strong></td>
                         <td>
                             <a href="<?php echo $list[0]['get_link']; ?>" class="sbj">
@@ -94,7 +94,7 @@
             <tbody id="boardDataList">
                 <?php foreach ($print_arr as $list) { ?>
                 <tr>
-                    <td class="chk"><input type="checkbox" name="cnum[]" value="<?php echo $list['idx']; ?>" /></td>
+                    <td class="chk"><label><input type="checkbox" name="cnum[]" value="<?php echo $list['idx']; ?>" /></label></td>
                     <td class="no tac"><?php echo $list[0]['number']; ?></td>
                     <td>
                         <a href="<?php echo $list[0]['get_link']; ?>" class="sbj">

@@ -1929,8 +1929,11 @@ class Board_view extends \Controller\Make_Controller {
                 $fileinfo = Func::get_fileinfo($arr['file'.$i]);
 
                 if (Func::chkintd('match', $filetype,SET_IMGTYPE)) {
-                    if ($fileinfo['storage'] == 'N') {
+                    if ($fileinfo['storage'] == 'N' && file_exists(MOD_BOARD_DATA_PATH.'/'.Board_view::$boardconf['id'].'/thumb/'.$fileinfo['repfile'])) {
                         $files[$i] = '<img src=\''.PH_DOMAIN.MOD_BOARD_DATA_DIR.'/'.Board_view::$boardconf['id'].'/thumb/'.$fileinfo['repfile'].'\' alt=\'첨부된 이미지파일\' />';
+                        if (Func::get_filetype($fileinfo['repfile']) == 'gif') {
+                            $files[$i] = '<img src=\''.PH_DOMAIN.MOD_BOARD_DATA_DIR.'/'.Board_view::$boardconf['id'].'/'.$fileinfo['repfile'].'\' alt=\'첨부된 이미지파일\' />';
+                        }
                     } else {
                         $files[$i] = '<img src=\''.$fileinfo['replink'].'\' alt=\'첨부된 이미지파일\' />';
                     }
