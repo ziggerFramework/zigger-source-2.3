@@ -54,6 +54,8 @@ define('ERR_MSG_10', '접근 권한이 없습니다. (ERR-CODE: err010)'); //페
 define('ERR_MSG_11', 'set_category_key 설정 없이 사용할 수 없는 명령어가 있습니다. (ERR-CODE: err011)'); //$func->set_category_key() 없이 $func->page_title() 등을 호출하려는 경우
 define('ERR_MSG_12', 'page_navigator 에서 카테고리 key를 확인할 수 없습니다. (ERR-CODE: err012)'); //$func->page_navigator() 에서 카테고리 key를 인증할 수 없는 경우
 define('ERR_MSG_13', 'Oject Storage 처리에 실패 했습니다. (ERR-CODE: err013)'); //Object Storage 처리에 실패한 경우
+define('ERR_MSG_14', 'Submit Controller의 파일 경로가 올바르지 않습니다. (ERR-CODE: err014)'); //Submit으로 존재하지 않는 Controller를 호출한 경우
+define('ERR_MSG_15', 'Submit Controller의 Class 가 올바르지 않습니다. (ERR-CODE: err015)'); //Submit으로 존재하지 않는 Controller의 Class를 호출한 경우
 
 //경고문구 상수
 define('SET_NODATA_MSG', '데이터가 존재하지 않습니다.'); //데이터가 없는 경우 문구
@@ -62,6 +64,7 @@ define('SET_ALRAUTH_MSG', '이미 로그인 되어 있습니다.'); //접근 권
 
 //개발 옵션 상수
 define('SET_MAX_UPLOAD', 5242880); //Core 기본 업로드 최대 용량 (byte 단위)
+define('SET_IMAGE_QUALITY', 100); //IMAGE 압축 Quality (% 단위)
 define('SET_SESS_LIFE', 86400); //세션 유지 시간 (초 단위)
 define('SET_SESS_FILE', false); //파일세션 사용 여부 (true: 파일세션, false: DB세션)
 define('SET_LIST_LIMIT', 15); //리스트 기본 노출 개수

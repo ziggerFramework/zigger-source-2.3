@@ -38,6 +38,8 @@ CREATE TABLE IF NOT EXISTS `{$req['pfx']}mod_board_data_freeboard` (
     PRIMARY KEY  (`idx`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
+ALTER TABLE `{$req['pfx']}mod_board_data_freeboard` ADD INDEX(`mb_idx`);
+
 CREATE TABLE IF NOT EXISTS `{$req['pfx']}mod_board_cmt_freeboard` (
     `idx` int(11) NOT NULL auto_increment,
     `ln` int(11) default '0',
@@ -60,6 +62,8 @@ CREATE TABLE IF NOT EXISTS `{$req['pfx']}mod_board_cmt_freeboard` (
     `cmt_10` text,
     PRIMARY KEY  (`idx`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+ALTER TABLE `{$req['pfx']}mod_board_cmt_freeboard` ADD INDEX(`bo_idx`,`mb_idx`);
 
 CREATE TABLE IF NOT EXISTS `{$req['pfx']}mod_board_data_news` (
     `idx` int(11) NOT NULL auto_increment,
@@ -98,6 +102,8 @@ CREATE TABLE IF NOT EXISTS `{$req['pfx']}mod_board_data_news` (
     PRIMARY KEY  (`idx`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
+ALTER TABLE `{$req['pfx']}mod_board_data_news` ADD INDEX(`mb_idx`);
+
 CREATE TABLE IF NOT EXISTS `{$req['pfx']}mod_board_cmt_news` (
     `idx` int(11) NOT NULL auto_increment,
     `ln` int(11) default '0',
@@ -120,6 +126,8 @@ CREATE TABLE IF NOT EXISTS `{$req['pfx']}mod_board_cmt_news` (
     `cmt_10` text,
     PRIMARY KEY  (`idx`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+ALTER TABLE `{$req['pfx']}mod_board_cmt_news` ADD INDEX(`bo_idx`,`mb_idx`);
 
 INSERT INTO `{$req['pfx']}config` (`cfg_type`, `cfg_key`, `cfg_value`, `cfg_regdate`) VALUES
 ('mod:board:config:freeboard', 'id', 'freeboard', now()),
@@ -232,6 +240,8 @@ CREATE TABLE IF NOT EXISTS `{$req['pfx']}mod_board_like` (
     PRIMARY KEY  (`idx`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
+ALTER TABLE `{$req['pfx']}mod_board_like` ADD INDEX(`data_idx`,`mb_idx`);
+
 CREATE TABLE IF NOT EXISTS `{$req['pfx']}mod_contactform` (
     `idx` int(11) NOT NULL auto_increment,
     `rep_idx` int(11) default '0',
@@ -254,6 +264,8 @@ CREATE TABLE IF NOT EXISTS `{$req['pfx']}mod_contactform` (
     `contact_exp` text,
     PRIMARY KEY  (`idx`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+ALTER TABLE `{$req['pfx']}mod_contactform` ADD INDEX(`rep_idx`,`mb_idx`);
 
 CREATE TABLE IF NOT EXISTS `{$req['pfx']}mod_contents` (
     `idx` int(11) NOT NULL auto_increment,
@@ -280,6 +292,8 @@ CREATE TABLE IF NOT EXISTS `{$req['pfx']}mod_message` (
     PRIMARY KEY (idx)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+ALTER TABLE `{$req['pfx']}mod_message` ADD INDEX(`from_mb_idx`,`to_mb_idx`,`parent_idx`);
+
 CREATE TABLE IF NOT EXISTS `{$req['pfx']}mod_alarm` (
     idx int(11) NOT NULL auto_increment,
     msg_from text,
@@ -291,6 +305,8 @@ CREATE TABLE IF NOT EXISTS `{$req['pfx']}mod_alarm` (
     chked char(1) DEFAULT 'N',
     PRIMARY KEY (`idx`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `{$req['pfx']}mod_alarm` ADD INDEX(`from_mb_idx`,`to_mb_idx`);
 
 CREATE TABLE IF NOT EXISTS `{$req['pfx']}mod_search` (
     `idx` int(11) NOT NULL auto_increment,

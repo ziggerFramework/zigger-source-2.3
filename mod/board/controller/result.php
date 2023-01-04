@@ -15,7 +15,7 @@ class Result extends \Controller\Make_Controller {
 
         $req = Method::request('get', 'board_id, is_ftlist');
 
-        $board_id = $MOD_CONF['id'];
+        $board_id = (isset($req['board_id'])) ? $req['board_id'] : $MOD_CONF['id'];
 
         if ($req['is_ftlist'] == 'Y') {
             $board_id = $req['board_id'];
@@ -51,7 +51,24 @@ class Result extends \Controller\Make_Controller {
         //링크
         function get_link($arr, $page, $category, $where, $keyword, $thisuri)
         {
-            return $thisuri.'?mode=view&read='.$arr['idx'].'&page='.$page.'&category='.urlencode($category).'&where='.$where.'&keyword='.urlencode($keyword);
+            $link = $thisuri.'/'.$arr['idx'];
+            $param = array();
+            $vars = array(
+                'page' => $page,
+                'category' => $category,
+                'where' => $where,
+                'keyword' => $keyword
+            );
+
+            foreach ($vars as $key => $value) {
+                if ($value != '') {
+                    $param[] = $key.'='.$value;
+                }
+            }
+
+            $paramImp = implode('&', $param);
+
+            return $link.Func::get_param_combine($paramImp, '?');
         }
 
         //내용

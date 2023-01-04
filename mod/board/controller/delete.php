@@ -54,7 +54,7 @@ class Delete extends \Controller\Make_Controller {
         //add stylesheet & javascript
         $boardlib->print_headsrc(Delete::$boardconf['theme']);
 
-        //chkeck
+        //check
         if (!$board_id || !Delete::$boardconf['id']) {
             Func::err_back(ERR_MSG_1);
         }
@@ -258,7 +258,7 @@ class Delete extends \Controller\Make_Controller {
             }
 
             //return
-            Func::location(PH_DOMAIN.Func::thisuri().'?page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category']));
+            Func::location(PH_DOMAIN.Func::thisuri().Func::get_param_combine('page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category'])), '?');
         }
     }
 

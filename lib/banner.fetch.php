@@ -29,6 +29,8 @@ class Banner_fetch
 
         $bn_html = '<ul>';
 
+        if ($sql->getcount() < 1) return;
+
         do {
             $bn_arr = $sql->fetchs();
 

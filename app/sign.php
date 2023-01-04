@@ -1,5 +1,4 @@
 <?php
-
 use Corelib\Func;
 use Corelib\Method;
 use Corelib\Session;
@@ -49,7 +48,7 @@ class Signin extends \Controller\Make_Controller {
     {
         $form = new \Controller\Make_View_Form();
         $form->set('type', 'html');
-        $form->set('action', PH_DIR.'/sign/sigin-submit');
+        $form->set('action', PH_DIR.'/sign/signin-submit');
         $form->run();
     }
 
@@ -58,7 +57,7 @@ class Signin extends \Controller\Make_Controller {
 /***
 Submit for Sign in
 ***/
-class Sigin_submit {
+class Signin_submit {
 
     public function init()
     {
@@ -181,6 +180,7 @@ class Signout extends \Controller\Make_Controller {
     }
 
 }
+
 /***
 Sign up
 ***/
@@ -686,7 +686,7 @@ class Emailchk extends \Controller\Make_Controller {
         //인증코드 정보 및 인증코드 생성되어 있는지 확인
         $sql->query(
             "
-            SELECT *
+            SELECT COUNT(*) total
             FROM {$sql->table("mbchk")}
             WHERE chk_code=:col1
             ",

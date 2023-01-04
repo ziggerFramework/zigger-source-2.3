@@ -55,7 +55,7 @@ class Down extends \Controller\Make_Controller {
 
             if ($http_code == 200) {
 
-                header('Content-Disposition: attachment; filename='.$fileinfo['orgfile']);
+                header('Content-Disposition: attachment; filename='.urlencode($fileinfo['orgfile']));
                 header('Content-type: application/octet-stream');
                 header('Content-Transfer-Encoding: binary');
 

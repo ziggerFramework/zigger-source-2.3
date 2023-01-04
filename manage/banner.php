@@ -194,7 +194,7 @@ class Regist_submit{
 
         $pc_img_name = '';
 
-        if ($file['pc_img']['size'] > 0) {
+        if (isset($file['pc_img'])) {
             $uploader->file = $file['pc_img'];
             $uploader->intdict = SET_IMGTYPE;
 
@@ -211,7 +211,7 @@ class Regist_submit{
 
         $mo_img_name = '';
 
-        if ($file['mo_img']['size'] > 0 ){
+        if (isset($file['mo_img'])){
             $uploader->file = $file['mo_img'];
             $uploader->intdict = SET_IMGTYPE;
 
@@ -427,7 +427,7 @@ class Modify_submit{
 
         $pc_img_name = '';
 
-        if ($file['pc_img']['size'] > 0) {
+        if (isset($file['pc_img'])) {
             $uploader->file = $file['pc_img'];
             $uploader->intdict = SET_IMGTYPE;
 
@@ -442,17 +442,17 @@ class Modify_submit{
             }
         }
 
-        if ($file['pc_img']['size'] > 0 && $arr['pc_img'] != '') {
+        if (isset($file['pc_img']) && $arr['pc_img'] != '') {
             $uploader->drop($arr['pc_img']);
         }
 
-        if ($arr['pc_img'] != '' && !$file['pc_img']['name']) {
+        if ($arr['pc_img'] != '' && !isset($file['pc_img'])) {
             $pc_img_name = $arr['pc_img'];
         }
 
         $mo_img_name = '';
 
-        if ($file['mo_img']['size'] > 0) {
+        if (isset($file['mo_img'])) {
             $uploader->file = $file['mo_img'];
             $uploader->intdict = SET_IMGTYPE;
 
@@ -467,7 +467,7 @@ class Modify_submit{
             }
         }
 
-        if ($file['mo_img']['size'] > 0 && $arr['mo_img'] != '') {
+        if (isset($file['mo_img']) && $arr['mo_img'] != '') {
             $uploader->drop($arr['mo_img']);
         }
 

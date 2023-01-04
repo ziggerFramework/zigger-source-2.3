@@ -172,7 +172,8 @@
                     </th>
                     <td>
                         <span class="uploaded"><?php echo $uploaded_file[1]; ?></span>
-                        <label><input type="checkbox" name="file1_del" value="checked" />삭제</label>
+                        <br />
+                        <label class="mt10"><input type="checkbox" name="file1_del" value="checked" />첨부파일 삭제</label>
                     </td>
                 </tr>
                 <? } ?>
@@ -196,7 +197,8 @@
                     </th>
                     <td>
                         <span class="uploaded"><?php echo $uploaded_file[2]; ?></span>
-                        <label><input type="checkbox" name="file2_del" value="checked">삭제</label>
+                        <br />
+                        <label class="mt10"><input type="checkbox" name="file2_del" value="checked">삭제</label>
                     </td>
                 </tr>
                 <? } ?>

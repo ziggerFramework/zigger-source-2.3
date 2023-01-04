@@ -8,7 +8,7 @@ class Imgresize {
     public $orgimg;
     public $newimg;
     public $width;
-    public $quality = '80';
+    public $quality = SET_IMAGE_QUALITY;
     public $type;
     private $tmporg;
     private $tmpnew;

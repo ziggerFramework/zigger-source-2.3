@@ -649,7 +649,7 @@ class Modify_submit {
 
         $profileimg_name = '';
 
-        if ($file['profileimg']['size'] > 0) {
+        if (isset($file['profileimg'])) {
             $uploader->file = $file['profileimg'];
             $uploader->intdict = SET_IMGTYPE;
             if ($uploader->chkfile('match') !== true) {
@@ -663,10 +663,10 @@ class Modify_submit {
                 Valid::error('profileimg', '프로필 이미지 업로드 실패');
             }
         }
-        if (($file['profileimg']['size'] > 0 && $arr['mb_profileimg'] != '')) {
+        if ((isset($file['profileimg']) && $arr['mb_profileimg'] != '')) {
             $uploader->drop($arr['mb_profileimg']);
         }
-        if ($arr['mb_profileimg'] != '' && !$file['profileimg']['name']) {
+        if ($arr['mb_profileimg'] != '' && !isset($file['profileimg'])) {
             $profileimg_name = $arr['mb_profileimg'];
         }
 
@@ -883,8 +883,8 @@ class Record extends \Controller\Make_Controller {
 
         function device_per($arr)
         {
-            if ($arr['device_total'] > 0) {
-                $pc_per = @round(100 / ($arr['device_total'] / $arr['device_pc']), 1);
+            if ($arr['device_total'] > 0 && $arr['device_pc'] > 0) {
+                $pc_per = round(100 / ($arr['device_total'] / $arr['device_pc']), 1);
                 $mo_per = 100 - $pc_per;
                 return 'pc <strong>'.$pc_per.'%</strong> / mobile <strong>'.$mo_per.'%</strong>';
 
@@ -895,8 +895,8 @@ class Record extends \Controller\Make_Controller {
 
         function member_per($arr)
         {
-            if ($arr['device_total'] > 0) {
-                $mb_per = @round(100 / ($arr['device_total'] / $arr['member_total']), 1);
+            if ($arr['device_total'] > 0 && $arr['member_total']) {
+                $mb_per = round(100 / ($arr['device_total'] / $arr['member_total']), 1);
                 $gu_per = 100 - $mb_per;
                 return '회원 <strong>'.$mb_per.'%</strong> / 비회원 <strong>'.$gu_per.'%</strong>';
 

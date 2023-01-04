@@ -36,7 +36,7 @@ class Latest_fetch extends \Controller\Make_Controller {
         function get_link($list)
         {
             global $FETCH_CONF;
-            return $FETCH_CONF['uri'].'?mode=view&read='.$list['idx'];
+            return $FETCH_CONF['uri'].'/'.$list['idx'];
         }
 
         //제목
@@ -124,12 +124,14 @@ class Latest_fetch extends \Controller\Make_Controller {
 
         $boardinfo = array();
 
-        do {
-            $cfg = $sql->fetchs();
+        if ($sql->getcount() > 0) {
+            do {
+                $cfg = $sql->fetchs();
 
-            $boardinfo[$cfg['cfg_key']] = $cfg['cfg_value'];
+                $boardinfo[$cfg['cfg_key']] = $cfg['cfg_value'];
 
-        } while($sql->nextRec());
+            } while($sql->nextRec());
+        }
 
         $continue = true;
 

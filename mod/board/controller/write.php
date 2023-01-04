@@ -62,7 +62,7 @@ class Write extends \Controller\Make_Controller {
                 for ($i = 1; $i <= 2; $i++) {
                     $files[$i] = '';
 
-                    if (isset($arr['file'.$i])) {
+                    if (isset($arr['file'.$i]) && $arr['file'.$i] != '') {
                         $fileinfo = Func::get_fileinfo($arr['file'.$i]);
                         $files[$i] = $fileinfo['orgfile'];
                     }
@@ -538,25 +538,32 @@ class Write_submit{
                 'value' => $req['subject']
             )
         );
-        Valid::get(
-            array(
-                'input' => 'article',
-                'value' => $req['article'],
-                'msg' => '내용은 '.Write::$boardconf['article_min_len'].'자 이상 입력해야 합니다.',
-                'check' => array(
-                    'minlen' => Write::$boardconf['article_min_len']
+
+        if (Write::$boardconf['article_min_len'] > 0) {
+            Valid::get(
+                array(
+                    'input' => 'article',
+                    'value' => $req['article'],
+                    'check' => array(
+                        'minlen' => Write::$boardconf['article_min_len'],
+                        'chkhtml' => true,
+                        'null' => false,
+                    )
                 )
-            )
-        );
-        Valid::get(
-            array(
-                'input' => 'article',
-                'value' => $req['article'],
-                'check' => array(
-                    'chkhtml' => true
+            );
+
+        } else {
+            Valid::get(
+                array(
+                    'input' => 'article',
+                    'value' => $req['article'],
+                    'check' => array(
+                        'chkhtml' => true,
+                        'null' => true,
+                    )
                 )
-            )
-        );
+            );
+        }
 
         if (!IS_MEMBER) {
 
@@ -602,7 +609,7 @@ class Write_submit{
             }
         }
 
-        if ($f_req['file1']['size'] > 0 && $f_req['file2']['size'] > 0 && $f_req['file1']['name'] == $f_req['file2']['name']) {
+        if (isset($f_req['file1']) && isset($f_req['file2']) && $f_req['file1']['name'] == $f_req['file2']['name']) {
             Valid::error('', '동일한 파일을 업로드 할 수 없습니다.');
         }
 
@@ -692,10 +699,8 @@ class Write_submit{
         }
 
         //첨부파일 저장
-        $uploader->path = MOD_BOARD_DATA_PATH;
-        $uploader->chkpath(); //모듈 data 폴더 검사
         $uploader->path = MOD_BOARD_DATA_PATH.'/'.$board_id;
-        $uploader->chkpath(); //게시판별 폴더 검사
+        $uploader->chkpath();
 
         $ufile = array();
         $ufile_name = array();
@@ -705,7 +710,7 @@ class Write_submit{
         }
 
         for ($i = 1; $i <= 2; $i++) {
-            if ($ufile[$i]['size'] > 0 && Write::$boardconf['use_file'.$i]) {
+            if (isset($ufile[$i]) && Write::$boardconf['use_file'.$i]) {
                 $uploader->file = $ufile[$i];
 
                 if ($uploader->chkfile('match') === true) {
@@ -720,7 +725,7 @@ class Write_submit{
         }
 
         for ($i = 1; $i <= 2; $i++) {
-            if ($ufile[$i]['size'] > 0 && Write::$boardconf['use_file'.$i]) {
+            if (isset($ufile[$i]) > 0 && Write::$boardconf['use_file'.$i]) {
                 $uploader->file = $ufile[$i];
 
                 $ufile[$i]['ufile_name'] = $uploader->replace_filename($ufile[$i]['name']);
@@ -761,15 +766,13 @@ class Write_submit{
             for ($i = 1; $i <= 2; $i++) {
 
                 //기존 파일을 삭제할 때
-                if ($req['file'.$i.'_del'] == 'checked' || ($ufile[$i]['size'] > 0 && $org_arr['file'.$i] && $req['file'.$i.'_del'] != 'checked')) {
-                    $uploader->path = MOD_BOARD_DATA_PATH.'/'.$board_id;
-                    $uploader->drop($org_arr['file'.$i]);
+                if ($req['file'.$i.'_del'] == 'checked' || (isset($ufile[$i]) && $org_arr['file'.$i] && $req['file'.$i.'_del'] != 'checked')) {
                     $uploader->path = MOD_BOARD_DATA_PATH.'/'.$board_id.'/thumb';
                     $uploader->drop($org_arr['file'.$i]);
                 }
 
                 //아무것도 하지 않았을 때
-                if ($org_arr['file'.$i] != '' && !$ufile[$i]['tmp_name'] && $req['file'.$i.'_del'] != 'checked') {
+                if ($org_arr['file'.$i] != '' && !isset($ufile[$i]) && $req['file'.$i.'_del'] != 'checked') {
                     $ufile[$i]['ufile_name'] = $org_arr['file'.$i];
                 }
             }
@@ -841,7 +844,7 @@ class Write_submit{
             (:col1,:col2,:col3,:col4,:col5,:col6,:col7,:col8,:col9,:col10,:col11,:col12,'Y',:col13,'{$_SERVER['REMOTE_ADDR']}',:col14,:col15,:col16,:col17,:col18,:col19,:col20,:col21,:col22,:col23,:col24,:col25,:col26)
             ",
             array(
-                $req['category'], $MB['idx'], $MB['id'], $req['writer'], $req['password'], $req['email'], $req['article'], $req['subject'], $ufile[1]['ufile_name'], $ufile[2]['ufile_name'], $wr_opt['secret'], $wr_opt['notice'], $wr_opt['email'], $ln_arr['ln_max'], 0, $req['data_1'], $req['data_2'], $req['data_3'], $req['data_4'], $req['data_5'], $req['data_6'], $req['data_7'], $req['data_8'], $req['data_9'], $req['data_10'], $wdate
+                $req['category'], $MB['idx'], $MB['id'], $req['writer'], $req['password'], $req['email'], $req['article'], $req['subject'], (isset($ufile[1])) ? $ufile[1]['ufile_name'] : '', (isset($ufile[2])) ? $ufile[2]['ufile_name'] : '', $wr_opt['secret'], $wr_opt['notice'], $wr_opt['email'], $ln_arr['ln_max'], 0, $req['data_1'], $req['data_2'], $req['data_3'], $req['data_4'], $req['data_5'], $req['data_6'], $req['data_7'], $req['data_8'], $req['data_9'], $req['data_10'], $wdate
             )
         );
 
@@ -869,9 +872,10 @@ class Write_submit{
         }
 
         //return
-        $return_url = $req['thisuri'].'?mode=view&read='.$sql->fetch('idx').'&category='.urlencode($req['category_ed']);
+        $return_url = $req['thisuri'].'/'.$sql->fetch('idx').Func::get_param_combine('?category='.urlencode($req['category']), '?');
+
         if (isset($req['request']) && $req['request'] == 'manage') {
-            $return_url = './board?id='.$board_id.'&category='.urlencode($req['category_ed']);
+            $return_url = './board?id='.$board_id.'&category='.urlencode($req['category']);
         }
 
         Valid::set(
@@ -953,7 +957,7 @@ class Write_submit{
             WHERE idx=:col23
             ",
             array(
-                $category, $req['writer'], $req['password'], $req['email'], $req['article'], $req['subject'], $ufile[1]['ufile_name'], $ufile[2]['ufile_name'], $wr_opt['secret'], $wr_opt['notice'], $wr_opt['email'], $wdate, $req['data_1'], $req['data_2'], $req['data_3'], $req['data_4'], $req['data_5'], $req['data_6'], $req['data_7'], $req['data_8'], $req['data_9'], $req['data_10'],
+                $category, $req['writer'], $req['password'], $req['email'], $req['article'], $req['subject'], (isset($ufile[1])) ? $ufile[1]['ufile_name'] : '', (isset($ufile[2])) ? $ufile[2]['ufile_name'] : '', $wr_opt['secret'], $wr_opt['notice'], $wr_opt['email'], $wdate, $req['data_1'], $req['data_2'], $req['data_3'], $req['data_4'], $req['data_5'], $req['data_6'], $req['data_7'], $req['data_8'], $req['data_9'], $req['data_10'],
                 $req['read']
             )
         );
@@ -962,7 +966,8 @@ class Write_submit{
         Session::set_sess('BOARD_VIEW_'.$req['read'], $req['read']);
 
         //return
-        $return_url = $req['thisuri'].'?mode=view&read='.$req['read'].'&page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category_ed']);
+        $return_url = $req['thisuri'].'/'.$req['read'].Func::get_param_combine('page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category_ed']), '?');
+
         if (isset($req['request']) && $req['request'] == 'manage') {
             $return_url = './board-view?id='.$board_id.'&read='.$req['read'].'&page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category_ed']);
         }
@@ -1038,7 +1043,7 @@ class Write_submit{
             (:col1,:col2,:col3,:col4,:col5,:col6,:col7,:col8,:col9,:col10,:col11,:col12,'Y',:col13,'{$_SERVER['REMOTE_ADDR']}',now(),:col14,:col15,:col16,:col17,:col18,:col19,:col20,:col21,:col22,:col23,:col24,:col25)
             ",
             array(
-                $org_arr['category'], $MB['idx'], $MB['id'], $req['writer'], $req['password'], $req['email'], $req['article'], $req['subject'], $ufile[1]['ufile_name'], $ufile[2]['ufile_name'], $wr_opt['secret'], $wr_opt['notice'], $wr_opt['email'], $ln_me, $rn_arr['rn_max'], $req['data_1'], $req['data_2'], $req['data_3'], $req['data_4'], $req['data_5'], $req['data_6'], $req['data_7'], $req['data_8'], $req['data_9'], $req['data_10']
+                $org_arr['category'], $MB['idx'], $MB['id'], $req['writer'], $req['password'], $req['email'], $req['article'], $req['subject'], (isset($ufile[1])) ? $ufile[1]['ufile_name'] : '', (isset($ufile[2])) ? $ufile[2]['ufile_name'] : '', $wr_opt['secret'], $wr_opt['notice'], $wr_opt['email'], $ln_me, $rn_arr['rn_max'], $req['data_1'], $req['data_2'], $req['data_3'], $req['data_4'], $req['data_5'], $req['data_6'], $req['data_7'], $req['data_8'], $req['data_9'], $req['data_10']
             )
         );
 
@@ -1061,8 +1066,8 @@ class Write_submit{
                 회원님의 게시글에 답글이 달렸습니다.<br />
                 아래 주소를 클릭하여 확인 할 수 있습니다.<br /><br />
 
-                <a href=\''.PH_DOMAIN.$req['thisuri'].'?mode=view&read='.$sql->fetch('idx').'&category='.urlencode($req['category_ed']).'\'>'.PH_DOMAIN.$req['thisuri'].'?mode=view&read='.$sql->fetch('idx').'&category='.urlencode($req['category_ed']).'</a>
-            ';
+                <a href=\''.PH_DOMAIN.$req['thisuri'].'/'.$sql->fetch('idx').Func::get_param_combine('category='.urlencode($req['category_ed']), '?').'\'>'.PH_DOMAIN.$req['thisuri'].'/'.$sql->fetch('idx').Func::get_param_combine('category='.urlencode($req['category_ed']), '?').'</a>';
+
             $mail->set(
                 array(
                     'to' => array(
@@ -1099,13 +1104,14 @@ class Write_submit{
                     'from_mb_idx' => $MB['idx'],
                     'to_mb_idx' => $org_arr['mb_idx'],
                     'memo' => '<strong>'.$req['writer'].'</strong>님이 회원님의 게시글에 답글을 작성했습니다.',
-                    'link' => $req['thisuri'].'?mode=view&read='.$sql->fetch('idx')
+                    'link' => $req['thisuri'].'/'.$sql->fetch('idx')
                 )
             );
         }
 
         //return
-        $return_url = $req['thisuri'].'?mode=view&read='.$sql->fetch('idx').'&page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category_ed']);
+        $return_url = $req['thisuri'].'/'.$sql->fetch('idx').Func::get_param_combine('page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category_ed']), '?');
+
         if (isset($req['request']) && $req['request'] == 'manage') {
             $return_url = './board?id='.$board_id.'&category='.urlencode($req['category_ed']).'&page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category_ed']);
         }

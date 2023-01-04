@@ -82,7 +82,12 @@ valid = {
 			zigalert('Captcha(스팸방지)가 올바르지 않습니다.');
 
 		} else if ($.trim(opt.msg) !== '') {
-			zigalert(opt.msg);
+            if (typeof inp_tit != 'undefined' && typeof inp_tit != 'null') {
+                zigalert(inp_tit + ' : ' + opt.msg);
+                
+            } else {
+                zigalert(opt.msg);
+            }
 
 		} else {
 			zigalert(inp_tit + ' : 올바르게 입력해 주세요.');

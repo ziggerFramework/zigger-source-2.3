@@ -211,7 +211,7 @@
                 <tr>
                     <th>글작성 최소 글자수</th>
                     <td>
-                        <input type="text" name="article_min_len" class="inp" title="글작성 최소 글자수" /> 글자
+                        <input type="text" name="article_min_len" class="inp" title="글작성 최소 글자수" value="30" /> 글자
                         <span class="tbl_sment">글 작성시 본문 글자수가 설정한 값에 미달하는 경우 글 등록 불가</span>
                     </td>
                 </tr>

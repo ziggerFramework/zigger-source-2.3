@@ -61,7 +61,7 @@ class View extends \Controller\Make_Controller {
         }
 
         //수정 버튼
-        function modify_btn($arr, $read, $page, $keyword, $where, $category)
+        function modify_btn($arr, $req)
         {
             global $MB;
 
@@ -79,12 +79,12 @@ class View extends \Controller\Make_Controller {
             }
 
             if ($is_btn_show) {
-                return '<a href=\'?mode=write&wrmode=modify&category='.urlencode($category).'&read='.$read.'&page='.$page.'&where='.$where.'&keyword='.urlencode($keyword).'\' class=\'btn1\'>수정</a>';
+                return '<a href="'.Func::thisuri('&mode=view&read='.$req['read']).Func::get_param_combine('mode=write&wrmode=modify&category='.urlencode($req['category']).'&read='.$req['read'].'&page='.$req['page'].'&where='.$req['where'].'&keyword='.urlencode($req['keyword']), '?').'" class="btn1">수정</a>';
             }
         }
 
         //답글 버튼
-        function reply_btn($arr, $read, $page, $keyword, $where, $category)
+        function reply_btn($arr, $req)
         {
             global $MB;
 
@@ -96,20 +96,22 @@ class View extends \Controller\Make_Controller {
             }
 
             if ($is_btn_show) {
-                return '<a href="?mode=write&wrmode=reply&category='.urlencode($category).'&read='.$read.'&page='.$page.'&where='.$where.'&keyword='.urlencode($keyword).'" class="btn1">답글</a>';
+                return '<a href="'.Func::thisuri('&mode=view&read='.$req['read']).Func::get_param_combine('?mode=write&wrmode=reply&category='.urlencode($req['category']).'&read='.$req['read'].'&page='.$req['page'].'&where='.$req['where'].'&keyword='.urlencode($req['keyword']), '?').'" class="btn1">답글</a>';
             }
         }
 
         //리스트 버튼
-        function list_btn($page, $keyword, $where, $category)
+        function list_btn($req)
         {
-            return '<a href="?category='.urlencode($category).'&page='.$page.'&where='.$where.'&keyword='.urlencode($keyword).'" class="btn2">리스트</a>';
+            return '<a href="'.Func::thisuri('&mode=view&read='.$req['read']).Func::get_param_combine('category='.urlencode($req['category']).'&page='.$req['page'].'&where='.$req['where'].'&keyword='.urlencode($req['keyword']), '?').'" class="btn2">리스트</a>';
         }
 
         //이전/다음글 링크
-        function seek_get_link($arr, $page, $keyword, $where, $category)
+        function seek_get_link($arr, $req)
         {
-            return '?mode=view&read='.$arr['idx'].'&page='.$page.'&category='.urlencode($category).'&where='.$where.'&keyword='.urlencode($keyword);
+            $link = $arr['idx'].Func::get_param_combine('page='.$req['page'].'&category='.urlencode($req['category']).'&where='.$req['where'].'&keyword='.urlencode($req['keyword']), '?');
+
+            return $link;
         }
 
         //첨부 이미지 출력
@@ -122,9 +124,9 @@ class View extends \Controller\Make_Controller {
 
                 if (Func::chkintd('match', $filetype,SET_IMGTYPE)) {
                     if ($fileinfo['storage'] == 'N' && file_exists(MOD_BOARD_DATA_PATH.'/'.View::$boardconf['id'].'/thumb/'.$fileinfo['repfile'])) {
-                        $files[$i] = '<img src=\''.PH_DOMAIN.MOD_BOARD_DATA_DIR.'/'.View::$boardconf['id'].'/thumb/'.$fileinfo['repfile'].'\' alt=\'첨부된 이미지파일\' />';
+                        $files[$i] = '<img src=\''.MOD_BOARD_DATA_DIR.'/'.View::$boardconf['id'].'/thumb/'.$fileinfo['repfile'].'\' alt=\'첨부된 이미지파일\' />';
                         if (Func::get_filetype($fileinfo['repfile']) == 'gif') {
-                            $files[$i] = '<img src=\''.PH_DOMAIN.MOD_BOARD_DATA_DIR.'/'.View::$boardconf['id'].'/'.$fileinfo['repfile'].'\' alt=\'첨부된 이미지파일\' />';
+                            $files[$i] = '<img src=\''.MOD_BOARD_DATA_DIR.'/'.View::$boardconf['id'].'/'.$fileinfo['repfile'].'\' alt=\'첨부된 이미지파일\' />';
                         }
                     } else {
                         $files[$i] = '<img src=\''.$fileinfo['replink'].'\' alt=\'첨부된 이미지파일\' />';
@@ -147,7 +149,7 @@ class View extends \Controller\Make_Controller {
                     $fileinfo = Func::get_fileinfo($arr['file'.$i]);
 
                     $files[$i] = '
-                    <a href=\''.MOD_BOARD_DIR.'/controller/file/down?board_id='.View::$boardconf['id'].'&file='.urlencode($arr['file'.$i]).'&OUTLOAD=1\' target=\'_blank\'>'.Func::strcut($fileinfo['orgfile'],0,70).'</a>
+                    <a href=\''.MOD_BOARD_DIR.'/controller/file/down?board_id='.View::$boardconf['id'].'&file='.urlencode($arr['file'.$i]).'\' target=\'_blank\'>'.Func::strcut($fileinfo['orgfile'],0,70).'</a>
                     <span class=\'byte\'>('.number_format($fileinfo['byte'] / 1024, 0).'K)</span>
                     <span class=\'cnt\'><strong>'.Func::number($arr['file'.$i.'_cnt']).'</strong> 회 다운로드</span>
                     ';
@@ -297,7 +299,7 @@ class View extends \Controller\Make_Controller {
                 $arr[0][$value]['date'] = Func::date($arr[0][$value]['regdate']);
                 $arr[0][$value]['datetime'] = Func::datetime($arr[0][$value]['regdate']);
                 $arr[0][$value]['profileimg'] = print_profileimg($arr[0][$value]);
-                $arr[0][$value]['get_link'] = seek_get_link($arr[0][$value], $req['page'], $req['keyword'], $req['where'], $req['category']);
+                $arr[0][$value]['get_link'] = seek_get_link($arr[0][$value], $req);
                 $arr[0][$value]['writer'] = print_writer($arr[0][$value]);
                 $arr[0][$value]['comment_cnt'] = comment_cnt($arr[0][$value]);
             }
@@ -353,7 +355,6 @@ class View extends \Controller\Make_Controller {
                     //비회원의 글이고 로그인 되지 않은 경우 패스워드 폼을 보임
                     if ($arr['mb_idx'] == 0 && !IS_MEMBER) {
                         $rd_level = 3;
-
 
                     }
 
@@ -588,10 +589,10 @@ class View extends \Controller\Make_Controller {
             $this->set('print_profileimg', print_profileimg($arr));
             $this->set('print_imgfile', print_imgfile($arr));
             $this->set('print_file_name', print_file_name($arr));
-            $this->set('list_btn', list_btn($req['page'], $req['keyword'], $req['where'], $req['category']));
+            $this->set('list_btn', list_btn($req));
             $this->set('delete_btn', delete_btn($arr));
-            $this->set('modify_btn', modify_btn($arr,$req['read'], $req['page'], $req['keyword'], $req['where'], $req['category']));
-            $this->set('reply_btn', reply_btn($arr, $req['read'], $req['page'], $req['keyword'], $req['where'], $req['category']));
+            $this->set('modify_btn', modify_btn($arr, $req));
+            $this->set('reply_btn', reply_btn($arr, $req));
 
         }
 
@@ -603,7 +604,7 @@ class View extends \Controller\Make_Controller {
         $this->set('page', $req['page']);
         $this->set('where', $req['where']);
         $this->set('keyword', $req['keyword']);
-        $this->set('thisuri', Func::thisuri());
+        $this->set('thisuri', Func::thisuri('&mode=view&read='.$req['read']));
         $this->set('top_source', View::$boardconf['top_source']);
         $this->set('bottom_source', View::$boardconf['bottom_source']);
     }

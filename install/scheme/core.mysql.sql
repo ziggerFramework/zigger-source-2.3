@@ -28,6 +28,8 @@ CREATE TABLE IF NOT EXISTS `{$req['pfx']}blockmb` (
     PRIMARY KEY  (`idx`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
+ALTER TABLE `{$req['pfx']}blockmb` ADD INDEX(`mb_idx`);
+
 CREATE TABLE IF NOT EXISTS `{$req['pfx']}mailtpl` (
     `idx` int(11) NOT NULL auto_increment,
     `type` varchar(255) BINARY default NULL,
@@ -54,6 +56,8 @@ CREATE TABLE IF NOT EXISTS `{$req['pfx']}mbchk` (
     PRIMARY KEY  (`chk_idx`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
+ALTER TABLE `{$req['pfx']}mbchk` ADD INDEX(`mb_idx`);
+
 CREATE TABLE IF NOT EXISTS `{$req['pfx']}mbpoint` (
     `idx` int(11) NOT NULL auto_increment,
     `mb_idx` int(11) NOT NULL,
@@ -63,6 +67,8 @@ CREATE TABLE IF NOT EXISTS `{$req['pfx']}mbpoint` (
     `regdate` datetime default NULL,
     PRIMARY KEY  (`idx`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+ALTER TABLE `{$req['pfx']}mbpoint` ADD INDEX(`mb_idx`);
 
 CREATE TABLE IF NOT EXISTS `{$req['pfx']}member` (
     `mb_adm` char(1) default 'N',
@@ -173,6 +179,8 @@ CREATE TABLE IF NOT EXISTS `{$req['pfx']}session` (
     PRIMARY KEY  (`idx`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
+ALTER TABLE `{$req['pfx']}session` ADD INDEX(`mb_idx`);
+
 CREATE TABLE IF NOT EXISTS `{$req['pfx']}config` (
     `cfg_idx` int(11) NOT NULL auto_increment,
     `cfg_type` text NOT NULL,
@@ -281,7 +289,9 @@ CREATE TABLE IF NOT EXISTS `{$req['pfx']}visitcount` (
     `regdate` datetime default NULL,
     PRIMARY KEY  (`idx`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 ALTER TABLE `{$req['pfx']}visitcount` ADD UNIQUE KEY `fkey1` (`ip`,`regdate`);
+ALTER TABLE `{$req['pfx']}visitcount` ADD INDEX(`mb_idx`);
 
 CREATE TABLE `{$req['pfx']}dataupload` (
     `idx` int(11) NOT NULL auto_increment,

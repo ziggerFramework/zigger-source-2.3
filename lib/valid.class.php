@@ -240,6 +240,9 @@ class Valid {
                     mb_internal_encoding('UTF-8');
 
                     if (self::trim_val($arr['value']) != '' && mb_strlen(self::trim_val($arr['value'])) < $value) {
+                        if (self::trim_val($arr['msg']) == '') {
+                            $arr['msg'] = '가능한 최소 글자수는 '.$value.'자 입니다.';
+                        }
                         self::error($arr['input'], $arr['msg']);
                     }
                     break;
@@ -251,6 +254,9 @@ class Valid {
                     mb_internal_encoding('UTF-8');
 
                     if (mb_strlen(self::trim_val($arr['value'])) > $value) {
+                        if (self::trim_val($arr['msg']) == '') {
+                            $arr['msg'] = '가능한 최대 글자수는 '.$value.'자 입니다.';
+                        }
                         self::error($arr['input'], $arr['msg']);
                     }
                     break;
@@ -259,6 +265,9 @@ class Valid {
                 case 'minint' :
 
                     if (self::trim_val($arr['value']) != '' && (int)$arr['value'] < $value) {
+                        if (self::trim_val($arr['msg']) == '') {
+                            $arr['msg'] = '가능한 최소 값은 '.$value.' 입니다.';
+                        }
                         self::error($arr['input'], $arr['msg']);
                     }
                     break;
@@ -267,6 +276,9 @@ class Valid {
                 case 'maxint' :
 
                     if ((int)$arr['value'] > $value) {
+                        if (self::trim_val($arr['msg']) == '') {
+                            $arr['msg'] = '가능한 최대 값은 '.$value.' 입니다.';
+                        }
                         self::error($arr['input'], $arr['msg']);
                     }
                     break;
@@ -333,7 +345,7 @@ class Valid {
 
                         for ($i = 0; $i < count($not_tags_ex); $i++) {
                             if (stristr($arr['value'], '<'.$not_tags_ex[$i]) || stristr($arr['value'], '</'.$not_tags_ex[$i])) {
-                                if ($arr['msg'] == '') {
+                                if (self::trim_val($arr['msg']) == '') {
                                     $arr['msg'] = ERR_MSG_2;
                                 }
                                 self::error($arr['input'], $arr['msg']);

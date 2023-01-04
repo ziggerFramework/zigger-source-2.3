@@ -207,7 +207,7 @@ class Info_submit {
 
         $favicon_name = '';
 
-        if ($file['favicon']['size'] > 0) {
+        if (isset($file['favicon'])) {
             $uploader->file = $file['favicon'];
             $uploader->intdict = 'ico';
 
@@ -222,16 +222,16 @@ class Info_submit {
             }
         }
 
-        if (($file['favicon']['size'] > 0 && $arr['favicon'] != '') || $req['favicon_del'] == 'checked') {
+        if ((isset($file['favicon']) && $arr['favicon'] != '') || $req['favicon_del'] == 'checked') {
             $uploader->drop($arr['favicon']);
         }
-        if ($arr['favicon'] != '' && !$file['favicon']['name'] && $req['favicon_del'] != 'checked') {
+        if ($arr['favicon'] != '' && !isset($file['favicon']) && $req['favicon_del'] != 'checked') {
             $favicon_name = $arr['favicon'];
         }
 
         $logo_name = '';
 
-        if ($file['logo']['size'] > 0) {
+        if (isset($file['logo'])) {
             $uploader->file = $file['logo'];
             $uploader->intdict = SET_IMGTYPE;
             if ($uploader->chkfile('match') !== true) {
@@ -242,10 +242,10 @@ class Info_submit {
                 Valid::error('logo', '로고 업로드 실패');
             }
         }
-        if (($file['logo']['size'] > 0 && $arr['logo'] != '') || $req['logo_del'] == 'checked') {
+        if ((isset($file['logo']) && $arr['logo'] != '') || $req['logo_del'] == 'checked') {
             $uploader->drop($arr['logo']);
         }
-        if ($arr['logo'] != '' && !$file['logo']['name'] && $req['logo_del'] != 'checked') {
+        if ($arr['logo'] != '' && !isset($file['logo']) && $req['logo_del'] != 'checked') {
             $logo_name = $arr['logo'];
         }
 
@@ -777,7 +777,7 @@ class Seo_submit {
 
         $og_image_name = '';
 
-        if ($file['og_image']['size'] > 0) {
+        if (isset($file['og_image'])) {
             $uploader->file = $file['og_image'];
             $uploader->intdict = SET_IMGTYPE;
 
@@ -792,11 +792,11 @@ class Seo_submit {
             }
         }
 
-        if (($file['og_image']['size'] > 0 && $arr['og_image'] != '') || $req['og_image_del'] == 'checked') {
+        if ((isset($file['og_image']) && $arr['og_image'] != '') || $req['og_image_del'] == 'checked') {
             $uploader->drop($arr['og_image']);
         }
 
-        if ($arr['og_image'] != '' && !$file['og_image']['name'] && $req['og_image_del'] != 'checked'){
+        if ($arr['og_image'] != '' && !isset($file['og_image']) && $req['og_image_del'] != 'checked'){
             $og_image_name = $arr['og_image'];
         }
 

@@ -182,7 +182,7 @@ class Info_submit{
 
         $profileimg_name = '';
 
-        if ($file['profileimg']['size'] > 0) {
+        if (isset($file['profileimg'])) {
             $uploader->file = $file['profileimg'];
             $uploader->intdict = SET_IMGTYPE;
             if ($uploader->chkfile('match') !== true) {
@@ -193,10 +193,10 @@ class Info_submit{
                 Valid::error('profileimg', '프로필 이미지 업로드 실패');
             }
         }
-        if (($file['profileimg']['size'] > 0 && $MB['profileimg'] != '')) {
+        if ((isset($file['profileimg']) && $MB['profileimg'] != '')) {
             $uploader->drop($MB['profileimg']);
         }
-        if ($MB['profileimg'] != '' && !$file['profileimg']['name']) {
+        if ($MB['profileimg'] != '' && !isset($file['profileimg'])) {
             $profileimg_name = $MB['profileimg'];
         }
 

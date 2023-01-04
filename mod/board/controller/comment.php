@@ -378,7 +378,7 @@ class Comment_submit {
                     'from_mb_idx' => $MB['idx'],
                     'to_mb_idx' => $view['mb_idx'],
                     'memo' => '<strong>'.$writer.'</strong>님이 회원님의 게시글에 댓글을 남겼습니다.',
-                    'link' => $req['thisuri'].'?mode=view&read='.$req['read']
+                    'link' => $req['thisuri'].'/'.$req['read']
                 )
             );
         }
@@ -512,7 +512,7 @@ class Comment_submit {
                     'from_mb_idx' => $MB['idx'],
                     'to_mb_idx' => $comm_arr['mb_idx'],
                     'memo' => '<strong>'.$writer.'</strong>님이 회원님의 댓글에 대댓글을 남겼습니다.',
-                    'link' => $req['thisuri'].'?mode=view&read='.$req['read']
+                    'link' => $req['thisuri'].'/'.$req['read']
                 )
             );
         }

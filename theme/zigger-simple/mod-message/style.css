@@ -21,9 +21,9 @@
 @media screen and (max-width: 1000px){
 
     #message-send{top: 20%;left: 5%;margin-top: 0;margin-left: 0;width: 90%;height: 60%;padding-top: 45px;}
-    #message-send .tit{line-height: 45px;padding: 0 15px;}
+    #message-send .tit{line-height: 50px;padding: 0 15px;}
     #message-send .tit h2{font-size: 14px;}
-    #message-send .tit .close{width: 45px;height: 45px;line-height: 45px;}
+    #message-send .tit .close{width: 50px;height: 50px;line-height: 50px;}
     #message-send .cont{padding: 15px;}
     #message-send .tbl colgroup{display: none;}
     #message-send .tbl tbody th{font-size: 12px;width: 50px;}

@@ -106,7 +106,7 @@ class Search extends \Controller\Make_Controller {
             if ($sql->getcount() > 0) {
                 do {
                     $arr['subject'] = $sql->fetch('subject');
-                    $arr['link'] = '?mode=view&read='.$sql->fetch('idx');
+                    $arr['link'] = '/'.$sql->fetch('idx');
                     $arr['info']['writer'] = $sql->fetch('writer');
                     $arr['info']['regdate'] = Func::date($sql->fetch('regdate'));
 

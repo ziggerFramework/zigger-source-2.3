@@ -889,8 +889,8 @@ class Modify_submit {
         if (!$req['m_txt_limit']) {
             $req['m_txt_limit'] = 100;
         }
-        if (!$req['article_min_len']) {
-            $req['article_min_len'] = 30;
+        if (!$req['article_min_len'] || $req['article_min_len'] < 0) {
+            $req['article_min_len'] = 0;
         }
         if (!$req['read_point']) {
             $req['read_point'] = 0;
@@ -1266,6 +1266,9 @@ class Board extends \Controller\Make_Controller {
             $cat_exp = explode('|', $boardconf['category']);
             $html = '';
 
+            if ($boardconf['use_category'] != 'Y') {
+                return '';
+            }
             for ($i = 0; $i<sizeOf($cat_exp); $i++) {
                 $html .= '<li><a href="board?id='.$req['id'].'&category='.urlencode($cat_exp[$i]).'"><em>'.$cat_exp[$i].'</em></a></li>'.PHP_EOL;
             }
@@ -1955,7 +1958,7 @@ class Board_view extends \Controller\Make_Controller {
                     $fileinfo = Func::get_fileinfo($arr['file'.$i]);
 
                     $files[$i] = '
-                    <a href=\''.MOD_BOARD_DIR.'/controller/file/down?board_id='.Board_view::$boardconf['id'].'&file='.urlencode($arr['file'.$i]).'&OUTLOAD=1\' target=\'_blank\'>'.Func::strcut($fileinfo['orgfile'],0,70).'</a>
+                    <a href=\''.MOD_BOARD_DIR.'/controller/file/down?board_id='.Board_view::$boardconf['id'].'&file='.urlencode($arr['file'.$i]).'\' target=\'_blank\'>'.Func::strcut($fileinfo['orgfile'],0,70).'</a>
                     <span class=\'byte\'>('.number_format($fileinfo['byte'] / 1024, 0).'K)</span>
                     <span class=\'cnt\'><strong>'.Func::number($arr['file'.$i.'_cnt']).'</strong> 회 다운로드</span>
                     ';

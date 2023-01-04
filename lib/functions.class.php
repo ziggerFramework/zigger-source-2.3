@@ -238,7 +238,7 @@ class Func {
 
         if (strlen($cutstr) < strlen($str)) {
             return $cutstr.'···';
-        }else{
+        } else {
             return $cutstr;
         }
     }
@@ -352,6 +352,34 @@ class Func {
                 )
             );
             $sms->send();
+        }
+    }
+
+    //Parameter 조합
+    static public function get_param_combine($param, $chain = '')
+    {
+        $paramArr = array();
+
+        $firstChars = array('&', '?');
+        if (in_array(substr($param, 0, 1), $firstChars)) {
+            $param = substr($param, 1);
+        }
+        $paramExp = explode('&', $param);
+
+        foreach ($paramExp as $list) {
+            if ($list == '') {
+                continue;
+            }
+            $valExp = explode('=', $list);
+            if ($valExp[1] != '') {
+                $paramArr[] = $valExp[0].'='.$valExp[1];
+            }
+        }
+
+        if (count($paramArr) > 0) {
+            return $chain.implode('&', $paramArr);
+        } else {
+            return '';
         }
     }
 
@@ -504,14 +532,30 @@ class Func {
     }
 
     //현재 URI 반환
-    static public function thisuri()
+    static public function thisuri($fancyQry = '')
     {
         if (!strstr($_SERVER['QUERY_STRING'], 'rewritepage=')) {
             return '/';
         }
+
         $uri = $_SERVER['REQUEST_URI'];
-        $qry = substr($_SERVER['QUERY_STRING'], strpos($_SERVER['QUERY_STRING'],'&')+1);
+        $qry = $_SERVER['QUERY_STRING'];
+
+        //rewriterule 로 url이 단축되어 실제 브라우저에서 노출되는 query_string과 다른 경우를 위한 처리
+        if ($fancyQry != '') {
+            $qry = str_replace($fancyQry, '', $qry);
+        }
+        $qry = substr($qry, strpos($_SERVER['QUERY_STRING'],'&') + 1);
         $uri = str_replace('?'.$qry, '', $uri);
+
+        //uri 끝에 숫자만 존재한다면 path 에서 제외 (get parameter로 간주)
+        $uri_exp = explode('/', $uri);
+
+        if (preg_match("/^[0-9]+$/", $uri_exp[count($uri_exp) - 1])) {
+            unset($uri_exp[count($uri_exp) - 1]);
+            $uri = implode('/', $uri_exp);
+        }
+
         return $uri;
     }
 

@@ -1,3 +1,16 @@
+### Apache의 MultiViews Option이 활성화 되어있어 오류가 발생하는 경우
+### 아래 'Options -MultiViews' 주석을 해제하여 MultiViews 종료
+# Options -MultiViews
+
+### Apache의 AllowOverride Options이 비활성화 되어있어 오류가 발생하는 경우
+### 아래 'php_*' 구문을 주석처리하여 로그 기록 종료
+php_flag display_startup_errors On
+php_flag display_errors On
+php_flag html_errors On
+php_flag log_errors On
+php_value error_reporting -1
+php_value error_log ./data/php-error-logs.log
+
 RewriteEngine On
 
 RewriteRule ^install($|/.*) - [L]
@@ -5,20 +18,16 @@ RewriteRule ^install($|/.*) - [L]
 RewriteRule ^manage$ manage/index.php [L]
 RewriteRule ^manage/$ manage/index.php [L]
 
-RewriteRule ^($|/.*) - [L]
-RewriteRule ^([a-zA-Z0-9/_-]+)/$ index.php?rewritepage=$1 [L]
-
 RewriteCond %{QUERY_STRING} ^(.*)$ [NC]
-RewriteRule ^([a-zA-Z0-9/_-]+)$ index.php?rewritepage=$1&%1 [L]
+RewriteRule ^([a-zA-Z0-9/_-]+)/([0-9]+)$ index.php?rewritepage=$1&mode=view&read=$2&%1 [L]
+
+RewriteRule ^($|/.*) - [L]
+RewriteRule ^(.*)/$ index.php?rewritepage=$1 [L]
+
+RewriteCond %{REQUEST_URI} !(\.php|\.css|\.js|\.png|\.jpg|\.gif|\.woff|\.eot|\.svg)$ [NC]
+RewriteCond %{QUERY_STRING} ^(.*)$ [NC]
+RewriteRule ^(.*)$ index.php?rewritepage=$1&%1 [L]
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule .? index.php?rewritepage=error/code404% [L]
-
-# Remove if 'AllowOverride Options' is not supported by 'Apache'
-php_flag display_startup_errors On
-php_flag display_errors On
-php_flag html_errors On
-php_flag log_errors On
-php_value error_reporting -1
-php_value error_log ./data/php-error-logs.log

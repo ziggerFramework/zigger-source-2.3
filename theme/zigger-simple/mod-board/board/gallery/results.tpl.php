@@ -17,7 +17,7 @@
 	<!-- category -->
 	<?php if ($is_category_show) { ?>
 	<div id="board-cat">
-        <h3>게시판 카테고리</h3>
+        <h3 class="sound_only_ele">게시판 카테고리</h3>
 		<?php echo $print_category; ?>
 	</div>
 	<?php } ?>

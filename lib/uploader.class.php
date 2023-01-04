@@ -223,7 +223,7 @@ class Uploader {
 
             } catch (S3Exception $e) {
                 if ($e->getMessage()) {
-                    Func::err_print($e->getMessage());
+                    Func::err_print(ERR_MSG_13);
                     return false;
                 }
             }
@@ -366,7 +366,7 @@ class Uploader {
     //에디터 사진 삭제
     public function edt_drop($article)
     {
-        echo $this->path = PH_PLUGIN_PATH.'/'.PH_PLUGIN_CKEDITOR;
+        $this->path = PH_PLUGIN_PATH.'/'.PH_PLUGIN_CKEDITOR;
         preg_match_all("/ckeditor\/[a-zA-Z0-9-_\.]+.(jpg|gif|png|bmp)/i", $article,$sEditor_images_ex);
 
         for ($i=0; $i < count($sEditor_images_ex[0]); $i++) {

@@ -86,7 +86,7 @@ class Paging
     public function setparam($addParam)
     {
         if (is_string($addParam)) {
-            $this->addParam = $addParam;
+            $this->addParam = Func::get_param_combine($addParam, '&');
 
         } else {
             $this->addParam = basename($_SERVER['REQUEST_URI']);

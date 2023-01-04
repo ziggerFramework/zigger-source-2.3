@@ -241,7 +241,7 @@ class Tomember_submit{
             $req['resv_min'] = '';
         }
 
-        if ($file['image']['size'] > 0) {
+        if (isset($file['image'])) {
 
             $uploader = new Uploader();
             $uploader->file = $file['image'];
