@@ -1,6 +1,6 @@
-///
+//
 // Ajax Validator
-///
+//
 ajax_valid = {
 	'init' : function() {
 		this.action();
@@ -64,9 +64,9 @@ $(function(){
 	ajax_valid.init();
 });
 
-///
+//
 // Ajax Form Validator
-///
+//
 valid = {
 	'error' : function($form, opt) {
 
@@ -84,7 +84,7 @@ valid = {
 		} else if ($.trim(opt.msg) !== '') {
             if (typeof inp_tit != 'undefined' && typeof inp_tit != 'null') {
                 zigalert(inp_tit + ' : ' + opt.msg);
-                
+
             } else {
                 zigalert(opt.msg);
             }
@@ -149,9 +149,9 @@ valid = {
 	}
 }
 
-///
+//
 // Return Ajax Submit
-///
+//
 returnAjaxSubmit = function($form, data) {
     var trim_data = data.replace(/(<([^>]+)>)/ig, '');
 
@@ -192,20 +192,20 @@ returnAjaxSubmit = function($form, data) {
 	}
 }
 
-///
+//
 // Plugin : CKEditor
-///
+//
 function ckeEditor_action() {
 	$('textarea[ckeditor]').each(function() {
 		var t_id = $(this).attr('id');
 		var t_cont = CKEDITOR.instances[t_id].getData();
 		$(this).val(t_cont);
-	})
+	});
 }
 
-///
+//
 // Ajax Submit
-///
+//
 ajaxSubmit = {
 	'init' : function($form) {
 		this.action($form);
@@ -233,9 +233,9 @@ ajaxSubmit = {
 	}
 }
 
-///
+//
 // Ajax Submit With File
-///
+//
 ajaxFileSubmit = {
 	'init' : function($form) {
 		this.action($form);
@@ -286,9 +286,9 @@ ajaxFileSubmit = {
     }
 }
 
-///
+//
 // Ajax Form을 본문에서 찾아 Form setting
-///
+//
 setAjaxForm = {
 	'init' : function() {
 		this.action();
@@ -319,9 +319,9 @@ $(function() {
 	setAjaxForm.init();
 });
 
-///
+//
 // Cookie
-///
+//
 function setCookie(name, value, expiredays) {
 	var todayDate = new Date();
 	if (expiredays === null) {
@@ -351,9 +351,9 @@ function getCookie(name) {
     return '';
 }
 
-///
+//
 // Before confirm
-///
+//
 formBeforeConfirm = {
     'init' : function() {
         this.action();
@@ -393,46 +393,49 @@ formBeforeConfirm = {
                     $inp[i].val(org_val[i]);
                 }
             }
-        })
+        });
     }
 }
 $(function(){
     formBeforeConfirm.init();
-})
+});
 
-///
+//
 // Setting Tabindex
-///
+//
+set_elements_tabindex = function() {
+    $('button, input, a, *[tabindex]').each(function(i) {
+        if ($(this).closest('*[data-no-tab-index]').length > 0) {
+            return;
+        }
+
+        $(this).attr('data-tab-index', i);
+    });
+}
 make_elements_tabindex = {
     'init' : function() {
         this.action();
     },
     'action' : function() {
-        $('button, input, a, *[tabindex]').each(function(i) {
-            $(this).attr('data-tab-index', i);
-        });
 
-        $(window).on({
-            'load' : function() {
-                $('button, input, a, *[tabindex]').on({
-                    'click' : function(e) {
-                        var tab_index = $(this).data('tab-index');
-                        if (tab_index) {
-                            NOW_TABINDEX = tab_index;
-                        }
-                    }
-                })
+        set_elements_tabindex();
+        $(document).on('click', 'button, input, a, *[tabindex]', function() {
+            var tab_index = $(this).data('tab-index');
+
+            if (tab_index) {
+                PH_NOW_TABINDEX = tab_index;
             }
-        })
+        });
     }
 }
 $(function() {
     make_elements_tabindex.init();
-})
+    setInterval(set_elements_tabindex, 100);
+});
 
-///
+//
 // Zigger alert
-///
+//
 zigalert = function(msg) {
 
     var $ele = {
@@ -455,5 +458,5 @@ zigalert = function(msg) {
             e.preventDefault();
             $(this).remove();
         }
-    })
+    });
 }

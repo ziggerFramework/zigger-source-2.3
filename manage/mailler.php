@@ -7,18 +7,21 @@ use Make\Library\Paging;
 use Make\Library\Mail;
 use Manage\ManageFunc;
 
-/***
-Template
-***/
+//
+// Controller for display
+// https://{domain}/manage/mailler/template
+//
 class Template extends \Controller\Make_Controller {
 
-    public function init(){
+    public function init()
+    {
         $this->layout()->mng_head();
         $this->layout()->view(PH_MANAGE_PATH.'/html/mailler/template.tpl.php');
         $this->layout()->mng_foot();
     }
 
-    public function func(){
+    public function func()
+    {
         function tpl_total($arr)
         {
             return Func::number($arr['total']);
@@ -33,38 +36,34 @@ class Template extends \Controller\Make_Controller {
         $paging = new Paging();
         $manage = new ManageFunc();
 
-        //sortby
+        // sortby
         $sortby = '';
         $sort_arr = array();
 
         $sql->query(
             "
-            SELECT
+            select
             (
-                SELECT COUNT(*)
-                FROM {$sql->table("mailtpl")}
+                select count(*)
+                from {$sql->table("mailtpl")}
             ) total
             ", []
         );
         $sort_arr['total'] = $sql->fetch('total');
 
-        //orderby
-        if (!$PARAM['ordtg']) {
-            $PARAM['ordtg'] = 'regdate';
-        }
-        if (!$PARAM['ordsc']) {
-            $PARAM['ordsc'] = 'desc';
-        }
+        // orderby
+        if (!$PARAM['ordtg']) $PARAM['ordtg'] = 'regdate';
+        if (!$PARAM['ordsc']) $PARAM['ordsc'] = 'desc';
         $orderby = $PARAM['ordtg'].' '.$PARAM['ordsc'];
 
-        //list
+        // list
         $sql->query(
             $paging->query(
                 "
-                SELECT *
-                FROM {$sql->table("mailtpl")}
-                WHERE 1 $sortby $searchby
-                ORDER BY $orderby
+                select *
+                from {$sql->table("mailtpl")}
+                where 1 $sortby $searchby
+                order by $orderby
                 ", []
             )
         );
@@ -94,9 +93,10 @@ class Template extends \Controller\Make_Controller {
 
 }
 
-/***
-Regist
-***/
+//
+// Controller for display
+// https://{domain}/manage/mailler/regist
+//
 class Regist extends \Controller\Make_Controller {
 
     public function init()
@@ -124,9 +124,10 @@ class Regist extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for Regist
-***/
+//
+// Controller for submit
+// ( Regist )
+//
 class Regist_submit{
 
     public function init()
@@ -157,26 +158,24 @@ class Regist_submit{
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("mailtpl")}
-            WHERE type=:col1
-            ORDER BY regdate DESC
+            select *
+            from {$sql->table("mailtpl")}
+            where type=:col1
+            order by regdate DESC
             ",
             array(
                 $req['type']
             )
         );
 
-        if ($sql->getcount() > 0) {
-            Valid::error('type', '이미 존재하는 템플릿 type 입니다.');
-        }
+        if ($sql->getcount() > 0) Valid::error('type', '이미 존재하는 템플릿 type 입니다.');
 
         $sql->query(
             "
-            INSERT INTO {$sql->table("mailtpl")}
-            (type,title,html,regdate)
+            insert into {$sql->table("mailtpl")}
+            (type, title, html, regdate)
             VALUES
-            (:col1,:col2,:col3,now())
+            (:col1, :col2, :col3, now())
             ",
             array(
                 $req['type'], $req['title'], $req['html']
@@ -185,10 +184,10 @@ class Regist_submit{
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("mailtpl")}
-            WHERE type=:col1
-            ORDER BY regdate DESC
+            select *
+            from {$sql->table("mailtpl")}
+            where type=:col1
+            order by regdate DESC
             ",
             array(
                 $req['type']
@@ -208,9 +207,10 @@ class Regist_submit{
 
 }
 
-/***
-Modify
-***/
+//
+// Controller for display
+// https://{domain}/manage/mailler/modify
+//
 class Modify extends \Controller\Make_Controller {
 
     public function init()
@@ -229,10 +229,10 @@ class Modify extends \Controller\Make_Controller {
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("mailtpl")}
-            WHERE idx=:col1
-            LIMIT 1
+            select *
+            from {$sql->table("mailtpl")}
+            where idx=:col1
+            limit 1
             ",
             array(
                 $req['idx']
@@ -274,12 +274,14 @@ class Modify extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for Modify
-***/
+//
+// Controller for submit
+// ( Modify )
+//
 class Modify_submit{
 
-    public function init(){
+    public function init()
+    {
         global $req;
 
         $manage = new ManageFunc();
@@ -300,9 +302,9 @@ class Modify_submit{
         }
     }
 
-    ///
+    //
     // modify
-    ///
+    //
     public function get_modify()
     {
         global $req;
@@ -311,10 +313,10 @@ class Modify_submit{
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("mailtpl")}
-            WHERE idx=:col1
-            LIMIT 1
+            select *
+            from {$sql->table("mailtpl")}
+            where idx=:col1
+            limit 1
             ",
             array(
                 $req['idx']
@@ -332,9 +334,9 @@ class Modify_submit{
 
             $sql->query(
                 "
-                UPDATE {$sql->table("mailtpl")}
-                SET html=:col1
-                WHERE idx=:col2
+                update {$sql->table("mailtpl")}
+                set html=:col1
+                where idx=:col2
                 ",
                 array(
                     $req['html'], $req['idx']
@@ -345,9 +347,9 @@ class Modify_submit{
 
             $sql->query(
                 "
-                UPDATE {$sql->table("mailtpl")}
-                SET title=:col1,html=:col2
-                WHERE idx=:col3
+                update {$sql->table("mailtpl")}
+                set title=:col1,html=:col2
+                where idx=:col3
                 ",
                 array(
                     $req['title'], $req['html'], $req['idx']
@@ -365,9 +367,9 @@ class Modify_submit{
         Valid::turn();
     }
 
-    ///
+    //
     // delete
-    ///
+    //
     public function get_delete()
     {
         global $req;
@@ -377,28 +379,24 @@ class Modify_submit{
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("mailtpl")}
-            WHERE idx=:col1
-            LIMIT 1
+            select *
+            from {$sql->table("mailtpl")}
+            where idx=:col1
+            limit 1
             ",
             array(
                 $req['idx']
             )
         );
 
-        if ($sql->getcount() < 1) {
-            Valid::error('', '메일 템플릿이 존재하지 않습니다.');
-        }
-        if ($sql->fetch('system') == 'Y') {
-            Valid::error('', '시스템 발송 메일 템플릿은 삭제 불가합니다.');
-        }
+        if ($sql->getcount() < 1) Valid::error('', '메일 템플릿이 존재하지 않습니다.');
+        if ($sql->fetch('system') == 'Y') Valid::error('', '시스템 발송 메일 템플릿은 삭제 불가합니다.');
 
         $sql->query(
             "
-            DELETE
-            FROM {$sql->table("mailtpl")}
-            WHERE idx=:col1
+            delete
+            from {$sql->table("mailtpl")}
+            where idx=:col1
             ",
             array(
                 $req['idx']
@@ -417,9 +415,10 @@ class Modify_submit{
 
 }
 
-/***
-Send
-***/
+//
+// Controller for display
+// https://{domain}/manage/mailler/send
+//
 class Send extends \Controller\Make_Controller {
 
     public function init()
@@ -437,10 +436,10 @@ class Send extends \Controller\Make_Controller {
 
             $sql->query(
                 "
-                SELECT *
-                FROM {$sql->table("mailtpl")}
-                WHERE system='N' OR type='default'
-                ORDER BY type ASC
+                select *
+                from {$sql->table("mailtpl")}
+                where system='N' or type='default'
+                order by type asc
                 ", []
             );
 
@@ -478,9 +477,10 @@ class Send extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for Send
-***/
+//
+// Controller for submit
+// ( Send )
+//
 class Send_submit{
 
     public function init()
@@ -502,14 +502,11 @@ class Send_submit{
                 )
             );
 
-        } else {
-            if ($req['level_from'] > $req['level_to']) {
-                Valid::error('level_to', '수신 종료 level 보다 시작 level이 클 수 없습니다.');
-            }
+        } else if ($req['level_from'] > $req['level_to']) {
+            Valid::error('level_to', '수신 종료 level 보다 시작 level이 클 수 없습니다.');
         }
-        if (!$req['tpl']) {
-            Valid::error('tpl', '메일 템플릿이 존재하지 않거나 선택되지 않았습니다.');
-        }
+
+        if (!$req['tpl']) Valid::error('tpl', '메일 템플릿이 존재하지 않거나 선택되지 않았습니다.');
 
         Valid::get(
             array(
@@ -530,25 +527,21 @@ class Send_submit{
 
             $sql->query(
                 "
-                SELECT *
-                FROM {$sql->table("member")}
-                WHERE mb_id=:col1 AND mb_dregdate IS NULL
+                select *
+                from {$sql->table("member")}
+                where mb_id=:col1 and mb_dregdate is null
                 ",
                 array(
                     $req['to_mb']
                 )
             );
 
-            if ($sql->getcount() < 1) {
-                Valid::error('', '존재하지 않는 회원 id 입니다.');
-            }
-            if (!$sql->fetch('mb_email')) {
-                Valid::error('', '회원 email이 등록되어 있지 않습니다.');
-            }
+            if ($sql->getcount() < 1) Valid::error('', '존재하지 않는 회원 id 입니다.');
+            if (!$sql->fetch('mb_email')) Valid::error('', '회원 email이 등록되어 있지 않습니다.');
+
             $rcv_email[] = array(
                 'email' => $sql->fetch('mb_email')
             );
-
             $req['level_from'] = 0;
             $req['level_to'] = 0;
         }
@@ -557,10 +550,10 @@ class Send_submit{
 
             $sql->query(
                 "
-                SELECT *
-                FROM {$sql->table("member")}
-                WHERE mb_level>=:col1 AND mb_level<=:col2 AND mb_dregdate IS NULL
-                ORDER BY mb_idx ASC
+                select *
+                from {$sql->table("member")}
+                where mb_level>=:col1 and mb_level<=:col2 and mb_dregdate is null
+                order by mb_idx asc
                 ",
                 array(
                     $req['level_from'],
@@ -568,14 +561,13 @@ class Send_submit{
                 )
             );
 
-            if ($sql->getcount() < 1) {
-                Valid::error('', '범위내 수신할 회원이 존재하지 않습니다.');
-            }
+            if ($sql->getcount() < 1) Valid::error('', '범위내 수신할 회원이 존재하지 않습니다.');
 
             do {
                 $rcv_email[] = array(
                     'email' => $sql->fetch('mb_email')
                 );
+
             } while ($sql->nextRec());
 
             $req['to_mb'] = '';
@@ -593,10 +585,10 @@ class Send_submit{
 
         $sql->query(
             "
-            INSERT INTO {$sql->table("sentmail")}
-            (template,to_mb,level_from,level_to,subject,html,regdate)
+            insert into {$sql->table("sentmail")}
+            (template, to_mb, level_from, level_to, subject, html, regdate)
             VALUES
-            (:col1,:col2,:col3,:col4,:col5,:col6,now())
+            (:col1, :col2, :col3, :col4, :col5, :col6, now())
             ",
             array(
                 $req['tpl'], $req['to_mb'], $req['level_from'], $req['level_to'], $req['subject'], $req['html']
@@ -605,11 +597,11 @@ class Send_submit{
 
         $sql->query(
             "
-            SELECT idx
-            FROM {$sql->table("sentmail")}
-            WHERE subject=:col1
-            ORDER BY regdate DESC
-            LIMIT 1
+            select idx
+            from {$sql->table("sentmail")}
+            where subject=:col1
+            order by regdate DESC
+            limit 1
             ",
             array(
                 $req['subject']
@@ -630,12 +622,14 @@ class Send_submit{
 
 }
 
-/***
-History
-***/
+//
+// Controller for display
+// https://{domain}/manage/mailler/history
+//
 class History extends \Controller\Make_Controller {
 
-    public function init(){
+    public function init()
+    {
         $this->layout()->mng_head();
         $this->layout()->view(PH_MANAGE_PATH.'/html/mailler/history.tpl.php');
         $this->layout()->mng_foot();
@@ -661,21 +655,15 @@ class History extends \Controller\Make_Controller {
         function print_level($arr)
         {
             global $MB;
-            if ($arr['to_mb']) {
-                return '특정 회원 지정';
-            } else {
-                return $arr['level_from'].' ('.$MB['type'][$arr['level_from']].') ~ '.$arr['level_to'].' ('.$MB['type'][$arr['level_to']].')';
-            }
+
+            return ($arr['to_mb']) ? '특정 회원 지정' : $arr['level_from'].' ('.$MB['type'][$arr['level_from']].') ~ '.$arr['level_to'].' ('.$MB['type'][$arr['level_to']].')';
         }
 
         function print_to_mb($arr)
         {
             global $MB;
-            if (!$arr['to_mb']) {
-                return '수신 범위 지정';
-            } else {
-                return $arr['to_mb'];
-            }
+
+            return (!$arr['to_mb']) ? '수신 범위 지정' : $arr['to_mb'];
         }
     }
 
@@ -687,60 +675,57 @@ class History extends \Controller\Make_Controller {
         $paging = new Paging();
         $manage = new ManageFunc();
 
-        //sortby
+        // sortby
         $sortby = '';
         $sort_arr = array();
 
         $sql->query(
             "
-            SELECT
+            select
             (
-                SELECT COUNT(*)
-                FROM {$sql->table("sentmail")}
+                select count(*)
+                from {$sql->table("sentmail")}
             ) total,
             (
-                SELECT COUNT(*)
-                FROM {$sql->table("sentmail")}
-                WHERE to_mb IS NOT NULL AND to_mb!=''
+                select count(*)
+                from {$sql->table("sentmail")}
+                where to_mb is not null and to_mb!=''
             ) to_mb_total,
             (
-                SELECT COUNT(*)
-                FROM {$sql->table("sentmail")}
-                WHERE to_mb IS NULL OR to_mb=''
+                select count(*)
+                from {$sql->table("sentmail")}
+                where to_mb is null or to_mb=''
             ) level_from_total
             ", []
         );
+
         $sort_arr['total'] = $sql->fetch('total');
         $sort_arr['to_mb_total'] = $sql->fetch('to_mb_total');
         $sort_arr['level_from_total'] = $sql->fetch('level_from_total');
 
         switch ($PARAM['sort']) {
             case 'to_mb' :
-                $sortby = 'AND to_mb IS NOT NULL AND to_mb!=\'\'';
+                $sortby = 'and to_mb is not null and to_mb!=\'\'';
                 break;
 
             case 'level_from' :
-                $sortby = 'AND to_mb IS NULL OR to_mb=\'\'';
+                $sortby = 'and to_mb is null or to_mb=\'\'';
                 break;
         }
 
-        //orderby
-        if (!$PARAM['ordtg']) {
-            $PARAM['ordtg'] = 'regdate';
-        }
-        if (!$PARAM['ordsc']) {
-            $PARAM['ordsc'] = 'desc';
-        }
+        // orderby
+        if (!$PARAM['ordtg']) $PARAM['ordtg'] = 'regdate';
+        if (!$PARAM['ordsc']) $PARAM['ordsc'] = 'desc';
         $orderby = $PARAM['ordtg'].' '.$PARAM['ordsc'];
 
-        //list
+        // list
         $sql->query(
             $paging->query(
                 "
-                SELECT *
-                FROM {$sql->table("sentmail")}
-                WHERE 1 $sortby $searchby
-                ORDER BY $orderby
+                select *
+                from {$sql->table("sentmail")}
+                where 1 $sortby $searchby
+                order by $orderby
                 ", []
             )
         );
@@ -773,9 +758,10 @@ class History extends \Controller\Make_Controller {
 
 }
 
-/***
-Historyview
-***/
+//
+// Controller for display
+// https://{domain}/manage/mailler/historyview
+//
 class Historyview extends \Controller\Make_Controller {
 
     public function init()
@@ -790,12 +776,8 @@ class Historyview extends \Controller\Make_Controller {
         function print_level($arr)
         {
             global $MB;
-            if ($arr['to_mb']) {
-                return '';
 
-            } else {
-                return $arr['level_from'].' ('.$MB['type'][$arr['level_from']].') ~ '.$arr['level_to'].' ('.$MB['type'][$arr['level_to']].')';
-            }
+            return ($arr['to_mb']) ? '' : $arr['level_from'].' ('.$MB['type'][$arr['level_from']].') ~ '.$arr['level_to'].' ('.$MB['type'][$arr['level_to']].')';
         }
     }
 
@@ -808,19 +790,17 @@ class Historyview extends \Controller\Make_Controller {
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("sentmail")}
-            WHERE idx=:col1
-            LIMIT 1
+            select *
+            from {$sql->table("sentmail")}
+            where idx=:col1
+            limit 1
             ",
             array(
                 $req['idx']
             )
         );
 
-        if ($sql->getcount() < 1) {
-            Func::err_back('메일 발송 내역이 존재하지 않습니다.');
-        }
+        if ($sql->getcount() < 1) Func::err_back('메일 발송 내역이 존재하지 않습니다.');
 
         $arr = $sql->fetchs();
         $sql->specialchars = 0;

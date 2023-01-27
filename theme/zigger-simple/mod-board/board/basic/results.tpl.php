@@ -50,7 +50,7 @@
                     <th scope="col">날짜</th>
                     <th scope="col">조회</th>
                     <?php if ($is_likes_show) { ?>
-                    <th scope="col" class="like">좋아요</td>
+                    <th scope="col" class="like">좋아요</th>
                     <?php } ?>
 				</tr>
 			</thead>
@@ -58,50 +58,50 @@
             <!-- 공지글 -->
             <tbody class="notice">
                 <?php foreach ($print_notice as $list) { ?>
-                    <tr>
-                        <?php if ($is_ctr_show) { ?>
-                        <td class="chk"><input type="checkbox" name="cnum[]" value="<?php echo $list['idx']; ?>" /></td>
-                        <?php } ?>
-                        <td class="no"><strong>공지</strong></td>
-                        <td class="sbj">
+                <tr>
+                    <?php if ($is_ctr_show) { ?>
+                    <td class="chk"><input type="checkbox" name="cnum[]" value="<?php echo $list['idx']; ?>" /></td>
+                    <?php } ?>
+                    <td class="no"><strong>공지</strong></td>
+                    <td class="sbj">
 
-                            <a href="<?php echo $list[0]['get_link']; ?>">
-                                <?php echo $list[0]['secret_ico']; ?>
-                                <?php echo $list[0]['subject']; ?>
+                        <a href="<?php echo $list[0]['get_link']; ?>">
+                            <?php echo $list[0]['secret_ico']; ?>
+                            <?php echo $list[0]['subject']; ?>
 
-                                <?php echo $list[0]['file_ico']; ?>
-                                <?php echo $list[0]['new_ico']; ?>
-                                <?php echo $list[0]['hot_ico']; ?>
+                            <?php echo $list[0]['file_ico']; ?>
+                            <?php echo $list[0]['new_ico']; ?>
+                            <?php echo $list[0]['hot_ico']; ?>
 
-                                <?php if ($is_comment_show) { ?>
-                                    <span class="cmt"><?php echo $list[0]['comment_cnt']; ?></span>
-                                <?php } ?>
-                            </a>
-
-                        </td>
-                        <td class="writer">
-                            <?php if ($list[0]['profileimg']) { ?>
-                            <div class="board-mb-profileimg" style="background-image: url('<?php echo $list[0]['profileimg']; ?>');"></div>
+                            <?php if ($is_comment_show) { ?>
+                                <span class="cmt"><?php echo $list[0]['comment_cnt']; ?></span>
                             <?php } ?>
+                        </a>
 
-                            <?php echo $list[0]['writer']; ?>
-                        </td>
-                        <td class="no" title="<?php echo $list['datetime']; ?>"><?php echo $list['date']; ?></td>
-                        <td class="no"><?php echo $list['view']; ?></td>
-                        <?php if ($is_likes_show) { ?>
-                        <td class="no like"><strong><?php echo $list['likes_cnt']; ?></strong>/<?php echo $list['unlikes_cnt']; ?></td>
+                    </td>
+                    <td class="writer">
+                        <?php if ($list[0]['profileimg']) { ?>
+                        <div class="board-mb-profileimg" style="background-image: url('<?php echo $list[0]['profileimg']; ?>');"></div>
                         <?php } ?>
 
-                        <!-- for mobile -->
-                        <td class="mobile-info">
-                            <ul>
-                                <li><strong>작성자</strong><?php echo $list[0]['writer']; ?></li>
-                                <li><strong>날짜</strong><?php echo $list['date']; ?></li>
-                                <li><strong>조회</strong><?php echo $list['view']; ?></li>
-                                <li><strong>좋아요</strong><?php echo $list['likes_cnt']; ?>/<?php echo $list['unlikes_cnt']; ?></li>
-                            </ul>
-                        </td>
-                    </tr>
+                        <?php echo $list[0]['writer']; ?>
+                    </td>
+                    <td class="no" title="<?php echo $list['datetime']; ?>"><?php echo $list['date']; ?></td>
+                    <td class="no"><?php echo $list['view']; ?></td>
+                    <?php if ($is_likes_show) { ?>
+                    <td class="no like"><strong><?php echo $list['likes_cnt']; ?></strong>/<?php echo $list['unlikes_cnt']; ?></td>
+                    <?php } ?>
+
+                    <!-- for mobile -->
+                    <td class="mobile-info">
+                        <ul>
+                            <li><strong>작성자</strong><?php echo $list[0]['writer']; ?></li>
+                            <li><strong>날짜</strong><?php echo $list['date']; ?></li>
+                            <li><strong>조회</strong><?php echo $list['view']; ?></li>
+                            <li><strong>좋아요</strong><?php echo $list['likes_cnt']; ?>/<?php echo $list['unlikes_cnt']; ?></li>
+                        </ul>
+                    </td>
+                </tr>
                 <?php } ?>
             </tbody>
 

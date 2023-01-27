@@ -6,39 +6,31 @@ function permschk($dir)
 
 function phpversions()
 {
-    $version = (string)phpversion();
-    if ($version > '5.5.0') {
-        return true;
-    } else {
-        return false;
-    }
+    $version = (float)phpversion();
+    return ($version > '5.5') ? true : false;
 }
 
 function extschk($exts)
 {
     $loaded = extension_loaded($exts);
-    if ($loaded !== false) {
-        return true;
-
-    } else {
-        return false;
-    }
+    return ($loaded !== false) ? true : false;
 }
 
 function step1_chk()
 {
-    if (
-        permschk('../data/') !== false &&
-        permschk('../robots.txt') !== false &&
-        phpversions() !== false &&
-        extschk('GD') !== false &&
-        extschk('mbstring') !== false &&
-        extschk('PDO') !== false &&
-        extschk('curl') !== false
-    ) {
-        return true;
+    $loaded = array(
+        permschk('../data/'),
+        permschk('../robots.txt'),
+        phpversions(),
+        extschk('GD'),
+        extschk('mbstring'),
+        extschk('PDO'),
+        extschk('curl')
+    );
 
-    } else {
-        return false;
+    foreach ($loaded as $key => $value) {
+        if ($value !== true) return false;
     }
+
+    return true;
 }

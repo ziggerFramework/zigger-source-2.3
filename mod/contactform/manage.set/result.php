@@ -7,9 +7,10 @@ use Make\Library\Paging;
 use Make\Library\Mail;
 use Manage\ManageFunc;
 
-/***
-Result
-***/
+//
+// Controller for display
+// https://{domain}/manage/mod/contactform/result/result
+//
 class Result extends \Controller\Make_Controller {
 
     public function init()
@@ -28,22 +29,12 @@ class Result extends \Controller\Make_Controller {
 
         function print_name($arr)
         {
-            if ($arr['mb_idx'] != 0) {
-                return '<a href="'.PH_MANAGE_DIR.'/member/modify?idx='.$arr['mb_idx'].'">'.$arr['name'].'</a>';
-
-            } else {
-                return $arr['name'];
-            }
+            return ($arr['mb_idx'] != 0) ? '<a href="'.PH_MANAGE_DIR.'/member/modify?idx='.$arr['mb_idx'].'">'.$arr['name'].'</a>' : $arr['name'];
         }
 
         function print_reply($arr)
         {
-            if ($arr['rep_idx'] != 0) {
-                return '<strong>완료</strong>';
-
-            } else {
-                return '대기';
-            }
+            return ($arr['rep_idx'] != 0) ? '<strong>완료</strong>' : '대기';
         }
     }
 
@@ -55,39 +46,35 @@ class Result extends \Controller\Make_Controller {
         $paging = new Paging();
         $manage = new ManageFunc();
 
-        //sortby
+        // sortby
         $sortby = '';
         $sort_arr = array();
 
         $sql->query(
             "
-            SELECT
+            select
             (
-            SELECT COUNT(*)
-            FROM {$sql->table("mod:contactform")}
-            WHERE name IS NOT NULL
+            select COUNT(*)
+            from {$sql->table("mod:contactform")}
+            where name is not null
             ) contactform_total
             ", []
         );
         $sort_arr['contactform_total'] = $sql->fetch('contactform_total');
 
-        //orderby
-        if (!$PARAM['ordtg']) {
-            $PARAM['ordtg'] = 'regdate';
-        }
-        if (!$PARAM['ordsc']) {
-            $PARAM['ordsc'] = 'desc';
-        }
+        // orderby
+        if (!$PARAM['ordtg']) $PARAM['ordtg'] = 'regdate';
+        if (!$PARAM['ordsc']) $PARAM['ordsc'] = 'desc';
         $orderby = $PARAM['ordtg'].' '.$PARAM['ordsc'];
 
-        //list
+        // list
         $sql->query(
             $paging->query(
                 "
-                SELECT *
-                FROM {$sql->table("mod:contactform")}
-                WHERE name IS NOT NULL $sortby $searchby
-                ORDER BY $orderby
+                select *
+                from {$sql->table("mod:contactform")}
+                where name is not null $sortby $searchby
+                order by $orderby
                 ", []
             )
         );
@@ -121,9 +108,10 @@ class Result extends \Controller\Make_Controller {
 
 }
 
-/***
-View
-***/
+//
+// Controller for display
+// https://{domain}/manage/mod/contactform/result/view
+//
 class View extends \Controller\Make_Controller {
 
     public function init()
@@ -137,22 +125,12 @@ class View extends \Controller\Make_Controller {
     {
         function print_name($arr)
         {
-            if ($arr['mb_idx'] != 0) {
-                return '<a href="'.PH_MANAGE_DIR.'/member/modify?idx='.$arr['mb_idx'].'">'.$arr['name'].'</a>';
-
-            } else {
-                return $arr['name'];
-            }
+            return ($arr['mb_idx'] != 0) ? '<a href="'.PH_MANAGE_DIR.'/member/modify?idx='.$arr['mb_idx'].'">'.$arr['name'].'</a>' : $arr['name'];
         }
 
         function print_reply($arr, $reparr)
         {
-            if ($arr['rep_idx'] != 0) {
-                return Func::datetime($reparr['regdate']).' 에 답변';
-
-            } else {
-                return '대기';
-            }
+            return ($arr['rep_idx'] != 0) ? Func::datetime($reparr['regdate']).' 에 답변' : '대기';
         }
     }
 
@@ -167,19 +145,17 @@ class View extends \Controller\Make_Controller {
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("mod:contactform")}
-            WHERE idx=:col1
-            LIMIT 1
+            select *
+            from {$sql->table("mod:contactform")}
+            where idx=:col1
+            limit 1
             ",
             array(
                 $req['idx']
             )
         );
 
-        if ($sql->getcount() < 1) {
-            Func::err_back('문의가 존재하지 않습니다.');
-        }
+        if ($sql->getcount() < 1) Func::err_back('문의가 존재하지 않습니다.');
         $arr = $sql->fetchs();
 
         if ($arr['rep_idx'] != 0) {
@@ -209,10 +185,10 @@ class View extends \Controller\Make_Controller {
 
             $sql->query(
                 "
-                SELECT *
-                FROM {$sql->table("mod:contactform")}
-                WHERE idx=:col1
-                LIMIT 1
+                select *
+                from {$sql->table("mod:contactform")}
+                where idx=:col1
+                limit 1
                 ",
                 array(
                     $arr['rep_idx']
@@ -257,12 +233,14 @@ class View extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for View
-***/
+//
+// Controller for submit
+// ( View )
+//
 class View_submit{
 
-    public function init(){
+    public function init()
+    {
         global $req;
 
         $manage = new ManageFunc();
@@ -283,9 +261,9 @@ class View_submit{
         }
     }
 
-    ///
+    //
     // reply
-    ///
+    //
     public function get_reply()
     {
         global $CONF, $req;
@@ -302,10 +280,10 @@ class View_submit{
 
         $sql->query(
             "
-            INSERT INTO
+            insert into
             {$sql->table("mod:contactform")}
             (article,regdate)
-            VALUES
+            values
             (:col1,now())
             ",
             array(
@@ -315,9 +293,9 @@ class View_submit{
 
         $sql->query(
             "
-            SELECT idx
-            FROM {$sql->table("mod:contactform")}
-            WHERE article=:col1
+            select idx
+            from {$sql->table("mod:contactform")}
+            where article=:col1
             ",
             array(
                 $req['article']
@@ -327,9 +305,9 @@ class View_submit{
 
         $sql->query(
             "
-            UPDATE {$sql->table("mod:contactform")}
+            update {$sql->table("mod:contactform")}
             SET rep_idx=:col1
-            WHERE idx=:col2
+            where idx=:col2
             ",
             array(
                 $rep_idx,
@@ -339,10 +317,10 @@ class View_submit{
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("mod:contactform")}
-            WHERE idx=:col1
-            LIMIT 1
+            select *
+            from {$sql->table("mod:contactform")}
+            where idx=:col1
+            limit 1
             ",
             array(
                 $req['idx']
@@ -353,11 +331,11 @@ class View_submit{
 
         $memo = stripslashes($req['article']);
         $memo .= '
-        <i>
-        <br /><br /><br />
-        <strong>문의 내용 :</strong><br />
-        '.$arr['article'].'
-        </i>
+            <i>
+            <br /><br /><br />
+            <strong>문의 내용 :</strong><br />
+            '.$arr['article'].'
+            </i>
         ';
 
         $mail->set(
@@ -382,9 +360,9 @@ class View_submit{
         Valid::turn();
     }
 
-    ///
+    //
     // delete
-    ///
+    //
     public function get_delete()
     {
         global $req;
@@ -394,27 +372,25 @@ class View_submit{
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("mod:contactform")}
-            WHERE idx=:col1
-            LIMIT 1
+            select *
+            from {$sql->table("mod:contactform")}
+            where idx=:col1
+            limit 1
             ",
             array(
                 $req['idx']
             )
         );
 
-        if ($sql->getcount() < 1) {
-            Valid::error('', '문의가 존재하지 않습니다.');
-        }
+        if ($sql->getcount() < 1) Valid::error('', '문의가 존재하지 않습니다.');
 
         $rep_idx = $sql->fetch('rep_idx');
 
         $sql->query(
             "
-            DELETE
-            FROM {$sql->table("mod:contactform")}
-            WHERE idx=:col1
+            delete
+            from {$sql->table("mod:contactform")}
+            where idx=:col1
             ",
             array(
                 $req['idx']
@@ -423,9 +399,9 @@ class View_submit{
 
         $sql->query(
             "
-            DELETE
-            FROM {$sql->table("mod:contactform")}
-            WHERE idx=:col1
+            delete
+            from {$sql->table("mod:contactform")}
+            where idx=:col1
             ",
             array(
                 $rep_idx

@@ -8,9 +8,10 @@ use Make\Library\Paging;
 use Make\Library\Mail;
 use Manage\ManageFunc;
 
-/***
-Result
-***/
+//
+// Controller for display
+// https://{domain}/manage/member/result
+//
 class Result extends \Controller\Make_Controller {
 
     public function init()
@@ -46,56 +47,55 @@ class Result extends \Controller\Make_Controller {
         $paging = new Paging();
         $manage = new ManageFunc();
 
-        //sortby
+        // sortby
         $sortby = '';
         $sort_arr = array();
 
         $sql->query(
             "
-            SELECT
+            select
             (
-                SELECT COUNT(*)
-                FROM {$sql->table("member")}
-                WHERE mb_adm!='Y' AND mb_dregdate IS NULL
+                select count(*)
+                from {$sql->table("member")}
+                where mb_adm!='Y' and mb_dregdate is null
             ) mb_total,
             (
-                SELECT COUNT(*)
-                FROM {$sql->table("member")}
-                WHERE mb_email_chk='Y' AND mb_adm!='Y' AND mb_dregdate IS NULL
+                select count(*)
+                from {$sql->table("member")}
+                where mb_email_chk='Y' and mb_adm!='Y' and mb_dregdate is null
             ) emchk_total
             ", []
         );
-        $sort_arr['mb_total'] = $sql->fetch('mb_total');
-        $sort_arr['emchk_total'] = $sql->fetch('emchk_total');
+
+        $sort_arr = array(
+            'mb_total' => $sql->fetch('mb_total'),
+            'emchk_total' => $sql->fetch('emchk_total')
+        );
 
         switch ($PARAM['sort']) {
             case 'emchk' :
-                $sortby = 'AND mb_email_chk=\'Y\'';
+                $sortby = 'and mb_email_chk=\'Y\'';
                 break;
 
             case 'noemchk' :
-                $sortby = 'AND mb_email_chk=\'N\'';
+                $sortby = 'and mb_email_chk=\'N\'';
                 break;
         }
 
-        //orderby
-        if (!$PARAM['ordtg']) {
-            $PARAM['ordtg'] = 'mb_regdate';
-        }
-        if (!$PARAM['ordsc']) {
-            $PARAM['ordsc'] = 'desc';
-        }
+        // orderby
+        if (!$PARAM['ordtg']) $PARAM['ordtg'] = 'mb_regdate';
+        if (!$PARAM['ordsc']) $PARAM['ordsc'] = 'desc';
 
         $orderby = $PARAM['ordtg'].' '.$PARAM['ordsc'];
 
-        //list
+        // list
         $sql->query(
             $paging->query(
                 "
-                SELECT *
-                FROM {$sql->table("member")}
-                WHERE mb_adm!='Y' AND mb_dregdate IS NULL $sortby $searchby
-                ORDER BY $orderby
+                select *
+                from {$sql->table("member")}
+                where mb_adm!='Y' and mb_dregdate is null $sortby $searchby
+                order by $orderby
                 ", []
             )
         );
@@ -128,9 +128,10 @@ class Result extends \Controller\Make_Controller {
 
 }
 
-/***
-Regist
-***/
+//
+// Controller for display
+// https://{domain}/manage/member/regist
+//
 class Regist extends \Controller\Make_Controller {
 
     public function init()
@@ -158,9 +159,10 @@ class Regist extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for Regist
-***/
+//
+// Controller for submit
+// ( Regist )
+//
 class Regist_submit {
 
     public function init()
@@ -213,9 +215,7 @@ class Regist_submit {
             )
         );
 
-        if ($req['pwd'] != $req['pwd2']) {
-            Valid::error('pwd2', '비밀번호와 비밀번호확인이 일치하지 않습니다.');
-        }
+        if ($req['pwd'] != $req['pwd2']) Valid::error('pwd2', '비밀번호와 비밀번호확인이 일치하지 않습니다.');
 
         Valid::get(
             array(
@@ -260,60 +260,52 @@ class Regist_submit {
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("member")}
-            WHERE mb_id=:col1 AND mb_dregdate IS NULL
+            select *
+            from {$sql->table("member")}
+            where mb_id=:col1 and mb_dregdate is null
             ",
             array(
                 $req['id']
             )
         );
 
-        if ($sql->getcount() > 0) {
-            Valid::error('id', '이미 존재하는 아이디입니다.');
-        }
+        if ($sql->getcount() > 0) Valid::error('id', '이미 존재하는 아이디입니다.');
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("member")}
-            WHERE mb_email=:col1 AND mb_dregdate IS NULL
+            select *
+            from {$sql->table("member")}
+            where mb_email=:col1 and mb_dregdate is null
             ",
             array(
                 $req['email']
             )
         );
 
-        if ($sql->getcount() > 0) {
-            Valid::error('email', '이미 사용중인 이메일입니다.');
-        }
+        if ($sql->getcount() > 0) Valid::error('email', '이미 사용중인 이메일입니다.');
 
-        if ($CONF['use_emailchk'] == 'Y') {
-            $mbchk_var = 'N';
-
-        } else {
-            $mbchk_var = 'Y';
-        }
+        $mbchk_var = ($CONF['use_emailchk'] == 'Y') ? 'N' : 'Y';
 
         $mb_exp = $sql->etcfd_exp(implode('|', $req['mb_exp']));
 
         $sql->query(
             "
-            INSERT INTO {$sql->table("member")}
-            (mb_id,mb_email,mb_pwd,mb_name,mb_level,mb_gender,mb_phone,mb_telephone,mb_address,mb_email_chk,mb_regdate,mb_1,mb_2,mb_3,mb_4,mb_5,mb_6,mb_7,mb_8,mb_9,mb_10,mb_exp)
-            VALUES
-            (:col1,:col2,{$sql->set_password($req['pwd'])},:col3,:col4,:col5,:col6,:col7,:col8,:col9,now(),:col10,:col11,:col12,:col13,:col14,:col15,:col16,:col17,:col18,:col19,:col20)
+            insert into {$sql->table("member")}
+            (mb_id, mb_email, mb_pwd, mb_name, mb_level, mb_gender, mb_phone, mb_telephone, mb_address, mb_email_chk, mb_regdate, mb_1, mb_2, mb_3, mb_4, mb_5, mb_6, mb_7, mb_8, mb_9, mb_10, mb_exp)
+            values
+            (:col1, :col2, {$sql->set_password($req['pwd'])}, :col3, :col4, :col5, :col6, :col7, :col8, :col9, now(), :col10, :col11, :col12, :col13, :col14, :col15, :col16, :col17, :col18, :col19, :col20)
             ",
             array(
-                $req['id'], $req['email'], $req['name'], $req['level'], $req['gender'], $req['phone'], $req['telephone'], $req['address1'].'|'.$req['address2'].'|'.$req['address3'], $mbchk_var, $req['mb_1'], $req['mb_2'], $req['mb_3'], $req['mb_4'], $req['mb_5'], $req['mb_6'], $req['mb_7'], $req['mb_8'], $req['mb_9'], $req['mb_10'], $mb_exp
+                $req['id'], $req['email'], $req['name'], $req['level'], $req['gender'], $req['phone'], $req['telephone'], $req['address1'].'|'.$req['address2'].'|'.$req['address3'], $mbchk_var,
+                $req['mb_1'], $req['mb_2'], $req['mb_3'], $req['mb_4'], $req['mb_5'], $req['mb_6'], $req['mb_7'], $req['mb_8'], $req['mb_9'], $req['mb_10'], $mb_exp
             )
         );
 
         $sql->query(
             "
-            SELECT mb_idx
-            FROM {$sql->table("member")}
-            WHERE mb_id=:col1 AND mb_pwd={$sql->set_password($req['pwd'])} AND mb_dregdate IS NULL
+            select mb_idx
+            from {$sql->table("member")}
+            where mb_id=:col1 and mb_pwd={$sql->set_password($req['pwd'])} and mb_dregdate is null
             ",
             array(
                 $req['id']
@@ -351,26 +343,22 @@ class Regist_submit {
 
             $sql->query(
                 "
-                INSERT INTO {$sql->table("mbchk")}
-                (mb_idx,chk_code,chk_chk,chk_regdate)
-                VALUES
-                (:col1,:col2,'N',now())
+                insert into {$sql->table("mbchk")}
+                (mb_idx, chk_code, chk_chk, chk_regdate)
+                values
+                (:col1, :col2, 'N', now())
                 ",
                 array(
                     $mb_idx, $chk_code
                 )
             );
 
-            $succ_msg = '회원이 이메일로 발송된 메일을 확인하거나, 회원 관리에서 이메일 인증 처리하는 경우 회원가입이 완료됩니다.';
-
-        } else {
-            $succ_msg = '회원가입이 완료되었습니다.';
         }
 
         Valid::set(
             array(
                 'return' => 'alert->location',
-                'msg' => $succ_msg,
+                'msg' => ($CONF['use_emailchk'] == 'Y') ? '회원이 이메일로 발송된 메일을 확인하거나, 회원 관리에서 이메일 인증 처리하는 경우 회원가입이 완료됩니다.' : '회원가입이 완료되었습니다.',
                 'location' => PH_MANAGE_DIR.'/member/modify?idx='.$mb_idx
             )
         );
@@ -379,9 +367,10 @@ class Regist_submit {
 
 }
 
-/***
-Modify
-***/
+//
+// Controller for display
+// https://{domain}/manage/member/modify
+//
 class Modify extends \Controller\Make_Controller {
 
     public function init()
@@ -395,10 +384,7 @@ class Modify extends \Controller\Make_Controller {
         function set_checked($arr, $val)
         {
             $setarr = array(
-                'Y' => '',
-                'N' => '',
-                'M' => '',
-                'F' => ''
+                'Y' => '', 'N' => '', 'M' => '', 'F' => ''
             );
             foreach ($setarr as $key => $value) {
                 if ($key == $arr[$val]) {
@@ -418,19 +404,17 @@ class Modify extends \Controller\Make_Controller {
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("member")}
-            WHERE mb_adm!='Y' AND mb_dregdate IS NULL AND mb_idx=:col1
-            LIMIT 1
+            select *
+            from {$sql->table("member")}
+            where mb_adm!='Y' and mb_dregdate is null and mb_idx=:col1
+            limit 1
             ",
             array(
                 $req['idx']
             )
         );
 
-        if ($sql->getcount() < 1) {
-            Func::err_back('회원이 존재하지 않거나 수정할 수 없는 회원입니다.');
-        }
+        if ($sql->getcount() < 1) Func::err_back('회원이 존재하지 않거나 수정할 수 없는 회원입니다.');
 
         $arr = $sql->fetchs();
 
@@ -449,12 +433,9 @@ class Modify extends \Controller\Make_Controller {
         }
 
         $arr[0]['mb_address'] = explode('|', $arr['mb_address']);
-
-        if (!$arr[0]['mb_address'][0]) {
-            $arr[0]['mb_address'][0] = null;
-            $arr[0]['mb_address'][1] = null;
-            $arr[0]['mb_address'][2] = null;
-        }
+        if (!isset($arr[0]['mb_address'][0])) $arr[0]['mb_address'][0] = '';
+        if (!isset($arr[0]['mb_address'][1])) $arr[0]['mb_address'][1] = '';
+        if (!isset($arr[0]['mb_address'][2])) $arr[0]['mb_address'][2] = '';
 
         $arr['mb_regdate'] = Func::datetime($arr['mb_regdate']);
         $arr['mb_lately'] = Func::datetime($arr['mb_lately']);
@@ -488,9 +469,10 @@ class Modify extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for Modify
-***/
+//
+// Controller for submit
+// ( Modify )
+//
 class Modify_submit {
 
     public function init()
@@ -516,9 +498,9 @@ class Modify_submit {
         }
     }
 
-    ///
+    //
     // modify
-    ///
+    //
     public function get_modify()
     {
         global $req, $file;
@@ -578,25 +560,23 @@ class Modify_submit {
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("member")}
-            WHERE mb_dregdate IS NULL AND mb_email=:col1 AND mb_idx!=:col2
+            select *
+            from {$sql->table("member")}
+            where mb_dregdate is null and mb_email=:col1 and mb_idx!=:col2
             ",
             array(
                 $req['email'],
                 $req['idx']
             )
         );
-        if ($sql->getcount() > 0) {
-            Valid::error('email', '다른 회원이 사용중인 email 입니다.');
-        }
+        if ($sql->getcount() > 0) Valid::error('email', '다른 회원이 사용중인 email 입니다.');
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("member")}
-            WHERE mb_adm!='Y' AND mb_dregdate IS NULL AND mb_idx=:col1
-            LIMIT 1
+            select *
+            from {$sql->table("member")}
+            where mb_adm!='Y' and mb_dregdate is null and mb_idx=:col1
+            limit 1
             ",
             array(
                 $req['idx']
@@ -604,9 +584,8 @@ class Modify_submit {
         );
         $arr = $sql->fetchs();
 
-        if ($req['pwd'] != $req['pwd2']) {
-            Valid::error('pwd2', '비밀번호와 비밀번호 확인이 일치하지 않습니다.');
-        }
+        if ($req['pwd'] != $req['pwd2']) Valid::error('pwd2', '비밀번호와 비밀번호 확인이 일치하지 않습니다.');
+
         if ($req['pwd'] != '') {
             Valid::get(
                 array(
@@ -652,23 +631,16 @@ class Modify_submit {
         if (isset($file['profileimg'])) {
             $uploader->file = $file['profileimg'];
             $uploader->intdict = SET_IMGTYPE;
-            if ($uploader->chkfile('match') !== true) {
-                Valid::error('profileimg', '허용되지 않는 프로필 이미지 유형입니다.');
-            }
-            if ($uploader->chkbyte(512000) !== true) {
-                Valid::error('profileimg', '프로필 이미지 용량이 허용 용량을 초과합니다.');
-            }
+
+            if ($uploader->chkfile('match') !== true) Valid::error('profileimg', '허용되지 않는 프로필 이미지 유형입니다.');
+            if ($uploader->chkbyte(512000) !== true) Valid::error('profileimg', '프로필 이미지 용량이 허용 용량을 초과합니다.');
+
             $profileimg_name = $uploader->replace_filename($file['profileimg']['name']);
-            if (!$uploader->upload($profileimg_name)) {
-                Valid::error('profileimg', '프로필 이미지 업로드 실패');
-            }
+            if (!$uploader->upload($profileimg_name)) Valid::error('profileimg', '프로필 이미지 업로드 실패');
         }
-        if ((isset($file['profileimg']) && $arr['mb_profileimg'] != '')) {
-            $uploader->drop($arr['mb_profileimg']);
-        }
-        if ($arr['mb_profileimg'] != '' && !isset($file['profileimg'])) {
-            $profileimg_name = $arr['mb_profileimg'];
-        }
+
+        if ((isset($file['profileimg']) && $arr['mb_profileimg'] != '')) $uploader->drop($arr['mb_profileimg']);
+        if ($arr['mb_profileimg'] != '' && !isset($file['profileimg'])) $profileimg_name = $arr['mb_profileimg'];
 
         $mb_exp = $sql->etcfd_exp(implode('|', $req['mb_exp']));
 
@@ -676,12 +648,15 @@ class Modify_submit {
 
             $sql->query(
                 "
-                UPDATE {$sql->table("member")}
-                SET mb_pwd={$sql->set_password($req['pwd'])},mb_name=:col1,mb_gender=:col2,mb_phone=:col3,mb_telephone=:col4,mb_address=:col5,mb_point=:col6,mb_profileimg=:col7,mb_level=:col8,mb_email=:col9,mb_email_chk=:col10,mb_1=:col11,mb_2=:col12,mb_3=:col13,mb_4=:col14,mb_5=:col15,mb_6=:col16,mb_7=:col17,mb_8=:col18,mb_9=:col19,mb_10=:col20,mb_exp=:col21
-                WHERE mb_adm!='Y' AND mb_dregdate IS NULL AND mb_idx=:col22
+                update {$sql->table("member")}
+                set mb_pwd={$sql->set_password($req['pwd'])}, mb_name=:col2, mb_gender=:col3, mb_phone=:col4, mb_telephone=:col5, mb_address=:col6, mb_point=:col7, mb_profileimg=:col8, mb_level=:col9,
+                mb_email=:col10, mb_email_chk=:col11, mb_1=:col12, mb_2=:col13, mb_3=:col14, mb_4=:col15, mb_5=:col16, mb_6=:col17, mb_7=:col18, mb_8=:col19, mb_9=:col20, mb_10=:col21, mb_exp=:col22
+                where mb_adm!='Y' and mb_dregdate is null and mb_idx=:col1
                 ",
                 array(
-                    $req['name'], $req['gender'], $req['phone'], $req['telephone'], $req['address1'].'|'.$req['address2'].'|'.$req['address3'], $req['point'], $profileimg_name, $req['level'], $req['email'], $req['email_chk'], $req['mb_1'], $req['mb_2'], $req['mb_3'], $req['mb_4'], $req['mb_5'], $req['mb_6'], $req['mb_7'], $req['mb_8'], $req['mb_9'], $req['mb_10'], $mb_exp, $req['idx']
+                    $req['idx'], $req['name'], $req['gender'], $req['phone'], $req['telephone'], $req['address1'].'|'.$req['address2'].'|'.$req['address3'], $req['point'], $profileimg_name, $req['level'],
+                    $req['email'], $req['email_chk'], $req['mb_1'], $req['mb_2'], $req['mb_3'], $req['mb_4'], $req['mb_5'],
+                    $req['mb_6'], $req['mb_7'], $req['mb_8'], $req['mb_9'], $req['mb_10'], $mb_exp
                 )
             );
 
@@ -689,12 +664,15 @@ class Modify_submit {
 
             $sql->query(
                 "
-                UPDATE {$sql->table("member")}
-                SET mb_pwd=:col1,mb_name=:col2,mb_gender=:col3,mb_phone=:col4,mb_telephone=:col5,mb_address=:col6,mb_point=:col7,mb_profileimg=:col8,mb_level=:col9,mb_email=:col10,mb_email_chk=:col11,mb_1=:col12,mb_2=:col13,mb_3=:col14,mb_4=:col15,mb_5=:col16,mb_6=:col17,mb_7=:col18,mb_8=:col19,mb_9=:col20,mb_10=:col21,mb_exp=:col22
-                WHERE mb_adm!='Y' AND mb_dregdate IS NULL AND mb_idx=:col23
+                update {$sql->table("member")}
+                set mb_pwd=:col2, mb_name=:col3, mb_gender=:col4, mb_phone=:col5, mb_telephone=:col6, mb_address=:col7, mb_point=:col8, mb_profileimg=:col9, mb_level=:col10,
+                mb_email=:col11, mb_email_chk=:col12, mb_1=:col13, mb_2=:col14, mb_3=:col15, mb_4=:col16, mb_5=:col17, mb_6=:col18, mb_7=:col19, mb_8=:col20, mb_9=:col21, mb_10=:col22, mb_exp=:col23
+                where mb_adm!='Y' and mb_dregdate is null and mb_idx=:col1
                 ",
                 array(
-                    $arr['mb_pwd'], $req['name'], $req['gender'], $req['phone'], $req['telephone'], $req['address1'].'|'.$req['address2'].'|'.$req['address3'], $req['point'], $profileimg_name, $req['level'], $req['email'], $req['email_chk'], $req['mb_1'], $req['mb_2'], $req['mb_3'], $req['mb_4'], $req['mb_5'], $req['mb_6'], $req['mb_7'], $req['mb_8'], $req['mb_9'], $req['mb_10'], $mb_exp, $req['idx']
+                    $req['idx'], $arr['mb_pwd'], $req['name'], $req['gender'], $req['phone'], $req['telephone'], $req['address1'].'|'.$req['address2'].'|'.$req['address3'], $req['point'], $profileimg_name, $req['level'],
+                    $req['email'], $req['email_chk'], $req['mb_1'], $req['mb_2'], $req['mb_3'], $req['mb_4'], $req['mb_5'],
+                    $req['mb_6'], $req['mb_7'], $req['mb_8'], $req['mb_9'], $req['mb_10'], $mb_exp
                 )
             );
 
@@ -709,9 +687,9 @@ class Modify_submit {
         Valid::turn();
     }
 
-    ///
+    //
     // delete
-    ///
+    //
     public function get_delete()
     {
         global $req;
@@ -722,10 +700,10 @@ class Modify_submit {
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("member")}
-            WHERE mb_adm!='Y' AND mb_dregdate IS NULL AND mb_idx=:col1
-            LIMIT 1
+            select *
+            from {$sql->table("member")}
+            where mb_adm!='Y' and mb_dregdate is null and mb_idx=:col1
+            limit 1
             ",
             array(
                 $req['idx']
@@ -733,19 +711,16 @@ class Modify_submit {
         );
         $arr = $sql->fetchs();
 
-        if ($sql->getcount() < 1) {
-            Valid::error('', '회원이 존재하지 않습니다.');
-        }
-
+        if ($sql->getcount() < 1) Valid::error('', '회원이 존재하지 않습니다.');
         $uploader->path= PH_DATA_PATH.'/memberprofile';
         $uploader->chkpath();
         $uploader->drop($arr['mb_profileimg']);
 
         $sql->query(
             "
-            UPDATE {$sql->table("member")}
-            SET mb_dregdate=now()
-            WHERE mb_dregdate IS NULL AND mb_idx=:col1
+            update {$sql->table("member")}
+            set mb_dregdate=now()
+            where mb_dregdate is null and mb_idx=:col1
             ",
             array(
                 $req['idx']
@@ -764,9 +739,10 @@ class Modify_submit {
 
 }
 
-/***
-Unsigned
-***/
+//
+// Controller for display
+// https://{domain}/manage/member/unsigned
+//
 class Unsigned extends \Controller\Make_Controller {
 
     public function init()
@@ -794,33 +770,29 @@ class Unsigned extends \Controller\Make_Controller {
 
         $sql->query(
             "
-            SELECT
+            select
             (
-                SELECT count(*)
-                FROM {$sql->table("member")}
-                WHERE mb_adm!='Y' AND mb_dregdate IS NOT NULL
+                select count(*)
+                from {$sql->table("member")}
+                where mb_adm!='Y' and mb_dregdate is not null
             ) mb_total
             ", []
         );
         $sort_arr['mb_total'] = $sql->fetch('mb_total');
 
-        //orderby
-        if (!$PARAM['ordtg']) {
-            $PARAM['ordtg'] = 'mb_regdate';
-        }
-        if (!$PARAM['ordsc']) {
-            $PARAM['ordsc'] = 'desc';
-        }
+        // orderby
+        if (!$PARAM['ordtg']) $PARAM['ordtg'] = 'mb_regdate';
+        if (!$PARAM['ordsc']) $PARAM['ordsc'] = 'desc';
         $orderby = $PARAM['ordtg'].' '.$PARAM['ordsc'];
 
-        //list
+        // list
         $sql->query(
             $paging->query(
                 "
-                SELECT *
-                FROM {$sql->table("member")}
-                WHERE mb_adm!='Y' AND mb_dregdate IS NOT NULL $sortby $searchby
-                ORDER BY $orderby
+                select *
+                from {$sql->table("member")}
+                where mb_adm!='Y' and mb_dregdate is not null $sortby $searchby
+                order by $orderby
                 ", []
             )
         );
@@ -852,9 +824,10 @@ class Unsigned extends \Controller\Make_Controller {
 
 }
 
-/***
-Record
-***/
+//
+// Controller for display
+// https://{domain}/manage/member/record
+//
 class Record extends \Controller\Make_Controller {
 
     public function init()
@@ -866,16 +839,6 @@ class Record extends \Controller\Make_Controller {
 
     public function func()
     {
-        function mbtype($arr)
-        {
-            if ($arr['mb_id']) {
-                return '회원';
-
-            } else {
-                return '비회원';
-            }
-        }
-
         function visit_total($arr)
         {
             return Func::number($arr['visit_total']);
@@ -911,77 +874,34 @@ class Record extends \Controller\Make_Controller {
             $agt = '';
             $os = '';
 
+            // os type
             if ($type == 'os') {
-                if(stristr($brw,'android')){
-                    $os = 'Android';
-                } else if (stristr($brw, 'iphone')) {
-                    $os = 'iPhone';
-                } else if (stristr($brw, 'ipad')) {
-                    $os = 'iPad';
-                } else if (stristr($brw, 'ipod')) {
-                    $os = 'iPod';
-                } else if (stristr($brw, 'macintosh')) {
-                    $os = 'Macintosh';
-                } else if (stristr($brw, 'symbianos')) {
-                    $os = 'SymbianOS';
-                } else if (stristr($brw, 'blackberry')) {
-                    $os = 'BlackBerry';
-                } else if (stristr($brw, 'bb10')) {
-                    $os = 'BB10';
-                } else if (stristr($brw, 'nokia')) {
-                    $os = 'Nokia';
-                } else if (stristr($brw, 'sonyericsson')) {
-                    $os = 'SonyEricsson';
-                } else if (stristr($brw, 'webos')) {
-                    $os = 'webOS';
-                } else if(stristr($brw, 'palmos')) {
-                    $os = 'PalmOS';
-                } else if (stristr($brw, 'linux')) {
-                    $os = 'LINUX';
-                } else if (stristr($brw, 'windows')) {
-                    $os = 'Windows';
-                } else if (stristr($brw, 'googlebot')) {
-                    $os = '* Googlebot';
-                } else if (stristr($brw, 'bingbot')) {
-                    $os = '* Bingbot';
-                } else if (stristr($brw, 'yahoobot')) {
-                    $os = '* Yahoobot';
-                } else if (stristr($brw, 'naverbot')) {
-                    $os = '* Naverbot';
-                } else if (stristr($brw, 'baiduspider')) {
-                    $os = '* Baiduspider';
-                } else {
-                    $os = '기타 OS';
-                }
-                return $os;
 
-            } else if ($type == 'browser') {
-                if (stristr($brw,'Edge')) {
-                    $agt = 'Edge';
-                } else if (stristr($brw, 'rv:11.0')) {
-                    $agt = 'IE 11';
-                } else if (stristr($brw, 'msie 10')) {
-                    $agt = 'IE 10';
-                } else if (stristr($brw, 'msie 9')) {
-                    $agt = 'IE 9';
-                } else if (stristr($brw, 'msie 8')) {
-                    $agt = 'IE 8';
-                } else if (stristr($brw, 'msie 7')) {
-                    $agt = 'IE 7';
-                } else if (stristr($brw, 'msie 6')) {
-                    $agt = 'IE 6';
-                } else if (stristr($brw, 'opera')) {
-                    $agt = 'Opera';
-                } else if (stristr($brw, 'firefox')) {
-                    $agt = 'Firefox';
-                } else if (stristr($brw, 'chrome')) {
-                    $agt = 'Chrome';
-                } else if (stristr($brw, 'safari')) {
-                    $agt = 'Safari';
-                } else {
-                    $agt = '기타 Browser';
+                $matchs = array('android', 'iphone', 'ipad', 'ipod', 'macintosh', 'symbianos', 'blackberry', 'bb10', 'nokia', 'sonyericsson', 'webos', 'palmos', 'linux', 'windows', 'googlebot', 'bingbot', 'yahoobot', 'naverbot', 'baiduspider');
+                foreach ($matchs as $key => $value) {
+                    if (stristr($brw, $value)) {
+                        $os = $value;
+                        break;
+                    }
                 }
-                return $agt;
+                return ($os) ? $os : '기타 OS';
+
+            }
+
+            // browser type
+            if ($type == 'browser') {
+
+                $matchs = array('rv:11.0', 'msie 10', 'msie 9', 'msie 8', 'msie 7', 'msie 6', 'opera', 'firefox', 'chrome', 'safari');
+                foreach ($matchs as $key => $value) {
+                    if (stristr($brw, $value)) {
+                        $agt = $value;
+                        break;
+
+                        // IE-11인 경우
+                        if ($value == 'rv:11.0') $agt = 'msie 11';
+                    }
+                }
+                return ($agt) ? $agt : '기타 Browser';
             }
         }
     }
@@ -996,39 +916,35 @@ class Record extends \Controller\Make_Controller {
 
         $req = Method::request('get', 'nowdate, fdate, tdate');
 
-        //date sortby
-        if (!$req['fdate']) {
-            $req['fdate'] = date('Y-m-d');
-        }
-        if (!$req['tdate']) {
-            $req['tdate'] = date('Y-m-d');
-        }
+        // date sortby
+        if (!$req['fdate']) $req['fdate'] = date('Y-m-d');
+        if (!$req['tdate']) $req['tdate'] = date('Y-m-d');
 
-        //sortby
+        // sortby
         $sortby = '';
         $sort_arr = array();
 
         $sql->query(
             "
-            SELECT
+            select
             (
-                SELECT COUNT(*)
-                FROM {$sql->table("visitcount")}
+                select count(*)
+                from {$sql->table("visitcount")}
             ) visit_total,
             (
-                SELECT COUNT(*)
-                FROM {$sql->table("visitcount")}
-                WHERE DATE_FORMAT(regdate,'%Y-%m-%d') BETWEEN :col1 AND :col2
+                select count(*)
+                from {$sql->table("visitcount")}
+                where date_format(regdate,'%Y-%m-%d') between :col1 and :col2
             ) device_total,
             (
-                SELECT COUNT(*)
-                FROM {$sql->table("visitcount")}
-                WHERE DATE_FORMAT(regdate,'%Y-%m-%d') BETWEEN :col1 AND :col2 AND device='pc'
+                select count(*)
+                from {$sql->table("visitcount")}
+                where date_format(regdate,'%Y-%m-%d') between :col1 and :col2 and device='pc'
             ) device_pc,
             (
-                SELECT COUNT(*)
-                FROM {$sql->table("visitcount")}
-                WHERE DATE_FORMAT(regdate,'%Y-%m-%d') BETWEEN :col1 AND :col2 AND mb_idx!=0
+                select count(*)
+                from {$sql->table("visitcount")}
+                where date_format(regdate,'%Y-%m-%d') between :col1 and :col2 and mb_idx!=0
             ) member_total
             ",
             array(
@@ -1041,29 +957,25 @@ class Record extends \Controller\Make_Controller {
         $sort_arr['device_pc'] = $sql->fetch('device_pc');
         $sort_arr['member_total'] = $sql->fetch('member_total');
 
-        //orderby
-        if (!$PARAM['ordtg']) {
-            $PARAM['ordtg'] = 'regdate';
-        }
-        if (!$PARAM['ordsc']) {
-            $PARAM['ordsc'] = 'desc';
-        }
+        // orderby
+        if (!$PARAM['ordtg']) $PARAM['ordtg'] = 'regdate';
+        if (!$PARAM['ordsc']) $PARAM['ordsc'] = 'desc';
         $orderby = $PARAM['ordtg'].' '.$PARAM['ordsc'];
         $PARAM[0]['fdate'] = $req['fdate'];
         $PARAM[0]['tdate'] = $req['tdate'];
         $PARAM[0]['nowdate'] = $req['nowdate'];
 
-        //list
+        // list
         $sql_arr = array($req['fdate'], $req['tdate']);
         $sql->query(
             $paging->query(
                 "
-                SELECT visit.*,IFNULL(member.mb_level,10) mb_level
-                FROM {$sql->table("visitcount")} visit
-                LEFT OUTER JOIN {$sql->table("member")} member
-                ON visit.mb_idx=member.mb_idx
-                WHERE DATE_FORMAT(visit.regdate,'%Y-%m-%d') BETWEEN date('{$req['fdate']}') AND date('{$req['tdate']}') $sortby $searchby
-                ORDER BY $orderby
+                select visit.*,IFNULL(member.mb_level,10) mb_level
+                from {$sql->table("visitcount")} visit
+                left outer join {$sql->table("member")} member
+                on visit.mb_idx=member.mb_idx
+                where date_format(visit.regdate,'%Y-%m-%d') between date('{$req['fdate']}') and date('{$req['tdate']}') $sortby $searchby
+                order by $orderby
                 ", []
             )
         );
@@ -1080,9 +992,7 @@ class Record extends \Controller\Make_Controller {
                 $arr[0]['user_agent']['os'] = user_agent('os', $arr);
                 $arr[0]['user_agent']['browser'] = user_agent('browser', $arr);
 
-                if (!$arr['mb_level']) {
-                    $arr['mb_level'] = 10;
-                }
+                if (!$arr['mb_level']) $arr['mb_level'] = 10;
 
                 $print_arr[] = $arr;
 
@@ -1102,9 +1012,10 @@ class Record extends \Controller\Make_Controller {
 
 }
 
-/***
-Session
-***/
+//
+// Controller for display
+// https://{domain}/manage/member/session
+//
 class Session extends \Controller\Make_Controller {
 
     public function init()
@@ -1114,7 +1025,8 @@ class Session extends \Controller\Make_Controller {
         $this->layout()->mng_foot();
     }
 
-    public function func(){
+    public function func()
+    {
         function stat_total($arr)
         {
             return Func::number($arr['stat_total']);
@@ -1129,42 +1041,38 @@ class Session extends \Controller\Make_Controller {
         $paging = new Paging();
         $manage = new ManageFunc();
 
-        //sortby
+        // sortby
         $sortby = '';
         $sort_arr = array();
 
         $sql->query(
             "
-            SELECT
+            select
             (
-                SELECT COUNT(*)
-                FROM {$sql->table("session")}
-                WHERE regdate>=DATE_SUB(now(),interval 10 minute)
+                select count(*)
+                from {$sql->table("session")}
+                where regdate>=date_sub(now(),interval 10 minute)
             ) stat_total
             ", []
         );
         $sort_arr['stat_total'] = $sql->fetch('stat_total');
 
-        //orderby
-        if (!$PARAM['ordtg']) {
-            $PARAM['ordtg'] = 'mb_regdate';
-        }
-        if (!$PARAM['ordsc']) {
-            $PARAM['ordsc'] = 'desc';
-        }
+        // orderby
+        if (!$PARAM['ordtg']) $PARAM['ordtg'] = 'mb_regdate';
+        if (!$PARAM['ordsc']) $PARAM['ordsc'] = 'desc';
         $orderby = $PARAM['ordtg'].' '.$PARAM['ordsc'];
 
-        //list
+        // list
         $sql->query(
             $paging->query(
                 "
-                SELECT sess.*,member.*,IFNULL(member.mb_level,10) mb_level
-                FROM {$sql->table("session")} sess
-                LEFT OUTER JOIN
+                select sess.*,member.*,IFNULL(member.mb_level,10) mb_level
+                from {$sql->table("session")} sess
+                left outer join
                 {$sql->table("member")} member
-                ON sess.mb_idx=member.mb_idx
-                WHERE regdate>=DATE_SUB(now(),interval 10 minute) $sortby $searchby
-                ORDER BY $orderby
+                on sess.mb_idx=member.mb_idx
+                where regdate>=date_sub(now(),interval 10 minute) $sortby $searchby
+                order by $orderby
                 ", []
             ),''
         );
@@ -1179,9 +1087,7 @@ class Session extends \Controller\Make_Controller {
                 $arr['no'] = $paging->getnum();
                 $arr['regdate'] = Func::datetime($arr['regdate']);
 
-                if (!$arr['mb_level']) {
-                    $arr['mb_level'] = 10;
-                }
+                if (!$arr['mb_level']) $arr['mb_level'] = 10;
 
                 $print_arr[] = $arr;
 
@@ -1198,9 +1104,10 @@ class Session extends \Controller\Make_Controller {
 
 }
 
-/***
-Point
-***/
+//
+// Controller for display
+// https://{domain}/manage/member/point
+//
 class Point extends \Controller\Make_Controller {
 
     public function init()
@@ -1210,7 +1117,8 @@ class Point extends \Controller\Make_Controller {
         $this->layout()->mng_foot();
     }
 
-    public function func(){
+    public function func()
+    {
         function act_total($arr)
         {
             return Func::number($arr['act_total']);
@@ -1235,26 +1143,26 @@ class Point extends \Controller\Make_Controller {
         $paging = new Paging();
         $manage = new ManageFunc();
 
-        //sortby
+        // sortby
         $sortby = '';
         $sort_arr = array();
 
         $sql->query(
             "
-            SELECT
+            select
             (
-                SELECT COUNT(*)
-                FROM {$sql->table("mbpoint")}
+                select count(*)
+                from {$sql->table("mbpoint")}
             ) act_total,
             (
-                SELECT SUM(p_in)
-                FROM {$sql->table("mbpoint")}
-                WHERE p_in>0
+                select sum(p_in)
+                from {$sql->table("mbpoint")}
+                where p_in>0
             ) in_total,
             (
-                SELECT SUM(p_out)
-                FROM {$sql->table("mbpoint")}
-                WHERE p_out>0
+                select sum(p_out)
+                from {$sql->table("mbpoint")}
+                where p_out>0
             ) out_total
             ", []
         );
@@ -1262,30 +1170,24 @@ class Point extends \Controller\Make_Controller {
         $sort_arr['in_total'] = $sql->fetch('in_total');
         $sort_arr['out_total'] = $sql->fetch('out_total');
 
-        if ($PARAM['sort']) {
-            $sortby = 'AND '.$PARAM['sort'].'>0';
-        }
+        if ($PARAM['sort']) $sortby = 'and '.$PARAM['sort'].'>0';
 
         //orderby
-        if (!$PARAM['ordtg']) {
-            $PARAM['ordtg'] = 'regdate';
-        }
-        if (!$PARAM['ordsc']) {
-            $PARAM['ordsc'] = 'desc';
-        }
+        if (!$PARAM['ordtg']) $PARAM['ordtg'] = 'regdate';
+        if (!$PARAM['ordsc'])$PARAM['ordsc'] = 'desc';
         $orderby = $PARAM['ordtg'].' '.$PARAM['ordsc'];
 
         //list
         $sql->query(
             $paging->query(
                 "
-                SELECT mbpoint.*,member.*
-                FROM {$sql->table("mbpoint")} mbpoint
-                LEFT OUTER JOIN
+                select mbpoint.*,member.*
+                from {$sql->table("mbpoint")} mbpoint
+                left outer join
                 {$sql->table("member")} member
-                ON mbpoint.mb_idx=member.mb_idx
-                WHERE 1 $sortby $searchby
-                ORDER BY $orderby
+                on mbpoint.mb_idx=member.mb_idx
+                where 1 $sortby $searchby
+                order by $orderby
                 ", []
             ),''
         );
@@ -1328,9 +1230,10 @@ class Point extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for Point
-***/
+//
+// Controller for submit
+// ( Point )
+//
 class Point_submit{
 
     public function init()
@@ -1375,33 +1278,30 @@ class Point_submit{
         $id_qry = '';
 
         for ($i = 0; $i < count($id_ex); $i++) {
-            if ($i == 0) {
-                $id_qry .= 'mb_id=\''.$id_ex[$i].'\'';
-            } else {
-                $id_qry .= 'OR mb_id=\''.$id_ex[$i].'\'';
-            }
+            $id_qry .= ($i == 0) ? 'mb_id=\''.$id_ex[$i].'\'' : 'or mb_id=\''.$id_ex[$i].'\'';
         }
 
         $sql->query(
             "
-            SELECT mb_idx
-            FROM {$sql->table("member")}
-            WHERE mb_dregdate IS NULL AND ($id_qry)
+            select mb_idx
+            from {$sql->table("member")}
+            where mb_dregdate is null and ($id_qry)
             ", []
         );
-        if ($sql->getcount() < count($id_ex)) {
-            Valid::error('id', '존재하지 않는 회원 아이디가 포함되어 있습니다.');
-        }
+
+        if ($sql->getcount() < count($id_ex)) Valid::error('id', '존재하지 않는 회원 아이디가 포함되어 있습니다.');
 
         do {
             $mb_idx = $sql->fetch('mb_idx');
 
             if ($req['point'] > 0) {
                 $p_type = 'in';
+
             } else {
                 $p_type = 'out';
                 $req['point'] = $req['point'] / -1;
             }
+
             Func::set_mbpoint(
                 array(
                     'mb_idx' => $mb_idx,

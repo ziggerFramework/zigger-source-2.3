@@ -3,24 +3,27 @@ namespace Manage;
 
 use Corelib\Func;
 use Corelib\Method;
+use Corelib\Valid;
 
 class ManageFunc{
 
     public function __construct()
     {
-        global $PARAM,$keyword,$searchby;
+        global $REQUEST, $PARAM, $MB, $keyword, $searchby;
 
         $PARAM = Method::request('get', 'mod, href, p, sort,ordtg, ordsc, where, keyword, page');
 
-        Func::getlogin('관리자만 접근 가능합니다.');
-        Func::chklevel(1);
+        if ($REQUEST['rewritetype'] == 'submit') {
+            if ($MB['level'] > 1) Valid::error('', '관리자만 접근 가능합니다.');
+
+        } else {
+            Func::getlogin('관리자만 접근 가능합니다.');
+            Func::chklevel(1);
+        }
 
         $keyword = urldecode($PARAM['keyword']);
 
-        $searchby = '';
-        if (trim($PARAM['keyword']) != '') {
-            $searchby = 'AND '.$PARAM['where'].' LIKE \'%'.$PARAM['keyword'].'%\'';
-        }
+        $searchby = (trim($PARAM['keyword']) != '') ? 'AND '.$PARAM['where'].' like \'%'.$PARAM['keyword'].'%\'' : '';
 
     }
 
@@ -42,18 +45,21 @@ class ManageFunc{
     public function module_total()
     {
         global $MODULE;
+
         return count($MODULE);
     }
 
     public function req_hidden_inp($type)
     {
         global $PARAM;
+
         $PARAM = Method::request($type, 'page, mode, sort, ordtg, ordsc, where, keyword');
     }
 
     public function retlink($param)
     {
         global $PARAM;
+
         return '?page='.$PARAM['page'].'&sort='.$PARAM['sort'].'&ordtg='.$PARAM['ordtg'].'&ordsc='.$PARAM['ordsc'].'&where='.$PARAM['where'].'&keyword='.$PARAM['keyword'].$param;
     }
 
@@ -72,9 +78,8 @@ class ManageFunc{
     public function sch_where($wh)
     {
         global $PARAM;
-        if ($PARAM['where'] == $wh) {
-            return 'selected';
-        }
+
+        if ($PARAM['where'] == $wh) return 'selected';
     }
 
     public function sortlink($param)
@@ -85,40 +90,39 @@ class ManageFunc{
     public function orderlink($tg)
     {
         global $PARAM;
-        if ($PARAM['ordtg'] == $tg && $PARAM['ordsc'] == 'asc') {
-            $sc = 'desc';
-        } else {
-            $sc = 'asc';
-        }
-        if ($PARAM['keyword']) {
-            $sch = '&where='.$PARAM['where'].'&keyword='.urlencode($PARAM['keyword']);
-        } else {
-            $sch = '';
-        }
+
+        $sc = ($PARAM['ordtg'] == $tg && $PARAM['ordsc'] == 'asc') ? 'desc' : 'asc';
+        $sch = ($PARAM['keyword']) ? '&where='.$PARAM['where'].'&keyword='.urlencode($PARAM['keyword']) : '';
+
         $etc_var = '';
+
         if (isset($PARAM[0])) {
-            foreach ($PARAM[0] as $key=>$value) {
+            foreach ($PARAM[0] as $key => $value) {
                 $etc_var .= '&'.$key.'='.$value;
             }
         }
+
         return $this->sortlink('?sort='.$PARAM['sort'].'&ordtg='.$tg.'&ordsc='.$sc.$sch.$etc_var);
     }
 
     public function pag_def_param()
     {
         global $PARAM;
+
         return '&sort='.$PARAM['sort'].'&ordtg='.$PARAM['ordtg'].'&ordsc='.$PARAM['ordsc'].'&where='.$PARAM['where'].'&keyword='.urlencode($PARAM['keyword']);
     }
 
     public function lnk_def_param($params = '')
     {
         global $PARAM;
+
         return '?page='.$PARAM['page'].'&sort='.$PARAM['sort'].'&ordtg='.$PARAM['ordtg'].'&ordsc='.$PARAM['ordsc'].'&where='.$PARAM['where'].'&keyword='.urlencode($PARAM['keyword']).$params;
     }
 
     public function print_hidden_inp()
     {
         global $PARAM;
+
         echo '
             <input type="hidden" name="page" value="'.$PARAM['page'].'" />
             <input type="hidden" name="sort" value="'.$PARAM['sort'].'" />
@@ -136,20 +140,21 @@ class ManageFunc{
     public function print_target()
     {
         global $target_tabs;
+
         $tab_arr = array();
 
-        for ($i=0; $i<count($target_tabs); $i++) {
+        for ($i = 0; $i < count($target_tabs); $i++) {
             $html = '<ul id="target'.$i.'" class="tab1">';
-            for ($j=0;$j<count($target_tabs);$j++) {
+
+            for ($j = 0; $j < count($target_tabs); $j++) {
                 $chked = '';
-                if ($j == $i) {
-                    $chked = 'on';
-                }
+                if ($j == $i) $chked = 'on';
                 $html .= '<li class="'.$chked.'"><a href="#target'.$j.'">'.$target_tabs[$j].'</a></li>';
             }
             $html .= '</ul>';
             $tab_arr[$i] = $html;
         }
+
         return $tab_arr;
     }
 

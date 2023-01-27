@@ -1,8 +1,9 @@
 <?php
 
-/***
-News
-***/
+//
+// Controller for display
+// https://{domain}/sub/board/view
+//
 class News extends \controller\Make_Controller {
 
     public function init()
@@ -25,9 +26,10 @@ class News extends \controller\Make_Controller {
 
 }
 
-/***
-Free
-***/
+//
+// Controller for display
+// https://{domain}/sub/board/free
+//
 class Free extends \controller\Make_Controller {
 
     public function init()

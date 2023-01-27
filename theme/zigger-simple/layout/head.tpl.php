@@ -20,11 +20,11 @@
 
         <ul id="tnb">
             <?php if (!IS_MEMBER) { ?>
-            <li><a href="<?php echo $this->layout->signin_href(); ?>">Sign in</a></li>
-            <li><a href="<?php echo $this->layout->site_href(); ?>/sign/signup">Sign up</a></li>
+            <li><a href="<?php echo $this->layout->signin_href(); ?>">회원로그인</a></li>
+            <li><a href="<?php echo $this->layout->site_href(); ?>/sign/signup">회원가입</a></li>
 
             <?php } else { ?>
-            <li><a href="<?php echo $this->layout->site_href(); ?>/sign/signout">Sign out</a></li>
+            <li><a href="<?php echo $this->layout->site_href(); ?>/sign/signout">로그아웃</a></li>
             <li><a href="<?php echo $this->layout->site_href(); ?>/message">Message <em><?php echo $this->layout->message_new_count(); ?></em></a></li>
             <li><a href="<?php echo $this->layout->site_href(); ?>/alarm">Alarm <em><?php echo $this->layout->alarm_new_count(); ?></em></a></li>
             <li><a href="<?php echo $this->layout->site_href(); ?>/member">Mypage</a></li>
@@ -63,10 +63,10 @@
         </ul>
     </nav>
 
-    <a href="#" id="slide-btn">
+    <div href="#" id="slide-btn">
         <button><span></span></button>
-        Open menu
-    </a>
+        전체 메뉴 열기
+    </div>
 
 </header>
 
@@ -78,8 +78,8 @@
             <li><a href="<?php echo $this->layout->signin_href(); ?>">회원로그인</a></li>
             <li><a href="<?php echo $this->layout->site_href(); ?>/sign/signup">회원가입</a></li>
             <?php } else { ?>
-                <li><a href="<?php echo $this->layout->site_href(); ?>/message">Message <em><?php echo $this->layout->message_new_count(); ?></em></a></li>
-                <li><a href="<?php echo $this->layout->site_href(); ?>/alarm">Alarm <em><?php echo $this->layout->alarm_new_count(); ?></em></a></li>
+            <li><a href="<?php echo $this->layout->site_href(); ?>/message">Message <em><?php echo $this->layout->message_new_count(); ?></em></a></li>
+            <li><a href="<?php echo $this->layout->site_href(); ?>/alarm">Alarm <em><?php echo $this->layout->alarm_new_count(); ?></em></a></li>
             <li><a href="<?php echo $this->layout->site_href(); ?>/sign/signout">로그아웃</a></li>
             <li><a href="<?php echo $this->layout->site_href(); ?>/member">Mypage</a></li>
             <?php } ?>
@@ -119,6 +119,8 @@
             </li>
             <?php } ?>
         </ul>
+
+        <button type="button" id="slide-menu-close" class="sound_only_ele">전체 메뉴 닫기</button>
     </div>
 </div>
 <div id="slide-bg"></div>

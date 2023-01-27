@@ -6,9 +6,10 @@ use Make\Database\Pdosql;
 use Make\Library\Uploader;
 use Manage\ManageFunc;
 
-/***
-Info
-***/
+//
+// Controller for display
+// https://{domain}/manage/adm/info
+//
 class Info extends \Controller\Make_Controller {
 
     public function init()
@@ -18,7 +19,8 @@ class Info extends \Controller\Make_Controller {
         $this->layout()->mng_foot();
     }
 
-    public function func(){
+    public function func()
+    {
         function set_checked($arr, $val)
         {
             $setarr = array(
@@ -27,11 +29,11 @@ class Info extends \Controller\Make_Controller {
                 'M' => '',
                 'F' => ''
             );
+
             foreach ($setarr as $key => $value) {
-                if ($key == $arr[$val]) {
-                    $setarr[$key] = 'checked';
-                }
+                if ($key == $arr[$val]) $setarr[$key] = 'checked';
             }
+
             return $setarr;
         }
     }
@@ -42,9 +44,7 @@ class Info extends \Controller\Make_Controller {
 
         $manage = new ManageFunc();
 
-        if ($MB['adm'] != 'Y') {
-            $func->err_back(ERR_MSG_1);
-        }
+        if ($MB['adm'] != 'Y') $func->err_back(ERR_MSG_1);
 
         $profileimg = '';
         if ($MB['profileimg']) {
@@ -54,11 +54,7 @@ class Info extends \Controller\Make_Controller {
 
         $MB[0]['address'] = explode('|', $MB['address']);
 
-        if (!$MB[0]['address'][0]) {
-            $MB[0]['address'][0] = null;
-            $MB[0]['address'][1] = null;
-            $MB[0]['address'][2] = null;
-        }
+        if (!$MB[0]['address'][0]) $MB[0]['address'] = array('', '', '');
 
         $this->set('manage', $manage);
         $this->set('profileimg', $profileimg);
@@ -76,12 +72,14 @@ class Info extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for Info
-***/
+//
+// Controller for submit
+// ( Info )
+//
 class Info_submit{
 
-    public function init(){
+    public function init()
+    {
         global $MB;
 
         $sql = new Pdosql();
@@ -145,37 +143,30 @@ class Info_submit{
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("member")}
-            WHERE mb_id=:col1 AND mb_dregdate IS NULL AND mb_adm!='Y'
+            select *
+            from {$sql->table("member")}
+            where mb_id=:col1 and mb_dregdate is null and mb_adm!='Y'
             ",
             array(
                 $req['id']
             )
         );
 
-        if ($sql->getcount() > 0) {
-            Valid::error('id', '이미 존재하는 아이디입니다.');
-        }
+        if ($sql->getcount() > 0) Valid::error('id', '이미 존재하는 아이디입니다.');
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("member")}
-            WHERE mb_id=:col1 AND mb_dregdate IS NULL
+            select *
+            from {$sql->table("member")}
+            where mb_id=:col1 and mb_dregdate is null
             ",
             array(
                 $req['email']
             )
         );
 
-        if ($sql->getcount() > 0) {
-            Valid::error('email', '다른 회원이 사용중인 email 입니다.');
-        }
-
-        if ($req['pwd'] != $req['pwd2']) {
-            Valid::error('pwd2', '비밀번호와 비밀번호 확인이 일치하지 않습니다.');
-        }
+        if ($sql->getcount() > 0) Valid::error('email', '다른 회원이 사용중인 email 입니다.');
+        if ($req['pwd'] != $req['pwd2']) Valid::error('pwd2', '비밀번호와 비밀번호 확인이 일치하지 않습니다.');
 
         $uploader->path= PH_DATA_PATH.'/memberprofile';
         $uploader->chkpath();
@@ -185,20 +176,14 @@ class Info_submit{
         if (isset($file['profileimg'])) {
             $uploader->file = $file['profileimg'];
             $uploader->intdict = SET_IMGTYPE;
-            if ($uploader->chkfile('match') !== true) {
-                Valid::error('profileimg', '허용되지 않는 프로필 이미지 유형입니다.');
-            }
+
+            if ($uploader->chkfile('match') !== true) Valid::error('profileimg', '허용되지 않는 프로필 이미지 유형입니다.');
             $profileimg_name = $uploader->replace_filename($file['profileimg']['name']);
-            if (!$uploader->upload($profileimg_name)) {
-                Valid::error('profileimg', '프로필 이미지 업로드 실패');
-            }
+            if (!$uploader->upload($profileimg_name)) Valid::error('profileimg', '프로필 이미지 업로드 실패');
         }
-        if ((isset($file['profileimg']) && $MB['profileimg'] != '')) {
-            $uploader->drop($MB['profileimg']);
-        }
-        if ($MB['profileimg'] != '' && !isset($file['profileimg'])) {
-            $profileimg_name = $MB['profileimg'];
-        }
+
+        if ((isset($file['profileimg']) && $MB['profileimg'] != '')) $uploader->drop($MB['profileimg']);
+        if ($MB['profileimg'] != '' && !isset($file['profileimg'])) $profileimg_name = $MB['profileimg'];
 
         if ($req['pwd'] != '') {
 
@@ -214,12 +199,12 @@ class Info_submit{
 
             $sql->query(
                 "
-                UPDATE {$sql->table("member")}
-                SET mb_id=:col1,mb_name=:col2,mb_pwd={$sql->set_password($req['pwd'])},mb_email=:col3,mb_profileimg=:col4,mb_gender=:col5,mb_phone=:col6,mb_telephone=:col7,mb_address=:col8
-                WHERE mb_adm='Y' AND mb_idx=:col9
+                update {$sql->table("member")}
+                set mb_id=:col2, mb_name=:col3, mb_pwd={$sql->set_password($req['pwd'])}, mb_email=:col4, mb_profileimg=:col5, mb_gender=:col6, mb_phone=:col7, mb_telephone=:col8, mb_address=:col9
+                where mb_adm='Y' and mb_idx=:col1
                 ",
                 array(
-                    $req['id'], $req['name'], $req['email'], $profileimg_name, $req['gender'], $req['phone'], $req['telephone'], $req['address1'].'|'.$req['address2'].'|'.$req['address3'], $MB['idx']
+                    $MB['idx'], $req['id'], $req['name'], $req['email'], $profileimg_name, $req['gender'], $req['phone'], $req['telephone'], $req['address1'].'|'.$req['address2'].'|'.$req['address3']
                 )
             );
 
@@ -227,12 +212,12 @@ class Info_submit{
 
             $sql->query(
                 "
-                UPDATE {$sql->table("member")}
-                SET mb_id=:col1,mb_name=:col2,mb_pwd=:col3,mb_email=:col4,mb_profileimg=:col5,mb_gender=:col6,mb_phone=:col7,mb_telephone=:col8,mb_address=:col9
-                WHERE mb_adm='Y' AND mb_idx=:col10
+                update {$sql->table("member")}
+                set mb_id=:col2, mb_name=:col3, mb_pwd=:col4, mb_email=:col5, mb_profileimg=:col6, mb_gender=:col7, mb_phone=:col8, mb_telephone=:col9, mb_address=:col10
+                where mb_adm='Y' and mb_idx=:col1
                 ",
                 array(
-                    $req['id'], $req['name'], $MB['pwd'], $req['email'], $profileimg_name, $req['gender'], $req['phone'], $req['telephone'], $req['address1'].'|'.$req['address2'].'|'.$req['address3'], $MB['idx']
+                    $MB['idx'], $req['id'], $req['name'], $MB['pwd'], $req['email'], $profileimg_name, $req['gender'], $req['phone'], $req['telephone'], $req['address1'].'|'.$req['address2'].'|'.$req['address3']
                 )
             );
 

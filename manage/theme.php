@@ -5,9 +5,10 @@ use Corelib\Valid;
 use Make\Database\Pdosql;
 use Manage\ManageFunc;
 
-/***
-Theme
-***/
+//
+// Controller for display
+// https://{domain}/manage/theme/theme
+//
 class Theme extends \Controller\Make_Controller {
 
     public function init()
@@ -22,6 +23,7 @@ class Theme extends \Controller\Make_Controller {
         function theme_total()
         {
             global $THEME;
+
             return count($THEME);
         }
 
@@ -43,9 +45,7 @@ class Theme extends \Controller\Make_Controller {
 
             $xml_file = PH_PATH.'/theme/'.$value.'/theme.info.xml';
 
-            if (file_exists($xml_file)) {
-                $load_xml = simplexml_load_file($xml_file);
-            }
+            if (file_exists($xml_file)) $load_xml = simplexml_load_file($xml_file);
 
             $xml_arr = array();
             $xml_arr['theme'] = $value;
@@ -75,9 +75,10 @@ class Theme extends \Controller\Make_Controller {
     }
 }
 
-/***
-Submit for Theme
-***/
+//
+// Controller for submit
+// ( Theme )
+//
 class Theme_submit{
 
     public function init()
@@ -92,10 +93,10 @@ class Theme_submit{
 
         $sql->query(
             "
-            UPDATE
+            update
             {$sql->table("config")}
-            SET cfg_value='{$req['theme_slt']}'
-            WHERE cfg_type='engine' AND cfg_key='theme'
+            set cfg_value='{$req['theme_slt']}'
+            where cfg_type='engine' and cfg_key='theme'
             ", []
         );
 
@@ -110,21 +111,25 @@ class Theme_submit{
 
 }
 
-/***
-Module
-***/
+//
+// Controller for display
+// https://{domain}/manage/theme/module
+//
 class Module extends \Controller\Make_Controller {
 
-    public function init(){
+    public function init()
+    {
         $this->layout()->mng_head();
         $this->layout()->view(PH_MANAGE_PATH.'/html/theme/module.tpl.php');
         $this->layout()->mng_foot();
     }
 
-    public function func(){
+    public function func()
+    {
         function module_total()
         {
             global $MODULE;
+
             return count($MODULE);
         }
     }
@@ -141,9 +146,7 @@ class Module extends \Controller\Make_Controller {
 
             $xml_file = PH_PATH.'/mod/'.$value.'/manage.set/module.info.xml';
 
-            if (file_exists($xml_file)) {
-                $load_xml = simplexml_load_file($xml_file);
-            }
+            if (file_exists($xml_file)) $load_xml = simplexml_load_file($xml_file);
 
             $xml_arr = array();
             $xml_arr['module'] = $value;
@@ -169,5 +172,4 @@ class Module extends \Controller\Make_Controller {
 
         }
     }
-
 }

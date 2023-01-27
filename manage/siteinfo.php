@@ -6,9 +6,10 @@ use Make\Library\Uploader;
 use Make\Database\Pdosql;
 use Manage\ManageFunc;
 
-/***
-Info
-***/
+//
+// Controller for display
+// https://{domain}/manage/siteinfo/info
+//
 class Info extends \Controller\Make_Controller {
 
     public function init(){
@@ -21,16 +22,14 @@ class Info extends \Controller\Make_Controller {
     {
         function set_checked($arr, $val)
         {
-            $setarr = array(
-                'Y' => '',
-                'N' => '',
-                'O' => ''
-            );
+            $setarr = array('Y' => '', 'N' => '', 'O' => '');
+
             foreach ($setarr as $key => $value) {
                 if ($key == $arr[$val] || ($key == 'N' && !$arr[$val])) {
                     $setarr[$key] = 'checked';
                 }
             }
+
             return $setarr;
         }
 
@@ -41,6 +40,7 @@ class Info extends \Controller\Make_Controller {
             for ($i = 1; $i <= count($ex); $i++) {
                 $arr[$i] = $ex[(int)$i - 1];
             }
+
             return $arr;
         }
     }
@@ -54,9 +54,9 @@ class Info extends \Controller\Make_Controller {
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("config")}
-            WHERE cfg_type='engine'
+            select *
+            from {$sql->table("config")}
+            where cfg_type='engine'
             ", []
         );
 
@@ -78,15 +78,11 @@ class Info extends \Controller\Make_Controller {
 
         } while($sql->nextRec());
 
-        //logo file
-        if ($arr['logo']) {
-            $arr[0]['logo'] = Func::get_fileinfo($arr['logo']);
-        }
+        // logo file
+        if ($arr['logo']) $arr[0]['logo'] = Func::get_fileinfo($arr['logo']);
 
-        //favicon file
-        if ($arr['favicon']) {
-            $arr[0]['favicon'] = Func::get_fileinfo($arr['favicon']);
-        }
+        // favicon file
+        if ($arr['favicon']) $arr[0]['favicon'] = Func::get_fileinfo($arr['favicon']);
 
         $ex = explode('|', $arr['st_exp']);
 
@@ -94,19 +90,8 @@ class Info extends \Controller\Make_Controller {
             $arr['st_'.$i.'_exp'] = $ex[$i - 1];
         }
 
-        if ($arr['logo'] != '') {
-            $is_logo_show = true;
-
-        } else {
-            $is_logo_show = false;
-        }
-
-        if ($arr['favicon'] != '') {
-            $is_favicon_show = true;
-
-        } else {
-            $is_favicon_show = false;
-        }
+        $is_logo_show = ($arr['logo'] != '') ? true : false;
+        $is_favicon_show = ($arr['favicon'] != '') ? true : false;
 
         $write = array();
 
@@ -145,9 +130,10 @@ class Info extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for Info
-***/
+//
+// Controller for submit
+// ( Info )
+//
 class Info_submit {
 
     public function init()
@@ -182,16 +168,14 @@ class Info_submit {
         );
 
         for ($i = 0; $i < count($req['mb_division']); $i++) {
-            if (!$req['mb_division'][$i]) {
-                Valid::error('', '회원 등급별 명칭을 모두 입력해 주세요.');
-            }
+            if (!$req['mb_division'][$i]) Valid::error('', '회원 등급별 명칭을 모두 입력해 주세요.');
         }
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("config")}
-            WHERE cfg_type='engine'
+            select *
+            from {$sql->table("config")}
+            where cfg_type='engine'
             ", []
         );
 
@@ -200,63 +184,44 @@ class Info_submit {
         do {
             $arr[$sql->fetch('cfg_key')] = $sql->fetch('cfg_value');
 
-        } while($sql->nextRec());
+        } while ($sql->nextRec());
 
         $uploader->path= PH_DATA_PATH.'/manage';
         $uploader->chkpath();
 
+        // favicon 업로드
         $favicon_name = '';
 
         if (isset($file['favicon'])) {
             $uploader->file = $file['favicon'];
             $uploader->intdict = 'ico';
 
-            if ($uploader->chkfile('match') !== true) {
-                Valid::error('favicon','허용되지 않는 파비콘 유형입니다.');
-            }
-
+            if ($uploader->chkfile('match') !== true) Valid::error('favicon','허용되지 않는 파비콘 유형입니다.');
             $favicon_name = $uploader->replace_filename($file['favicon']['name']);
-
-            if (!$uploader->upload($favicon_name)) {
-                Valid::error('favicon', '파비콘 업로드 실패');
-            }
+            if (!$uploader->upload($favicon_name)) Valid::error('favicon', '파비콘 업로드 실패');
         }
 
-        if ((isset($file['favicon']) && $arr['favicon'] != '') || $req['favicon_del'] == 'checked') {
-            $uploader->drop($arr['favicon']);
-        }
-        if ($arr['favicon'] != '' && !isset($file['favicon']) && $req['favicon_del'] != 'checked') {
-            $favicon_name = $arr['favicon'];
-        }
+        if ((isset($file['favicon']) && $arr['favicon'] != '') || $req['favicon_del'] == 'checked') $uploader->drop($arr['favicon']);
+        if ($arr['favicon'] != '' && !isset($file['favicon']) && $req['favicon_del'] != 'checked') $favicon_name = $arr['favicon'];
 
+        // logo 업로드
         $logo_name = '';
 
         if (isset($file['logo'])) {
             $uploader->file = $file['logo'];
             $uploader->intdict = SET_IMGTYPE;
-            if ($uploader->chkfile('match') !== true) {
-                Valid::error('logo', '허용되지 않는 로고 유형입니다.');
-            }
+
+            if ($uploader->chkfile('match') !== true) Valid::error('logo', '허용되지 않는 로고 유형입니다.');
             $logo_name = $uploader->replace_filename($file['logo']['name']);
-            if (!$uploader->upload($logo_name)) {
-                Valid::error('logo', '로고 업로드 실패');
-            }
-        }
-        if ((isset($file['logo']) && $arr['logo'] != '') || $req['logo_del'] == 'checked') {
-            $uploader->drop($arr['logo']);
-        }
-        if ($arr['logo'] != '' && !isset($file['logo']) && $req['logo_del'] != 'checked') {
-            $logo_name = $arr['logo'];
+            if (!$uploader->upload($logo_name)) Valid::error('logo', '로고 업로드 실패');
         }
 
-        if ($req['use_phonechk'] == 'Y' && $arr['use_sms'] != 'Y') {
-            Valid::error('use_phonechk', 'SMS 문자 발송 기능이 활성화되지 않아 휴대전화 인증을 사용할 수 없습니다.');
-        }
+        if ((isset($file['logo']) && $arr['logo'] != '') || $req['logo_del'] == 'checked') $uploader->drop($arr['logo']);
+        if ($arr['logo'] != '' && !isset($file['logo']) && $req['logo_del'] != 'checked') $logo_name = $arr['logo'];
+        if ($req['use_phonechk'] == 'Y' && $arr['use_sms'] != 'Y') Valid::error('use_phonechk', 'SMS 문자 발송 기능이 활성화되지 않아 휴대전화 인증을 사용할 수 없습니다.');
+        if ($req['use_mb_phone'] == 'N' && $req['use_phonechk'] == 'Y') Valid::error('use_phonechk', '휴대전화 입력이 활성화되지 않아 휴대전화 인증을 사용할 수 없습니다.');
 
-        if ($req['use_mb_phone'] == 'N' && $req['use_phonechk'] == 'Y') {
-            Valid::error('use_phonechk', '휴대전화 입력이 활성화되지 않아 휴대전화 인증을 사용할 수 없습니다.');
-        }
-
+        // update
         $mb_division = implode('|', $req['mb_division']);
         $st_exp = $sql->etcfd_exp(implode('|', $req['st_exp']));
 
@@ -294,11 +259,11 @@ class Info_submit {
         foreach ($data as $key => $value) {
             $sql->query(
                 "
-                UPDATE
+                update
                 {$sql->table("config")}
-                SET
+                set
                 cfg_value=:col1
-                WHERE cfg_type='engine' AND cfg_key='{$key}'
+                where cfg_type='engine' and cfg_key='{$key}'
                 ",
                 array(
                     $value
@@ -316,12 +281,14 @@ class Info_submit {
     }
 }
 
-/***
-Plugins
-***/
+//
+// Controller for display
+// https://{domain}/siteinfo/siteinfo/plugins
+//
 class Plugins extends \Controller\Make_Controller {
 
-    public function init(){
+    public function init()
+    {
         $this->layout()->mng_head();
         $this->layout()->view(PH_MANAGE_PATH.'/html/siteinfo/plugins.tpl.php');
         $this->layout()->mng_foot();
@@ -331,15 +298,14 @@ class Plugins extends \Controller\Make_Controller {
     {
         function set_checked($arr, $val)
         {
-            $setarr = array(
-                'Y' => '',
-                'N' => ''
-            );
+            $setarr = array('Y' => '', 'N' => '');
+
             foreach ($setarr as $key => $value) {
                 if ($key == $arr[$val] || ($key == 'N' && !$arr[$val])) {
                     $setarr[$key] = 'checked';
                 }
             }
+
             return $setarr;
         }
     }
@@ -353,9 +319,9 @@ class Plugins extends \Controller\Make_Controller {
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("config")}
-            WHERE cfg_type='engine'
+            select *
+            from {$sql->table("config")}
+            where cfg_type='engine'
             ", []
         );
 
@@ -372,7 +338,7 @@ class Plugins extends \Controller\Make_Controller {
                 $arr[$cfg['cfg_key']] = $sql->fetch('cfg_value');
             }
 
-        } while($sql->nextRec());
+        } while ($sql->nextRec());
 
         if (isset($arr)) {
             foreach ($arr as $key => $value) {
@@ -408,9 +374,10 @@ class Plugins extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for Plugins
-***/
+//
+// Controller for submit
+// ( Plugins )
+//
 class Plugins_submit {
 
     public function init()
@@ -562,25 +529,17 @@ class Plugins_submit {
         }
 
         if ($req['use_feedsms'] == 'Y') {
-            if ($req['use_sms'] != 'Y') {
-                Valid::error($req['use_sms'], '피드 SMS 발송을 위해선 SMS가 활성화 되어야 합니다.');
-            }
-            if (!$req['sms_toadm']) {
-                Valid::error($req['sms_toadm'], '피드 SMS 발송을 위해선 수신 받을 연락처가 입력 되어야 합니다.');
-            }
+            if ($req['use_sms'] != 'Y') Valid::error($req['use_sms'], '피드 SMS 발송을 위해선 SMS가 활성화 되어야 합니다.');
+            if (!$req['sms_toadm']) Valid::error($req['sms_toadm'], '피드 SMS 발송을 위해선 수신 받을 연락처가 입력 되어야 합니다.');
         }
 
-        if ($req['use_rss'] == 'Y') {
-            if (!$req['rss_boards']) {
-                Valid::error('rss_boards', 'RSS 발행을 활성화 하려면 RSS 구문을 입력해야 합니다.');
-            }
-        }
+        if ($req['use_rss'] == 'Y' && !$req['rss_boards']) Valid::error('rss_boards', 'RSS 발행을 활성화 하려면 RSS 구문을 입력해야 합니다.');
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("config")}
-            WHERE cfg_type='engine'
+            select *
+            from {$sql->table("config")}
+            where cfg_type='engine'
             ", []
         );
 
@@ -589,50 +548,29 @@ class Plugins_submit {
         do {
             $arr[$sql->fetch('cfg_key')] = $sql->fetch('cfg_value');
 
-        } while($sql->nextRec());
+        } while ($sql->nextRec());
 
-        $data = array(
-            'use_recaptcha' => $req['use_recaptcha'],
-            'recaptcha_key1' => $req['recaptcha_key1'],
-            'recaptcha_key2' => $req['recaptcha_key2'],
-            'use_sns_ka' => $req['use_sns_ka'],
-            'sns_ka_key1' => $req['sns_ka_key1'],
-            'sns_ka_key2' => $req['sns_ka_key2'],
-            'use_sns_nv' => $req['use_sns_nv'],
-            'sns_nv_key1' => $req['sns_nv_key1'],
-            'sns_nv_key2' => $req['sns_nv_key2'],
-            'use_smtp' => $req['use_smtp'],
-            'smtp_server' => $req['smtp_server'],
-            'smtp_port' => $req['smtp_port'],
-            'smtp_id' => $req['smtp_id'],
-            'smtp_pwd' => $req['smtp_pwd'],
-            'use_s3' => $req['use_s3'],
-            's3_key1' => $req['s3_key1'],
-            's3_key2' => $req['s3_key2'],
-            's3_key3' => $req['s3_key3'],
-            's3_key4' => $req['s3_key4'],
-            's3_key5' => $req['s3_key5'],
-            's3_path_style' => $req['s3_path_style'],
-            'use_sms' => $req['use_sms'],
-            'use_feedsms' => $req['use_feedsms'],
-            'sms_toadm' => $req['sms_toadm'],
-            'sms_from' => $req['sms_from'],
-            'sms_key1' => $req['sms_key1'],
-            'sms_key2' => $req['sms_key2'],
-            'sms_key3' => $req['sms_key3'],
-            'sms_key4' => $req['sms_key4'],
-            'use_rss' => $req['use_rss'],
-            'rss_boards' => $req['rss_boards']
+        $matchs = array(
+            'use_recaptcha', 'recaptcha_key1', 'recaptcha_key2',
+            'use_sns_ka', 'sns_ka_key1', 'sns_ka_key2', 'use_sns_nv', 'sns_nv_key1', 'sns_nv_key2',
+            'use_smtp', 'smtp_server', 'smtp_port', 'smtp_id', 'smtp_pwd',
+            'use_s3', 's3_key1', 's3_key2', 's3_key3', 's3_key4', 's3_key5', 's3_path_style',
+            'use_sms', 'use_feedsms', 'sms_toadm', 'sms_from', 'sms_key1', 'sms_key2', 'sms_key3', 'sms_key4', 'use_rss', 'rss_boards'
         );
+
+        $data = array();
+        foreach ($matchs as $key => $value) {
+            $data[$value] = $req[$value];
+        }
 
         foreach ($data as $key => $value) {
             $sql->query(
                 "
-                UPDATE
+                update
                 {$sql->table("config")}
-                SET
+                set
                 cfg_value=:col1
-                WHERE cfg_type='engine' AND cfg_key='{$key}'
+                where cfg_type='engine' and cfg_key='{$key}'
                 ",
                 array(
                     $value
@@ -650,12 +588,14 @@ class Plugins_submit {
     }
 }
 
-/***
-Seo
-***/
+//
+// Controller for display
+// https://{domain}/manage/siteinfo/seo
+//
 class Seo extends \Controller\Make_Controller {
 
-    public function init(){
+    public function init()
+    {
         $this->layout()->mng_head();
         $this->layout()->view(PH_MANAGE_PATH.'/html/siteinfo/seo.tpl.php');
         $this->layout()->mng_foot();
@@ -670,9 +610,9 @@ class Seo extends \Controller\Make_Controller {
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("config")}
-            WHERE cfg_type='engine'
+            select *
+            from {$sql->table("config")}
+            where cfg_type='engine'
             ", []
         );
 
@@ -688,29 +628,24 @@ class Seo extends \Controller\Make_Controller {
             if ($cfg['cfg_key'] == 'script' || $cfg['cfg_key'] == 'meta') {
                 $sql->specialchars = 0;
                 $sql->nl2br = 0;
-
                 $arr[$cfg['cfg_key']] = $sql->fetch('cfg_value');
             }
 
-        } while($sql->nextRec());
+        } while ($sql->nextRec());
 
-        if ($arr['og_image'] != '') {
-            $is_og_image_show = true;
+        $is_og_image_show = ($arr['og_image'] != '') ? true : false;
 
-        } else {
-            $is_og_image_show = false;
-        }
-
-        //Make robots.txt
+        // robots.txt
         $file = fopen(PH_PATH.'/robots.txt', 'r');
         $fileContent = '';
+
         while (!feof($file)) {
             $fileContent .= fgets($file);
         }
         fclose($file);
+
         $arr['robotrule'] = $fileContent;
         $arr[0]['og_image'] = Func::get_fileinfo($arr['og_image']);
-
 
         $write = array();
 
@@ -740,9 +675,10 @@ class Seo extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for Seo
-***/
+//
+// Controller for submit
+// ( Seo )
+//
 class Seo_submit {
 
     public function init()
@@ -759,9 +695,9 @@ class Seo_submit {
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("config")}
-            WHERE cfg_type='engine'
+            select *
+            from {$sql->table("config")}
+            where cfg_type='engine'
             ", []
         );
 
@@ -770,9 +706,9 @@ class Seo_submit {
         do {
             $arr[$sql->fetch('cfg_key')] = $sql->fetch('cfg_value');
 
-        } while($sql->nextRec());
+        } while ($sql->nextRec());
 
-        $uploader->path= PH_DATA_PATH.'/manage';
+        $uploader->path = PH_DATA_PATH.'/manage';
         $uploader->chkpath();
 
         $og_image_name = '';
@@ -781,24 +717,15 @@ class Seo_submit {
             $uploader->file = $file['og_image'];
             $uploader->intdict = SET_IMGTYPE;
 
-            if ($uploader->chkfile('match') !== true) {
-                Valid::error('og_image', '허용되지 않는 이미지 유형입니다.');
-            }
+            if ($uploader->chkfile('match') !== true) Valid::error('og_image', '허용되지 않는 이미지 유형입니다.');
 
             $og_image_name = $uploader->replace_filename($file['og_image']['name']);
 
-            if (!$uploader->upload($og_image_name)) {
-                Valid::error('og_image', '이미지 업로드 실패');
-            }
+            if (!$uploader->upload($og_image_name)) Valid::error('og_image', '이미지 업로드 실패');
         }
 
-        if ((isset($file['og_image']) && $arr['og_image'] != '') || $req['og_image_del'] == 'checked') {
-            $uploader->drop($arr['og_image']);
-        }
-
-        if ($arr['og_image'] != '' && !isset($file['og_image']) && $req['og_image_del'] != 'checked'){
-            $og_image_name = $arr['og_image'];
-        }
+        if ((isset($file['og_image']) && $arr['og_image'] != '') || $req['og_image_del'] == 'checked') $uploader->drop($arr['og_image']);
+        if ($arr['og_image'] != '' && !isset($file['og_image']) && $req['og_image_del'] != 'checked') $og_image_name = $arr['og_image'];
 
         $data = array(
             'og_type' => $req['og_type'],
@@ -815,11 +742,11 @@ class Seo_submit {
         foreach ($data as $key => $value) {
             $sql->query(
                 "
-                UPDATE
+                update
                 {$sql->table("config")}
-                SET
+                set
                 cfg_value=:col1
-                WHERE cfg_type='engine' AND cfg_key='{$key}'
+                where cfg_type='engine' and cfg_key='{$key}'
                 ",
                 array(
                     $value
@@ -827,11 +754,10 @@ class Seo_submit {
             );
         }
 
-        //Make robots.txt
+        // make robots.txt
         $file = fopen(PH_PATH.'/robots.txt', 'w');
         fwrite($file, $req['robotrule']);
         fclose($file);
-
 
         Valid::set(
             array(
@@ -844,23 +770,21 @@ class Seo_submit {
 
 }
 
-/***
-Sitemap
-***/
+//
+// Controller for display
+// https://{domain}/manage/siteinfo/sitemap
+//
 class Sitemap extends \Controller\Make_Controller {
 
     public function init()
     {
         $this->layout()->mng_head();
-        $this->layout()->view(PH_MANAGE_PATH.'/html/siteinfo/sitemap.tpl.php');
+        $this->layout()->view(PH_MANAGE_PATH.'/html/siteinfo/sitemap.tpl.php', false);
         $this->layout()->mng_foot();
     }
 
-    public function make(){
-
-    }
-
-    public function form(){
+    public function form()
+    {
         $form = new \Controller\Make_View_Form();
         $form->set('id', 'sitemapListForm');
         $form->set('type', 'html');
@@ -868,7 +792,8 @@ class Sitemap extends \Controller\Make_Controller {
         $form->run();
     }
 
-    public function form2(){
+    public function form2()
+    {
         $form = new \Controller\Make_View_Form();
         $form->set('id', 'sitemapMofidyForm');
         $form->set('type', 'html');
@@ -878,9 +803,10 @@ class Sitemap extends \Controller\Make_Controller {
 
 }
 
-/***
-Sitemap List
-***/
+//
+// Controller for display
+// https://{domain}/manage/siteinfo/sitemaplist
+//
 class SitemapList extends \Controller\Make_Controller {
 
     public function init()
@@ -896,10 +822,10 @@ class SitemapList extends \Controller\Make_Controller {
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("sitemap")}
-            WHERE CHAR_LENGTH(caidx)=4
-            ORDER BY caidx ASC
+            select *
+            from {$sql->table("sitemap")}
+            where CHAR_LENGTH(caidx)=4
+            order by caidx ASC
             ", []
         );
         $list_cnt = $sql->getcount();
@@ -910,16 +836,16 @@ class SitemapList extends \Controller\Make_Controller {
             do {
                 $arr = $sql->fetchs();
 
-                //depth 2
+                // depth 2
                 $print_arr2 = array();
                 if ($sql->fetch('children') > 0) {
 
                     $sql2->query(
                         "
-                        SELECT *
-                        FROM {$sql2->table("sitemap")}
-                        WHERE SUBSTR(caidx,1,4)=:col1 AND CHAR_LENGTH(caidx)=8
-                        ORDER BY caidx ASC
+                        select *
+                        from {$sql2->table("sitemap")}
+                        where substr(caidx,1,4)=:col1 and CHAR_LENGTH(caidx)=8
+                        order by caidx ASC
                         ",
                         array(
                             $arr['caidx']
@@ -929,15 +855,15 @@ class SitemapList extends \Controller\Make_Controller {
                     do {
                         $arr2 = $sql2->fetchs();
 
-                        //depth 3
+                        // depth 3
                         $print_arr3 = array();
                         if ($sql2->fetch('children') > 0) {
                             $sql3->query(
                                 "
-                                SELECT *
-                                FROM {$sql3->table("sitemap")}
-                                WHERE SUBSTR(caidx,1,8)=:col1 AND CHAR_LENGTH(caidx)=12
-                                ORDER BY caidx ASC
+                                select *
+                                from {$sql3->table("sitemap")}
+                                where substr(caidx,1,8)=:col1 and CHAR_LENGTH(caidx)=12
+                                order by caidx ASC
                                 ",
                                 array(
                                     $arr2['caidx']
@@ -968,9 +894,10 @@ class SitemapList extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for Sitemap List
-***/
+//
+// Controller for submit
+// ( SitemapList )
+//
 class SitemapList_submit{
 
     public function init()
@@ -992,9 +919,9 @@ class SitemapList_submit{
         }
     }
 
-    ///
+    //
     // add
-    ///
+    //
     public function get_add()
     {
         global $req;
@@ -1003,36 +930,30 @@ class SitemapList_submit{
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("sitemap")}
-            ORDER BY idx DESC
-            LIMIT 1
+            select *
+            from {$sql->table("sitemap")}
+            order by idx desc
+            limit 1
             ", []
         );
 
         $recent_idx = $sql->fetch('idx');
-
-        if ($recent_idx) {
-            $recent_idx++;
-
-        } else {
-            $recent_idx = 1;
-        }
+        ($recent_idx) ? $recent_idx++ : $recent_idx = 1;
 
         switch (strlen($req['new_caidx'])) {
             case 4 :
-            $new_depth = 1;
-            break;
+                $new_depth = 1;
+                break;
 
             case 8 :
-            $new_len = 8;
-            $new_depth = 2;
-            break;
+                $new_len = 8;
+                $new_depth = 2;
+                break;
 
             case 12 :
-            $new_len = 12;
-            $new_depth = 3;
-            break;
+                $new_len = 12;
+                $new_depth = 3;
+                break;
         }
 
         if ($new_depth >= 2) {
@@ -1040,9 +961,9 @@ class SitemapList_submit{
 
             $sql->query(
                 "
-                SELECT COUNT(*) count
-                FROM {$sql->table("sitemap")}
-                WHERE caidx LIKE :col1
+                select count(*) count
+                from {$sql->table("sitemap")}
+                where caidx like :col1
                 ",
                 array(
                     $prt_caidx.'%'
@@ -1052,31 +973,28 @@ class SitemapList_submit{
 
             $sql->query(
                 "
-                UPDATE {$sql->table("sitemap")}
-                SET
-                children=:col1
-                WHERE caidx=:col2
+                update {$sql->table("sitemap")}
+                set
+                children=:col2
+                where caidx=:col1
                 ",
                 array(
-                    $children_count,
-                    $prt_caidx
+                    $prt_caidx, $children_count
+
                 )
             );
         }
 
         $sql->query(
             "
-            INSERT INTO
+            insert into
             {$sql->table("sitemap")}
-            (idx,caidx,title,children)
-            VALUES
-            (:col1,:col2,:col3,:col4)
+            (idx, caidx, title, children)
+            values
+            (:col1, :col2, :col3, :col4)
             ",
             array(
-                $recent_idx,
-                $req['new_caidx'],
-                '새로운 '.$new_depth.'차 카테고리',
-                0
+                $recent_idx, $req['new_caidx'], '새로운 '.$new_depth.'차 카테고리', 0
             )
         );
 
@@ -1089,9 +1007,9 @@ class SitemapList_submit{
         Valid::turn();
     }
 
-    ///
+    //
     // modify
-    ///
+    //
     public function get_modify()
     {
         global $req, $where;
@@ -1105,20 +1023,15 @@ class SitemapList_submit{
 
         } else {
             for ($i = 0; $i < count($req['idx']); $i++) {
-                if ($i == 0) {
-                    $where .= 'idx!=\''.$req['idx'][$i].'\'';
-
-                } else {
-                    $where .= ' AND idx!=\''.$req['idx'][$i].'\'';
-                }
+                $where .= ($i == 0) ? 'idx!=\''.$req['idx'][$i].'\'': ' and idx!=\''.$req['idx'][$i].'\'';
             }
         }
 
         $sql->query(
             "
-            DELETE
-            FROM {$sql->table("sitemap")}
-            WHERE $where
+            delete
+            from {$sql->table("sitemap")}
+            where $where
             ", []
         );
 
@@ -1127,9 +1040,9 @@ class SitemapList_submit{
         for ($i = 0; $i < count($req['idx']); $i++) {
             $sql->query(
                 "
-                SELECT COUNT(*) count
-                FROM {$sql->table("sitemap")}
-                WHERE caidx LIKE :col1
+                select count(*) count
+                from {$sql->table("sitemap")}
+                where caidx like :col1
                 ",
                 array(
                     $req['org_caidx'][$i].'%'
@@ -1141,15 +1054,13 @@ class SitemapList_submit{
         for ($i = 0; $i < count($req['idx']); $i++) {
             $sql->query(
                 "
-                UPDATE {$sql->table("sitemap")}
-                SET
+                update {$sql->table("sitemap")}
+                set
                 caidx=:col1,children=:col2
-                WHERE idx=:col3
+                where idx=:col3
                 ",
                 array(
-                    $req['caidx'][$i],
-                    $children_count[$i],
-                    $req['idx'][$i]
+                    $req['caidx'][$i], $children_count[$i], $req['idx'][$i]
                 )
             );
         }
@@ -1164,9 +1075,10 @@ class SitemapList_submit{
     }
 }
 
-/***
-Sitemap Modify
-***/
+//
+// Controller for display
+// https://{domain}/manage/siteinfo/sitemapmodify
+//
 class SitemapModify extends \Controller\Make_Controller {
 
     public function init(){
@@ -1194,13 +1106,15 @@ class SitemapModify extends \Controller\Make_Controller {
     {
         $req = Method::request('get', 'idx');
 
+        if (!$req['idx']) Func::err_print(ERR_MSG_1);
+
         $sql = new Pdosql();
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("sitemap")}
-            WHERE idx=:col1
+            select *
+            from {$sql->table("sitemap")}
+            where idx=:col1
             ",
             array(
                 $req['idx']
@@ -1224,9 +1138,10 @@ class SitemapModify extends \Controller\Make_Controller {
     }
 }
 
-/***
-Submit for Sitemap Modify
-***/
+//
+// Controller for submit
+// ( SitemapModify )
+//
 class SitemapModify_submit{
 
     public function init()
@@ -1253,16 +1168,16 @@ class SitemapModify_submit{
 
         $sql->query(
             "
-            UPDATE {$sql->table("sitemap")}
-            SET
-            title=:col1,href=:col2,visible=:col3
-            WHERE idx=:col4
+            update {$sql->table("sitemap")}
+            set
+            title=:col2, href=:col3, visible=:col4
+            where idx=:col1
             ",
             array(
+                $req['idx'],
                 $req['title'],
                 $req['href'],
-                $req['visible'],
-                $req['idx']
+                $req['visible']
             )
         );
 

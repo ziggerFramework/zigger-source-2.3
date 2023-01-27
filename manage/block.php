@@ -6,9 +6,10 @@ use Make\Database\Pdosql;
 use Make\Library\Paging;
 use Manage\ManageFunc;
 
-/***
-Ip
-***/
+//
+// Controller for display
+// https://{domain}/manage/clock/ip
+//
 class Ip extends \Controller\Make_Controller {
 
     public function init(){
@@ -17,7 +18,8 @@ class Ip extends \Controller\Make_Controller {
         $this->layout()->mng_foot();
     }
 
-    public function func(){
+    public function func()
+    {
         function block_total($arr)
         {
             return Func::number($arr['total']);
@@ -32,42 +34,39 @@ class Ip extends \Controller\Make_Controller {
         $paging = new Paging();
         $manage = new ManageFunc();
 
-        //sortby
+        // sortby
         $sortby = '';
         $sort_arr = array();
 
         $sql->query(
             "
-            SELECT
+            select
             (
-                SELECT COUNT(*)
-                FROM {$sql->table("blockmb")}
-                WHERE ip IS NOT NULL AND ip!=''
+                select COUNT(*)
+                from {$sql->table("blockmb")}
+                where ip is not null and ip!=''
             ) total
             ", []
         );
         $sort_arr['total'] = $sql->fetch('total');
 
-        //orderby
-        if (!$PARAM['ordtg']) {
-            $PARAM['ordtg'] = 'regdate';
-        }
-        if (!$PARAM['ordsc']) {
-            $PARAM['ordsc'] = 'desc';
-        }
+        // orderby
+        if (!$PARAM['ordtg']) $PARAM['ordtg'] = 'regdate';
+        if (!$PARAM['ordsc']) $PARAM['ordsc'] = 'desc';
         $orderby = $PARAM['ordtg'].' '.$PARAM['ordsc'];
 
-        //list
+        // list
         $sql->query(
             $paging->query(
                 "
-                SELECT *
-                FROM {$sql->table("blockmb")}
-                WHERE ip IS NOT NULL AND ip!='' $sortby $searchby
-                ORDER BY $orderby
+                select *
+                from {$sql->table("blockmb")}
+                where ip is not null and ip!='' $sortby $searchby
+                order by $orderby
                 ", []
             )
         );
+
         $list_cnt = $sql->getcount();
         $total_cnt = Func::number($paging->totalCount);
         $print_arr = array();
@@ -100,7 +99,8 @@ class Ip extends \Controller\Make_Controller {
         $form->run();
     }
 
-    public function form2(){
+    public function form2()
+    {
         $form = new \Controller\Make_View_Form();
         $form->set('id', 'blockipDelForm');
         $form->set('type', 'html');
@@ -110,9 +110,10 @@ class Ip extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for Ip
-***/
+//
+// Controller for submit
+// ( Ip )
+//
 class Ip_submit{
 
     public function init(){
@@ -136,9 +137,9 @@ class Ip_submit{
         }
     }
 
-    ///
+    //
     // add
-    ///
+    //
     public function get_add()
     {
         global $req;
@@ -160,26 +161,24 @@ class Ip_submit{
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("blockmb")}
-            WHERE ip=:col1
+            select *
+            from {$sql->table("blockmb")}
+            where ip=:col1
             ",
             array(
                 $req['ip']
             )
         );
 
-        if ($sql->getcount() > 0) {
-            Valid::error('ip', '이미 등록된 ip입니다.');
-        }
+        if ($sql->getcount() > 0) Valid::error('ip', '이미 등록된 ip입니다.');
 
         $sql->query(
             "
-            INSERT INTO
+            insert into
             {$sql->table("blockmb")}
             (ip,memo,regdate)
-            VALUES
-            (:col1,:col2,now())
+            values
+            (:col1, :col2, now())
             ",
             array(
                 $req['ip'], $req['memo']
@@ -195,9 +194,9 @@ class Ip_submit{
         Valid::turn();
     }
 
-    ///
+    //
     // delete
-    ///
+    //
     public function get_delete()
     {
         global $req;
@@ -206,23 +205,21 @@ class Ip_submit{
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("blockmb")}
-            WHERE idx=:col1
+            select *
+            from {$sql->table("blockmb")}
+            where idx=:col1
             ",
             array(
                 $req['idx']
             )
         );
 
-        if ($sql->getcount() < 1) {
-            Valid::error('', '등록되지 않은 차단 정보입니다.');
-        }
+        if ($sql->getcount() < 1) Valid::error('', '등록되지 않은 차단 정보입니다.');
 
         $sql->query(
             "
-            DELETE FROM {$sql->table("blockmb")}
-            WHERE idx=:col1
+            delete from {$sql->table("blockmb")}
+            where idx=:col1
             ",
             array(
                 $req['idx']
@@ -239,9 +236,10 @@ class Ip_submit{
 
 }
 
-/***
-Member
-***/
+//
+// Controller for display
+// https://{domain}/manage/block/member
+//
 class Member extends \Controller\Make_Controller {
 
     public function init()
@@ -267,39 +265,35 @@ class Member extends \Controller\Make_Controller {
         $paging = new Paging();
         $manage = new ManageFunc();
 
-        //sortby
+        // sortby
         $sortby = '';
         $sort_arr = array();
 
         $sql->query(
             "
-            SELECT
+            select
             (
-                SELECT COUNT(*)
-                FROM {$sql->table("blockmb")}
-                WHERE mb_id IS NOT NULL AND mb_id!=''
+                select COUNT(*)
+                from {$sql->table("blockmb")}
+                where mb_id is not null and mb_id!=''
             ) total
             ", []
         );
         $sort_arr['total'] = $sql->fetch('total');
 
-        //orderby
-        if (!$PARAM['ordtg']) {
-            $PARAM['ordtg'] = 'regdate';
-        }
-        if (!$PARAM['ordsc']) {
-            $PARAM['ordsc'] = 'desc';
-        }
+        // orderby
+        if (!$PARAM['ordtg']) $PARAM['ordtg'] = 'regdate';
+        if (!$PARAM['ordsc']) $PARAM['ordsc'] = 'desc';
         $orderby = $PARAM['ordtg'].' '.$PARAM['ordsc'];
 
-        //list
+        // list
         $sql->query(
             $paging->query(
                 "
-                SELECT *
-                FROM {$sql->table("blockmb")}
-                WHERE mb_id IS NOT NULL AND mb_id!='' $sortby $searchby
-                ORDER BY $orderby
+                select *
+                from {$sql->table("blockmb")}
+                where mb_id is not null and mb_id!='' $sortby $searchby
+                order by $orderby
                 ", []
             )
         );
@@ -346,9 +340,10 @@ class Member extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for Member
-***/
+//
+// Controller for submit
+// ( Member )
+//
 class Member_submit{
 
     public function init(){
@@ -372,9 +367,9 @@ class Member_submit{
         }
     }
 
-    ///
+    //
     // add
-    ///
+    //
     public function get_add()
     {
         global $req;
@@ -396,44 +391,39 @@ class Member_submit{
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("member")}
-            WHERE mb_id=:col1 AND mb_dregdate IS NULL AND mb_adm!='Y'
+            select *
+            from {$sql->table("member")}
+            where mb_id=:col1 and mb_dregdate IS NULL and mb_adm!='Y'
             ",
             array(
                 $req['id']
             )
         );
 
-        if ($sql->getcount() < 1) {
-            Valid::error('id', '존재하지 않는 회원 id입니다.');
-        }
+        if ($sql->getcount() < 1) Valid::error('id', '존재하지 않는 회원 id입니다.');
 
         $mb_id = $req['id'];
         $mb_idx = $sql->fetch('mb_idx');
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("blockmb")}
-            WHERE mb_idx=:col1 AND mb_id=:col2
+            select *
+            from {$sql->table("blockmb")}
+            where mb_idx=:col1 and mb_id=:col2
             ",
             array(
-                $mb_idx,
-                $mb_id
+                $mb_idx, $mb_id
             )
         );
 
-        if ($sql->getcount() > 0) {
-            Valid::error('id', '이미 등록된 회원 입니다.');
-        }
+        if ($sql->getcount() > 0) Valid::error('id', '이미 등록된 회원 입니다.');
 
         $sql->query(
             "
-            INSERT INTO
+            insert into
             {$sql->table("blockmb")}
             (mb_idx,mb_id,memo,regdate)
-            VALUES
+            values
             (:col1,:col2,:col3,now())
             ",
             array(
@@ -452,9 +442,9 @@ class Member_submit{
         Valid::turn();
     }
 
-    ///
+    //
     // delete
-    ///
+    //
     public function get_delete()
     {
         global $req;
@@ -463,23 +453,21 @@ class Member_submit{
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("blockmb")}
-            WHERE idx=:col1
+            select *
+            from {$sql->table("blockmb")}
+            where idx=:col1
             ",
             array(
                 $req['idx']
             )
         );
 
-        if ($sql->getcount() < 1) {
-            Valid::error('', '등록되지 않은 차단 정보입니다.');
-        }
+        if ($sql->getcount() < 1) Valid::error('', '등록되지 않은 차단 정보입니다.');
 
         $sql->query(
             "
-            DELETE FROM {$sql->table("blockmb")}
-            WHERE idx=:col1
+            delete from {$sql->table("blockmb")}
+            where idx=:col1
             ",
             array(
                 $req['idx']

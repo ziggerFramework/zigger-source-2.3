@@ -23,6 +23,7 @@ class Make_Controller {
     static public function set_ob()
     {
         global $ob_src_css, $ob_src_js, $ob_title, $ob_ogtitle, $ob_define_js;
+
         self::$ob_src_css = $ob_src_css;
         self::$ob_src_js = $ob_src_js;
         self::$ob_title = $ob_title;
@@ -40,6 +41,7 @@ class Make_Controller {
         self::set_ob();
         self::$layout_type = 'layout';
         $this->layout = new Layout();
+
         return $this;
     }
 
@@ -51,9 +53,9 @@ class Make_Controller {
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("sitemap")}
-            WHERE idx=:col1
+            select *
+            from {$sql->table("sitemap")}
+            where idx=:col1
             ",
             array(
                 $key
@@ -64,12 +66,12 @@ class Make_Controller {
         $cat_dep = $caidx_len / 4;
         $catinfo = array();
 
-        for ($i=1; $i<=$cat_dep; $i++) {
+        for ($i = 1; $i <= $cat_dep; $i++) {
             $sql->query(
                 "
-                SELECT *
-                FROM {$sql->table("sitemap")}
-                WHERE caidx=:col1
+                select *
+                from {$sql->table("sitemap")}
+                where caidx=:col1
                 ",
                 array(
                     substr($caidx, 0, 4 * $i)
@@ -87,6 +89,7 @@ class Make_Controller {
         self::set_ob();
         self::$layout_type = 'common';
         $this->layout = new Layout();
+
         return $this;
     }
 
@@ -94,7 +97,7 @@ class Make_Controller {
     {
         global $CONF, $MB, $MODULE, $THEME, $NAVIGATOR;
 
-        if ($makedo == true) {
+        if ($makedo === true) {
             $this->{$makename}();
         }
 
@@ -109,12 +112,8 @@ class Make_Controller {
 
         ob_start();
 
-        if (self::$layout_type == 'layout') {
-            require_once PH_PATH.'/layout/head.php';
-        }
-        if (self::$layout_type == 'common') {
-            require_once PH_PATH.'/layout/head.set.php';
-        }
+        if (self::$layout_type == 'layout') require_once PH_PATH.'/layout/head.php';
+        if (self::$layout_type == 'common') require_once PH_PATH.'/layout/head.set.php';
         self::$ob_head_html = ob_get_contents();
 
         ob_end_clean();
@@ -127,12 +126,8 @@ class Make_Controller {
 
         ob_start();
 
-        if (self::$layout_type == 'layout') {
-            require_once PH_MANAGE_PATH.'/head.php';
-        }
-        if (self::$layout_type == 'common') {
-            require_once PH_MANAGE_PATH.'/head.set.php';
-        }
+        if (self::$layout_type == 'layout') require_once PH_MANAGE_PATH.'/head.php';
+        if (self::$layout_type == 'common') require_once PH_MANAGE_PATH.'/head.set.php';
         self::$ob_head_html = ob_get_contents();
 
         ob_end_clean();
@@ -148,12 +143,8 @@ class Make_Controller {
         ob_end_clean();
         ob_start();
 
-        if (self::$layout_type == 'layout') {
-            include_once PH_PATH.'/layout/foot.php';
-        }
-        if (self::$layout_type == 'common') {
-            include_once PH_PATH.'/layout/foot.set.php';
-        }
+        if (self::$layout_type == 'layout') require_once PH_PATH.'/layout/foot.php';
+        if (self::$layout_type == 'common') require_once PH_PATH.'/layout/foot.set.php';
         self::$ob_foot_html = ob_get_contents();
 
         ob_end_clean();
@@ -172,12 +163,8 @@ class Make_Controller {
         ob_end_clean();
         ob_start();
 
-        if (self::$layout_type == 'layout') {
-            include_once PH_MANAGE_PATH.'/foot.php';
-        }
-        if (self::$layout_type == 'common') {
-            include_once PH_MANAGE_PATH.'/foot.set.php';
-        }
+        if (self::$layout_type == 'layout') require_once PH_MANAGE_PATH.'/foot.php';
+        if (self::$layout_type == 'common') require_once PH_MANAGE_PATH.'/foot.set.php';
         self::$ob_foot_html = ob_get_contents();
 
         ob_end_clean();
@@ -193,16 +180,16 @@ class Make_Controller {
 
         $html = self::$ob_head_html;
 
-        //마지막 <link> 와 <script> 사이에 stylesheet 추가
+        // 마지막 <link> 와 <script> 사이에 stylesheet 추가
         $html = preg_replace("#(<script type=\"text/javascript\">[^<]*var PH_DIR[^>]+)#", self::$ob_src_css."$1", $html);
 
-        //마지막 <script> 와 </head> 사이에 javascript 추가
+        // 마지막 <script> 와 </head> 사이에 javascript 추가
         $html = preg_replace("#(</head>[^<]*<body>)#", self::$ob_src_js."$1", $html);
 
-        //마지막 'var PH_DOMAIN' 와 </script> 사이에 javascript 전역변수 추가
+        // 마지막 'var PH_DOMAIN' 와 </script> 사이에 javascript 전역변수 추가
         $html = preg_replace("#(var PH_DIR[^>]+;[^<]*var PH_DOMAIN[^>]+;)#", "$1".self::$ob_define_js, $html);
 
-        //<head> 바로 아래에 title 추가
+        // <head> 바로 아래에 title 추가
         if (self::$ob_title != '') {
             $html = preg_replace("#(<head>[^<]*)#", "$1".self::$ob_title, $html);
 
@@ -210,13 +197,14 @@ class Make_Controller {
             $html = preg_replace("#(<head>[^<]*)#", "$1<title>{$CONF['title']}</title>".PHP_EOL, $html);
         }
 
-        //<meta property="og:description"> 바로 위에 og:title 추가
+        // <meta property="og:description"> 바로 위에 og:title 추가
         if (self::$ob_ogtitle != '') {
             $html = preg_replace("#(<meta property=\"og:description\"*)#", self::$ob_ogtitle."$1", $html);
 
         } else {
             $html = preg_replace("#(<meta property=\"og:description\"*)#", "<meta property=\"og:title\" content=\"{$CONF['og_title']}\" />".PHP_EOL."$1", $html);
         }
+
         return $html;
     }
 
@@ -227,10 +215,9 @@ class Make_Controller {
         foreach (self::$setparm as $key => $value) {
             $$key = $value;
         }
-        if ($tpl) {
-            if (!file_exists($tpl)) {
-                Func::core_err('Viewer 파일이 존재하지 않습니다. ('.$tpl.')');
-            }
+
+        if ($tpl != '') {
+            if (!file_exists($tpl)) Func::core_err('View 파일이 존재하지 않습니다. ('.$tpl.')');
             require $tpl;
         }
     }
@@ -283,20 +270,11 @@ class Make_View_Form {
 
         }
 
-        if (!isset($this->set['action'])) {
-            $this->set['action'] = '';
-        }
-
-        if (!isset($this->set['method'])) {
-            $this->set['method'] = 'post';
-        }
-
-        if (!isset($this->set['target'])) {
-            $this->set['target'] = '';
-        }
+        if (!isset($this->set['action'])) $this->set['action'] = '';
+        if (!isset($this->set['method'])) $this->set['method'] = 'post';
+        if (!isset($this->set['target'])) $this->set['target'] = '';
 
         switch ($this->set['type']) {
-
             case 'static' :
                 $form_html = 'name="'.$form_id.'" id="'.$form_id.'" action="'.$this->set['action'].'" method="'.$this->set['method'].'"';
                 break;
@@ -308,7 +286,6 @@ class Make_View_Form {
             case 'multipart' :
                 $form_html = 'name="'.$form_id.'" id="'.$form_id.'" enctype="multipart/form-data" ajax-action="'.$this->set['action'].'?rewritetype=submit" ajax-type="'.$this->set['type'].'"';
                 break;
-
         }
         echo $form_html;
     }
@@ -338,15 +315,19 @@ class Make_View_Fetch {
         if (isset($this->set['className']) && $this->set['className'] != '') {
             $className = $this->set['className'];
 
-        }else{
+        } else {
             $basename = basename($this->set['doc']);
             $className = substr($basename, 0, strrpos($basename, '.'));
         }
 
         $this->configure();
 
-        $className = str_replace('-', '_', $className);
-        $className = str_replace('.', '_', $className);
+        $className = str_replace(
+            array('-', '.'),
+            array('_', '_'),
+            $className
+        );
+
         $$className = new $className();
         $$className->init();
     }

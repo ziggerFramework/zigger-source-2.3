@@ -1,11 +1,9 @@
 <?php
-use Corelib\Func;
-use Corelib\Method;
-use Make\Database\Pdosql;
 
-/***
-Index
-***/
+//
+// Controller for display
+// https://{domain}/search
+//
 class index extends \Controller\Make_Controller {
 
     public function init()

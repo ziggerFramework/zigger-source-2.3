@@ -7,9 +7,10 @@ use Corelib\Valid;
 use Make\Database\Pdosql;
 use Make\Library\Mail;
 
-/***
-Form
-***/
+//
+// Module Controller
+// ( Form )
+//
 class Form extends \Controller\Make_Controller {
 
     public function init()
@@ -33,9 +34,10 @@ class Form extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for Form
-***/
+//
+// Controller for submit
+// ( Contactus )
+//
 class Contactus_submit {
 
     public function init()
@@ -47,7 +49,7 @@ class Contactus_submit {
 
         Method::security('referer');
         Method::security('request_post');
-        $req = Method::request('post','name, email, phone, article, captcha, contact_1, contact_2, contact_3, contact_4, contact_5, contact_6, contact_7, contact_8, contact_9, contact_10');
+        $req = Method::request('post', 'name, email, phone, article, captcha, contact_1, contact_2, contact_3, contact_4, contact_5, contact_6, contact_7, contact_8, contact_9, contact_10');
 
         Valid::get(
             array(
@@ -93,23 +95,24 @@ class Contactus_submit {
             }
         }
 
-        //insert
+        // insert
         $sql->query(
             "
-            INSERT INTO {$sql->table("mod:contactform")}
-            (mb_idx,article,name,email,phone,regdate,contact_1,contact_2,contact_3,contact_4,contact_5,contact_6,contact_7,contact_8,contact_9,contact_10)
-            VALUES
-            (:col1,:col2,:col3,:col4,:col5,now(),:col6,:col7,:col8,:col9,:col10,:col11,:col12,:col13,:col14,:col15)
+            insert into {$sql->table("mod:contactform")}
+            (mb_idx, article, name, email, phone, regdate, contact_1, contact_2, contact_3, contact_4, contact_5, contact_6, contact_7, contact_8, contact_9, contact_10)
+            values
+            (:col1, :col2, :col3, :col4, :col5, now(), :col6, :col7, :col8, :col9, :col10, :col11, :col12, :col13, :col14, :col15)
             ",
             array(
-                MB_IDX, $req['article'], $req['name'], $req['email'], $req['phone'], $req['contact_1'], $req['contact_2'], $req['contact_3'], $req['contact_4'], $req['contact_5'], $req['contact_6'], $req['contact_7'], $req['contact_8'], $req['contact_9'], $req['contact_10']
+                MB_IDX, $req['article'], $req['name'], $req['email'], $req['phone'], $req['contact_1'], $req['contact_2'], $req['contact_3'],
+                $req['contact_4'], $req['contact_5'], $req['contact_6'], $req['contact_7'],$req['contact_8'], $req['contact_9'], $req['contact_10']
             )
         );
 
-        //mail
+        // mail
         $memo = '
             새로운 문의가 등록되었습니다.<br /><br />
-            <a href="'.PH_DOMAIN.'/manage/mod/'.MOD_CONTACTFORM.'/result/result">'.PH_DOMAIN.'/manage/mod/'.MOD_CONTACTFORM.'/result/result</a> 를 클릭하여<br />
+            <a href="'.PH_DOMAIN.PH_DIR.'/manage/mod/'.MOD_CONTACTFORM.'/result/result">'.PH_DOMAIN.PH_DIR.'/manage/mod/'.MOD_CONTACTFORM.'/result/result</a> 를 클릭하여<br />
             관리 페이지로 접속 후 확인하세요.
         ';
         $mail->set(
@@ -125,7 +128,7 @@ class Contactus_submit {
         );
         $mail->send();
 
-        //관리자 최근 피드에 등록
+        // 관리자 피드에 등록
         Func::add_mng_feed(
             array(
                 'from' => $MODULE_CONTACTFORM_CONF['title'],
@@ -134,7 +137,7 @@ class Contactus_submit {
             )
         );
 
-        //return
+        // return
         Valid::set(
             array(
                 'return' => 'alert->reload',

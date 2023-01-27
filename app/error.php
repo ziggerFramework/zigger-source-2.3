@@ -1,8 +1,9 @@
 <?php
 
-/***
-Code 404
-***/
+//
+// Controller for display
+// https://{domain}/error/code404
+//
 class code404 extends \Controller\Make_Controller {
 
     public function init()

@@ -1,3 +1,6 @@
+//
+// 사이트맵 관리
+//
 var mod_searchResult = {
     'init' : function() {
         this.action();
@@ -73,7 +76,7 @@ var mod_searchResult = {
                 } else {
                     $(this).removeClass('search_new_added_ele');
                 }
-            })
+            });
 
             $('#searchListForm input[name=new_caidx]').val($('.search_new_added_ele').eq(0).next('input[name="caidx[]"]').val());
             request_sbm();

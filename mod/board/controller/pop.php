@@ -8,26 +8,28 @@ use Make\Database\Pdosql;
 use Make\Library\Uploader;
 use Module\Board\Library as Board_Library;
 
-/***
-Control
-***/
+//
+// Module Controller
+// ( Ctrl )
+//
 class Ctrl extends \Controller\Make_Controller {
 
-    public function init(){
-        global $req, $boardconf;
+    public function init()
+    {
+        global $boardconf, $req;
 
-        $this->layout()->view('');
+        $req = Method::request('post', 'cnum, board_id, page, category, where, keyword, sort, ordtg, ordsc, request');
 
-        if ($req['request'] == 'manage') {
-            $this->layout()->view(MOD_BOARD_PATH.'/manage.set/html/ctrpop.tpl.php', false);
-        } else {
-            $this->layout()->view(MOD_BOARD_THEME_PATH.'/board/'.$boardconf['theme'].'/ctrpop.tpl.php', false);
-        }
+        $boardlib = new Board_Library();
+        $boardconf = $boardlib->load_conf($req['board_id']);
+
+        $tpl = ($req['request'] == 'manage') ? MOD_BOARD_PATH.'/manage.set/html/ctrpop.tpl.php' : MOD_BOARD_THEME_PATH.'/board/'.$boardconf['theme'].'/ctrpop.tpl.php';
+        $this->layout()->view($tpl);
     }
 
     public function func()
     {
-        //게시판 목록
+        // 게시판 목록
         function board_opt_list()
         {
             global $req;
@@ -36,11 +38,11 @@ class Ctrl extends \Controller\Make_Controller {
 
             $sql->query(
                 "
-                SELECT config.*,board_name_tbl.cfg_value AS board_name
-                FROM {$sql->table("config")} config
-                LEFT OUTER JOIN {$sql->table("config")} board_name_tbl
-                ON config.cfg_type=board_name_tbl.cfg_type AND board_name_tbl.cfg_key='title'
-                WHERE config.cfg_type like 'mod:board:config:%' AND config.cfg_key='id'
+                select config.*,board_name_tbl.cfg_value as board_name
+                from {$sql->table("config")} config
+                left outer join {$sql->table("config")} board_name_tbl
+                on config.cfg_type=board_name_tbl.cfg_type and board_name_tbl.cfg_key='title'
+                where config.cfg_type like 'mod:board:config:%' and config.cfg_key='id'
                 ", []
             );
 
@@ -50,9 +52,7 @@ class Ctrl extends \Controller\Make_Controller {
                 $arr = $sql->fetchs();
 
                 $opt_slted = '';
-                if ($req['board_id'] == $arr['cfg_value']) {
-                    $opt_slted = 'selected';
-                }
+                if ($req['board_id'] == $arr['cfg_value']) $opt_slted = 'selected';
                 $opt .= '<option value="'.$arr['cfg_value'].'" '.$opt_slted.'>'.$arr['board_name'].'('.$arr['cfg_value'].')</option>';
 
             } while ($sql->nextRec());
@@ -63,21 +63,14 @@ class Ctrl extends \Controller\Make_Controller {
 
     public function make()
     {
-        global $req, $boardconf;
+        global $boardconf, $req;
 
-        $boardlib = new Board_Library();
-
-        $req = Method::request('post', 'cnum, board_id, page, category, where, keyword, sort, ordtg, ordsc, request');
-        $boardconf = $boardlib->load_conf($req['board_id']);
-
-
-        for ($i = 0; $i < sizeof($req['cnum']); $i++) {
-            if (!isset($cnum_arr)) {
-                $cnum_arr = $req['cnum'][$i];
-            } else {
-                $cnum_arr .= ','.$req['cnum'][$i];
-            }
+        $arr = array();
+        for ($i = 0; $i < count($req['cnum']); $i++) {
+            $arr[] = $req['cnum'][$i];
         }
+
+        $cnum_arr = implode(',', $arr);
 
         $this->set('req', $req);
         $this->set('slt_count', sizeof($req['cnum']));
@@ -97,9 +90,10 @@ class Ctrl extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for Control
-***/
+//
+// Controller for submit
+// ( Ctrl )
+//
 class Ctrl_submit {
 
     public function init()
@@ -144,13 +138,12 @@ class Ctrl_submit {
         }
     }
 
-
-    ///
+    //
     // 게시물 삭제
-    ///
+    //
     private function get_del()
     {
-        global $CONF, $cnum, $req, $board_id, $del_where_sum;
+        global $CONF, $board_id, $del_where_sum, $cnum, $req;
 
         $uploader = new Uploader();
         $sql = new Pdosql();
@@ -162,12 +155,12 @@ class Ctrl_submit {
 
             if ($cnum[$i] != '') {
 
-                //원글 게시물 정보
+                // 원글 게시물 정보
                 $sql->query(
                     "
-                    SELECT *
-                    FROM {$sql->table("mod:board_data_".$board_id)}
-                    WHERE idx=:col1
+                    select *
+                    from {$sql->table("mod:board_data_".$board_id)}
+                    where idx=:col1
                     ",
                     array(
                         $cnum[$i]
@@ -175,21 +168,22 @@ class Ctrl_submit {
                 );
                 $org_arr = $sql->fetchs();
 
-                //최소/최대 ln값 구함
+                // 최소/최대 ln값 구함
                 $ln_min = (int)(ceil($org_arr['ln'] / 1000) * 1000) - 1000;
                 $ln_max = (int)(ceil($org_arr['ln'] / 1000) * 1000);
 
-                //부모글인 경우 범위 조건문 구함
-                if ($org_arr['rn'] == 0) {
-                    $del_where[$i] = '(ln>'.$ln_min.' AND ln<='.$ln_max.')';
-                }
+                // 부모글인 경우 범위 조건문 구함
+                if ($org_arr['rn'] == 0) $del_where[$i] = '(ln>'.$ln_min.' and ln<='.$ln_max.')';
 
-                //자식글(답글)인 경우 범위 조건문 구함
+                // 자식글(답글)인 경우 범위 조건문 구함
                 if ($org_arr['rn'] >= 1) {
                     $sql->query(
                         "
-                        SELECT MAX(ln)+1000 AS ln_max
-                        FROM {$sql->table("mod:board_data_".$board_id)}
+                        select ln
+                        from {$sql->table("mod:board_data_".$board_id)}
+                        where ln>=:col1 and ln<:col2 and rn=:col3
+                        order by ln desc
+                        limit 1
                         ",
                         array(
                             $ln_min, $org_arr['ln'], $org_arr['rn']
@@ -197,40 +191,36 @@ class Ctrl_submit {
                     );
                     $tar_ln = $sql->fetch('ln');
 
-                    if ($tar_ln == '') {
-                        $del_where[$i] = '(ln<='.$org_arr['ln'].' AND ln>'.$ln_min.' AND rn>='.$org_arr['rn'].')';
-
-                    } else {
-                        $del_where[$i] = '(ln<='.$org_arr['ln'].' AND ln>'.$tar_ln.' AND rn>='.$org_arr['rn'].')';
-                    }
+                    $del_where[$i] = ($tar_ln == '') ? '(ln<='.$org_arr['ln'].' and ln>'.$ln_min.' and rn>='.$org_arr['rn'].')' : '(ln<='.$org_arr['ln'].' and ln>'.$tar_ln.' and rn>='.$org_arr['rn'].')';
                 }
             }
         }
 
-        //삭제 범위 조건문을 하나의 구문으로 합침
+        // 삭제 범위 조건문을 하나의 구문으로 합침
         for ($i = 0; $i < count($del_where); $i++) {
             if ($i == 0) {
                 $del_where_sum = $del_where[$i];
 
             } else {
-                $del_where_sum .= ' OR '.$del_where[$i];
+                $del_where_sum .= ' or '.$del_where[$i];
             }
         }
 
-        //삭제 범위 내 게시물 정보
+        // 삭제 범위 내 게시물 정보
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("mod:board_data_".$board_id)}
-            WHERE $del_where_sum
+            select *
+            from {$sql->table("mod:board_data_".$board_id)}
+            where $del_where_sum
             ", []
         );
 
-        //첨부파일 삭제
+        // 첨부파일 삭제
         if ($sql->getcount() > 0) {
             do {
                 $del_arr = $sql->fetchs();
-                for ($i = 1; $i<=2; $i++) {
+                for ($i = 1; $i <= 2; $i++) {
+
                     if ($del_arr['file'.$i]) {
                         $uploader->path = MOD_BOARD_DATA_PATH.'/'.$board_id;
                         $uploader->drop($del_arr['file'.$i]);
@@ -240,19 +230,20 @@ class Ctrl_submit {
                             $uploader->drop($del_arr['file'.$i]);
                         }
                     }
+
                 }
             } while ($sql->nextRec());
         }
 
-        //댓글 삭제
+        // 댓글 삭제
         if ($sql->getcount() > 0) {
             do {
                 $del_arr['idx'] = $sql->fetch('idx');
                 $sql2->query(
                     "
-                    DELETE
-                    FROM {$sql2->table("mod:board_cmt_".$board_id)}
-                    WHERE bo_idx=:col1
+                    delete
+                    from {$sql2->table("mod:board_cmt_".$board_id)}
+                    where bo_idx=:col1
                     ",
                     array(
                         $del_arr['idx']
@@ -261,20 +252,22 @@ class Ctrl_submit {
             } while ($sql->nextRec());
         }
 
-        //게시글 삭제
+        // 게시글 삭제
         $sql->query(
             "
-            DELETE
-            FROM {$sql->table("mod:board_data_".$board_id)}
-            WHERE $del_where_sum
+            delete
+            from {$sql->table("mod:board_data_".$board_id)}
+            where $del_where_sum
             ", []
         );
 
-        //return
+        // return
         $return_url = '?page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category']);
+
         if (isset($req['request']) && $req['request'] == 'manage') {
             $return_url = '?page='.$req['page'].'&sort='.$req['sort'].'&ordtg='.$req['ordtg'].'&ordsc='.$req['ordsc'].'&category='.urlencode($req['category']).'&id='.$board_id.'&where='.$req['where'].'&keyword='.$req['keyword'];
         }
+
         Valid::set(
             array(
                 'return' => 'alert->location',
@@ -285,12 +278,12 @@ class Ctrl_submit {
         Valid::turn();
     }
 
-    ///
+    //
     // 게시물 이동
-    ///
+    //
     private function get_move()
     {
-        global $CONF, $cnum, $req, $board_id, $t_board_id, $ln_where;
+        global $CONF, $board_id, $t_board_id, $ln_where, $cnum, $req;
 
         $uploader = new Uploader();
 
@@ -298,22 +291,22 @@ class Ctrl_submit {
         $cp_sql = new Pdosql();
         $cp_sql2 = new Pdosql();
 
-        //선택된 게시물의 ln,rn 정보
+        // 선택된 게시물의 ln,rn 정보
         $ln_where = array();
         for ($i = 0; $i < count($cnum); $i++) {
             if ($i == 0) {
                 $ln_where = 'idx=\''.$cnum[$i].'\'';
 
             } else {
-                $ln_where .= ' OR idx=\''.$cnum[$i].'\'';
+                $ln_where .= ' or idx=\''.$cnum[$i].'\'';
             }
         }
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("mod:board_data_".$board_id)}
-            WHERE $ln_where
+            select *
+            from {$sql->table("mod:board_data_".$board_id)}
+            where $ln_where
             ", []
         );
 
@@ -326,61 +319,57 @@ class Ctrl_submit {
             $i++;
         } while ($sql->nextRec());
 
-        //이동 실행
+        // 이동 실행
         for ($i = 0; $i < count($cnum); $i++) {
 
-            //부모글인 경우에만 이동 실행
+            // 부모글인 경우에만 이동 실행
             if ($rn[$i] == 0) {
 
-                //글의 최소/최대 ln값 구함
+                // 글의 최소/최대 ln값 구함
                 $ln_min = (int)(ceil($ln[$i] / 1000) * 1000) - 1000;
                 $ln_max = (int)(ceil($ln[$i] / 1000) * 1000);
 
-                //자식글의 범위를 구함
-                $ln_where = 'ln>'.$ln_min.' AND ln<='.$ln_max;
+                // 자식글의 범위를 구함
+                $ln_where = 'ln>'.$ln_min.' and ln<='.$ln_max;
                 $sql->query(
                     "
-                    SELECT *
-                    FROM {$sql->table("mod:board_data_".$board_id)}
-                    WHERE $ln_where
+                    select *
+                    from {$sql->table("mod:board_data_".$board_id)}
+                    where $ln_where
                     ", []
                 );
 
-                //대상 게시판의 최대 ln값 불러옴
+                // 대상 게시판의 최대 ln값 불러옴
                 $cp_sql->query(
                     "
-                    SELECT MAX(ln)+1000 AS ln_max
-                    FROM {$cp_sql->table("mod:board_data_".$t_board_id)}
-                    ORDER BY ln DESC
-                    LIMIT 1
+                    select max(ln)+1000 as ln_max
+                    from {$cp_sql->table("mod:board_data_".$t_board_id)}
+                    order by ln desc
+                    limit 1
                     ", []
                 );
 
                 $tar_ln = $cp_sql->fetch('ln_max');
 
-                if (!$tar_ln) {
-                    $tar_ln = 1000;
-                }
+                if (!$tar_ln) $tar_ln = 1000;
                 $tar_ln = ceil($tar_ln / 1000) * 1000;
 
-                //복사 대상 범위에 해당하는 게시물의 이동 시작
+                // 복사 대상 범위에 해당하는 게시물의 이동 시작
                 do {
                     $sql->specialchars = 0;
                     $sql->nl2br = 0;
                     $arr = $sql->fetchs();
 
-                    //원본들의 내용을 addslashes 시킴
+                    // 원본들의 내용을 addslashes 시킴
                     foreach ($arr as $key => $value) {
                         $arr[$key] = addslashes($arr[$key]);
                     }
 
-                    //대상 게시판으로 첨부파일 복사
+                    // 대상 게시판으로 첨부파일 복사
                     $old_path = MOD_BOARD_DATA_PATH.'/'.$board_id;
                     $tar_path = MOD_BOARD_DATA_PATH.'/'.$t_board_id;
 
                     $uploader->path = MOD_BOARD_DATA_PATH;
-                    $uploader->chkpath();
-                    $uploader->path = $tar_path;
                     $uploader->chkpath();
                     $uploader->path = $tar_path.'/thumb';
                     $uploader->chkpath();
@@ -409,32 +398,31 @@ class Ctrl_submit {
 
                     }
 
-                    //대상 게시판으로 글을 복사
+                    // 대상 게시판으로 글을 복사
                     $cp_dregdate = null;
-
-                    if ($arr['dregdate']) {
-                        $cp_dregdate = $arr['dregdate'];
-                    }
+                    if ($arr['dregdate']) $cp_dregdate = $arr['dregdate'];
 
                     $cp_sql->query(
                         "
-                        INSERT INTO
+                        insert into
                         {$cp_sql->table("mod:board_data_".$t_board_id)}
-                        (category,ln,rn,mb_idx,mb_id,writer,pwd,email,article,subject,file1,file1_cnt,file2,file2_cnt,use_secret,use_html,use_email,view,ip,regdate,dregdate,data_1,data_2,data_3,data_4,data_5,data_6,data_7,data_8,data_9,data_10)
-                        VALUES
-                        (:col1,:col2,:col3,:col4,:col5,:col6,:col7,:col8,:col9,:col10,:col11,:col12,:col13,:col14,:col15,:col16,:col17,:col18,:col19,now(),:col20,:col21,:col22,:col23,:col24,:col25,:col26,:col27,:col28,:col29,:col30)
+                        (category, ln, rn, mb_idx, mb_id, writer, pwd, email, article, subject, file1, file1_cnt, file2, file2_cnt, use_secret, use_html, use_email, view, ip, regdate, dregdate, data_1, data_2, data_3, data_4, data_5, data_6, data_7, data_8, data_9, data_10)
+                        values
+                        (:col1, :col2, :col3, :col4, :col5, :col6, :col7, :col8, :col9, :col10, :col11, :col12, :col13, :col14, :col15, :col16, :col17, :col18, :col19, now(), :col20, :col21, :col22, :col23, :col24, :col25, :col26, :col27, :col28, :col29, :col30)
                         ",
                         array(
-                            $arr['category'], $tar_ln,$arr['rn'], $arr['mb_idx'], $arr['mb_id'], $arr['writer'], $arr['pwd'], $arr['email'], $arr['article'], $arr['subject'], $filename[1], $arr['file1_cnt'], $filename[2], $arr['file2_cnt'], $arr['use_secret'], $arr['use_html'], $arr['use_email'], $arr['view'], $arr['ip'], $cp_dregdate, $arr['data_1'], $arr['data_2'], $arr['data_3'], $arr['data_4'], $arr['data_5'], $arr['data_6'], $arr['data_7'], $arr['data_8'], $arr['data_9'], $arr['data_10']
+                            $arr['category'], $tar_ln,$arr['rn'], $arr['mb_idx'], $arr['mb_id'], $arr['writer'], $arr['pwd'], $arr['email'], $arr['article'], $arr['subject'],
+                            $filename[1], $arr['file1_cnt'], $filename[2], $arr['file2_cnt'], $arr['use_secret'], $arr['use_html'], $arr['use_email'], $arr['view'], $arr['ip'], $cp_dregdate,
+                            $arr['data_1'], $arr['data_2'], $arr['data_3'], $arr['data_4'], $arr['data_5'], $arr['data_6'], $arr['data_7'], $arr['data_8'], $arr['data_9'], $arr['data_10']
                         )
                     );
 
-                    //이동된 글의 idx값을 다시 불러옴
+                    // 이동된 글의 idx값을 다시 불러옴
                     $cp_sql->query(
                         "
-                        SELECT idx
-                        FROM {$cp_sql->table("mod:board_data_".$t_board_id)}
-                        WHERE ln=:col1
+                        select idx
+                        from {$cp_sql->table("mod:board_data_".$t_board_id)}
+                        where ln=:col1
                         ",
                         array(
                             $tar_ln
@@ -442,43 +430,39 @@ class Ctrl_submit {
                     );
                     $cped_idx = $cp_sql->fetch('idx');
 
-                    //좋아요 이동
+                    // 좋아요 이동
                     $cp_sql->query(
                         "
-                        UPDATE
+                        update
                         {$cp_sql->table("mod:board_like")}
-                        SET
-                        id=:col1,data_idx=:col2
-                        WHERE id=:col3 AND data_idx=:col4
+                        set id=:col1, data_idx=:col2
+                        where id=:col3 and data_idx=:col4
                         ",
                         array(
                             $t_board_id, $cped_idx, $board_id, $arr['idx']
                         )
                     );
 
-                    //댓글 복사를 위해 대상 댓글 테이블의 최대 ln값 구함
+                    // 댓글 복사를 위해 대상 댓글 테이블의 최대 ln값 구함
                     $cp_sql->query(
                         "
-                        SELECT MAX(ln)+1000 AS ln_max
-                        FROM {$cp_sql->table("mod:board_data_".$t_board_id)}
-                        ORDER BY ln DESC
-                        LIMIT 1
+                        select max(ln)+1000 as ln_max
+                        from {$cp_sql->table("mod:board_data_".$t_board_id)}
+                        order by ln desc
+                        limit 1
                         ", []
                     );
+
                     $c_tar_ln = $cp_sql->fetch('ln_max');
-
-                    if (!$c_tar_ln) {
-                        $c_tar_ln = 1000;
-                    }
-
+                    if (!$c_tar_ln) $c_tar_ln = 1000;
                     $c_tar_ln = ceil($c_tar_ln / 1000) * 1000;
 
-                    //댓글 복사를 위해 원본 댓글 테이블의 댓글 정보 가져옴
+                    // 댓글 복사를 위해 원본 댓글 테이블의 댓글 정보 가져옴
                     $cp_sql->query(
                         "
-                        SELECT *
-                        FROM {$cp_sql->table("mod:board_cmt_".$board_id)}
-                        WHERE bo_idx=:col1
+                        select *
+                        from {$cp_sql->table("mod:board_cmt_".$board_id)}
+                        where bo_idx=:col1
                         ",
                         array(
                             $arr['idx']
@@ -491,45 +475,46 @@ class Ctrl_submit {
                             $cp_sql->nl2br = 0;
                             $cmt_arr = $cp_sql->fetchs();
 
-                            //가져온 원본들의 내용을 addslashes 시킴
+                            // 가져온 원본들의 내용을 addslashes 시킴
                             foreach ($cmt_arr as $key => $value) {
                                 $cmt_arr[$key] = addslashes($cmt_arr[$key]);
                             }
 
                             $cp_sql2->query(
                                 "
-                                INSERT INTO
+                                insert into
                                 {$cp_sql2->table("mod:board_cmt_".$t_board_id)}
-                                (ln,rn,bo_idx,mb_idx,writer,comment,ip,regdate,cmt_1,cmt_2,cmt_3,cmt_4,cmt_5,cmt_6,cmt_7,cmt_8,cmt_9,cmt_10)
-                                VALUES
-                                (:col1,:col2,:col3,:col4,:col5,:col6,:col7,:col8,:col9,:col10,:col11,:col12,:col13,:col14,:col15,:col16,:col17,:col18)
+                                (ln, rn, bo_idx, mb_idx, writer, comment, ip, regdate, cmt_1, cmt_2, cmt_3, cmt_4, cmt_5, cmt_6, cmt_7, cmt_8, cmt_9, cmt_10)
+                                values
+                                (:col1, :col2, :col3, :col4, :col5, :col6, :col7, :col8, :col9, :col10, :col11, :col12, :col13, :col14, :col15, :col16, :col17, :col18)
                                 ",
                                 array(
-                                    $cmt_arr['ln'], $cmt_arr['rn'], $cped_idx, $cmt_arr['mb_idx'], $cmt_arr['writer'], $cmt_arr['comment'], $cmt_arr['ip'], $cmt_arr['regdate'], $cmt_arr['cmt_1'], $cmt_arr['cmt_2'], $cmt_arr['cmt_3'], $cmt_arr['cmt_4'], $cmt_arr['cmt_5'], $cmt_arr['cmt_6'], $cmt_arr['cmt_7'], $cmt_arr['cmt_8'], $cmt_arr['cmt_9'], $cmt_arr['cmt_10']
+                                    $cmt_arr['ln'], $cmt_arr['rn'], $cped_idx, $cmt_arr['mb_idx'], $cmt_arr['writer'], $cmt_arr['comment'], $cmt_arr['ip'], $cmt_arr['regdate'],
+                                    $cmt_arr['cmt_1'], $cmt_arr['cmt_2'], $cmt_arr['cmt_3'], $cmt_arr['cmt_4'], $cmt_arr['cmt_5'], $cmt_arr['cmt_6'], $cmt_arr['cmt_7'], $cmt_arr['cmt_8'], $cmt_arr['cmt_9'], $cmt_arr['cmt_10']
                                 )
                             );
 
                         } while ($cp_sql->nextRec());
                     }
 
-                    //기존 댓글 삭제
+                    // 기존 댓글 삭제
                     $cp_sql->query(
                         "
-                        DELETE
-                        FROM {$cp_sql->table("mod:board_cmt_".$board_id)}
-                        WHERE bo_idx=:col1
+                        delete
+                        from {$cp_sql->table("mod:board_cmt_".$board_id)}
+                        where bo_idx=:col1
                         ",
                         array(
                             $arr['idx']
                         )
                     );
 
-                    //원본글 삭제
+                    // 원본글 삭제
                     $cp_sql->query(
                         "
-                        DELETE
-                        FROM {$cp_sql->table("mod:board_data_".$board_id)}
-                        WHERE idx=:col1
+                        delete
+                        from {$cp_sql->table("mod:board_data_".$board_id)}
+                        where idx=:col1
                         ",
                         array(
                             $arr['idx']
@@ -543,11 +528,13 @@ class Ctrl_submit {
             }
         }
 
-        //return
+        // return
         $return_url = '?page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category']);
+
         if (isset($req['request']) && $req['request'] == 'manage') {
             $return_url = '?page='.$req['page'].'&sort='.$req['sort'].'&ordtg='.$req['ordtg'].'&ordsc='.$req['ordsc'].'&category='.urlencode($req['category']).'&id='.$board_id.'&where='.$req['where'].'&keyword='.$req['keyword'];
         }
+
         Valid::set(
             array(
                 'return' => 'alert->location',
@@ -558,23 +545,24 @@ class Ctrl_submit {
         Valid::turn();
     }
 
-    ///
+    //
     // 게시물 복사
-    ///
+    //
     private function get_copy()
     {
-        global $CONF, $cnum, $req, $board_id, $t_board_id;
+        global $CONF, $board_id, $t_board_id, $cnum, $req;
 
         $uploader = new Uploader();
         $sql = new Pdosql();
 
         for ($i = 0; $i < count($cnum); $i++) {
-            //원본글의 정보를 불러옴
+
+            // 원본글의 정보를 불러옴
             $sql->query(
                 "
-                SELECT *
-                FROM {$sql->table("mod:board_data_".$board_id)}
-                WHERE idx=:col1
+                select *
+                from {$sql->table("mod:board_data_".$board_id)}
+                where idx=:col1
                 ",
                 array(
                     $cnum[$i]
@@ -584,39 +572,33 @@ class Ctrl_submit {
             $sql->nl2br = 0;
             $arr = $sql->fetchs();
 
-            //원본들의 내용을 addslashes 시킴
+            // 원본글의 내용을 addslashes 시킴
             foreach ($arr as $key => $value){
                 $arr[$key] = addslashes($arr[$key]);
             }
 
-            //부모글인 경우만 복사 실행
-            if($arr['rn']==0){
+            // 부모글인 경우만 복사 실행
+            if($arr['rn'] == 0){
 
-                //대상 게시판의 최대 ln값 불러옴
+                // 대상 게시판의 최대 ln값 불러옴
                 $sql->query(
                     "
-                    SELECT MAX(ln)+1000 AS ln_max
-                    FROM {$sql->table("mod:board_data_".$t_board_id)}
-                    ORDER BY ln DESC
-                    LIMIT 1
+                    select max(ln)+1000 as ln_max
+                    from {$sql->table("mod:board_data_".$t_board_id)}
+                    order by ln desc
+                    limit 1
                     ", []
                 );
 
                 $tar_ln = $sql->fetch('ln_max');
-
-                if (!$tar_ln) {
-                    $tar_ln = 1000;
-                }
-
+                if (!$tar_ln) $tar_ln = 1000;
                 $tar_ln = ceil($tar_ln / 1000) * 1000;
 
-                //대상 게시판으로 첨부파일 복사
+                // 대상 게시판으로 첨부파일 복사
                 $old_path = MOD_BOARD_DATA_PATH.'/'.$board_id;
                 $tar_path = MOD_BOARD_DATA_PATH.'/'.$t_board_id;
 
                 $uploader->path = MOD_BOARD_DATA_PATH;
-                $uploader->chkpath();
-                $uploader->path = $tar_path;
                 $uploader->chkpath();
                 $uploader->path = $tar_path.'/thumb';
                 $uploader->chkpath();
@@ -640,29 +622,29 @@ class Ctrl_submit {
                     }
                 }
 
-                //대상 게시판으로 글을 복사
+                // 대상 게시판으로 글을 복사
                 $cp_dregdate = null;
 
-                if ($arr['dregdate']) {
-                    $cp_dregdate = $arr['dregdate'];
-                }
+                if ($arr['dregdate']) $cp_dregdate = $arr['dregdate'];
 
                 $sql->query(
                     "
-                    INSERT INTO
+                    insert into
                     {$sql->table("mod:board_data_".$t_board_id)}
-                    (category,ln,rn,mb_idx,mb_id,writer,pwd,email,article,subject,file1,file1_cnt,file2,file2_cnt,use_secret,use_html,use_email,view,ip,regdate,dregdate,data_1,data_2,data_3,data_4,data_5,data_6,data_7,data_8,data_9,data_10)
-                    VALUES
-                    (:col1,:col2,:col3,:col4,:col5,:col6,:col7,:col8,:col9,:col10,:col11,:col12,:col13,:col14,:col15,:col16,:col17,:col18,:col19,now(),:col20,:col21,:col22,:col23,:col24,:col25,:col26,:col27,:col28,:col29,:col30)
+                    (category, ln, rn, mb_idx, mb_id, writer, pwd, email, article, subject, file1, file1_cnt, file2, file2_cnt, use_secret, use_html, use_email, view, ip, regdate, dregdate, data_1, data_2, data_3, data_4, data_5, data_6, data_7, data_8, data_9, data_10)
+                    values
+                    (:col1, :col2, :col3, :col4, :col5, :col6, :col7, :col8, :col9, :col10, :col11, :col12, :col13, :col14, :col15, :col16, :col17, :col18, :col19, now(), :col20, :col21, :col22, :col23, :col24, :col25, :col26, :col27, :col28, :col29, :col30)
                     ",
                     array(
-                        $arr['category'], $tar_ln,$arr['rn'], $arr['mb_idx'], $arr['mb_id'], $arr['writer'], $arr['pwd'], $arr['email'], $arr['article'], $arr['subject'], $filename[1], 0, $filename[2], 0, $arr['use_secret'], $arr['use_html'], $arr['use_email'], 0, $arr['ip'], $cp_dregdate, $arr['data_1'], $arr['data_2'], $arr['data_3'], $arr['data_4'], $arr['data_5'], $arr['data_6'], $arr['data_7'], $arr['data_8'], $arr['data_9'], $arr['data_10']
+                        $arr['category'], $tar_ln,$arr['rn'], $arr['mb_idx'], $arr['mb_id'], $arr['writer'], $arr['pwd'], $arr['email'], $arr['article'], $arr['subject'],
+                        $filename[1], 0, $filename[2], 0, $arr['use_secret'], $arr['use_html'], $arr['use_email'], 0, $arr['ip'], $cp_dregdate,
+                        $arr['data_1'], $arr['data_2'], $arr['data_3'], $arr['data_4'], $arr['data_5'], $arr['data_6'], $arr['data_7'], $arr['data_8'], $arr['data_9'], $arr['data_10']
                     )
                 );
             }
         }
 
-        //return
+        // return
         Valid::set(
             array(
                 'return' => 'alert->reload',
@@ -674,45 +656,44 @@ class Ctrl_submit {
 
 }
 
-/***
-Writer
-***/
+//
+// Module Controller
+// ( Writer )
+//
 class Writer extends \Controller\Make_Controller {
 
     public function init()
     {
-        global $boardconf;
+        global $boardconf, $req;
 
-        $this->layout()->view('');
+        $boardlib = new Board_Library();
 
-        $this->layout()->view(MOD_BOARD_THEME_PATH.'/board/'.$boardconf['theme'].'/mbpop.tpl.php', false);
+        $req = Method::request('get', 'board_id, mb_idx, thisuri');
+
+        //load config
+        $boardconf = $boardlib->load_conf($req['board_id']);
+
+        $this->layout()->view(MOD_BOARD_THEME_PATH.'/board/'.$boardconf['theme'].'/mbpop.tpl.php');
     }
 
     public function func()
     {
-        //성별
+        // 성별
         function gender($mbinfo)
         {
             global $CONF;
 
-            if ($CONF['use_mb_gender'] != 'Y') {
-                return '';
-            }
-            if ($mbinfo['mb_gender'] == 'M') {
-                return '(남자)';
-
-            } else {
-                return '(여자)';
-            }
+            if ($CONF['use_mb_gender'] != 'Y') return '';
+            return ($mbinfo['mb_gender'] == 'M') ? '(남자)' : '(여자)';
         }
 
-        //작성글 보기 링크
-        function get_link($mbinfo)
+        // 작성글 보기 링크
+        function get_link($mbinfo, $uri = '')
         {
-            return '?where=mb_id&keyword='.$mbinfo['mb_id'];
+            return $uri.'?where=mb_id&keyword='.$mbinfo['mb_id'];
         }
 
-        //프로필 이미지
+        // 프로필 이미지
         function get_profileimg($mbinfo)
         {
             if ($mbinfo['mb_profileimg']) {
@@ -727,23 +708,17 @@ class Writer extends \Controller\Make_Controller {
 
     public function make()
     {
-        global $boardconf;
+        global $boardconf, $req;
 
         $sql = new Pdosql();
-        $boardlib = new Board_Library();
 
-        $req = Method::request('get','board_id, mb_idx');
-
-        //load config
-        $boardconf = $boardlib->load_conf($req['board_id']);
-
-        //회원 정보 가져옴
+        // 회원 정보
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("member")}
-            WHERE mb_idx=:col1
-            LIMIT 1
+            select *
+            from {$sql->table("member")}
+            where mb_idx=:col1
+            limit 1
             ",
             array(
                 $req['mb_idx']
@@ -751,26 +726,18 @@ class Writer extends \Controller\Make_Controller {
         );
         $mbinfo = $sql->fetchs();
 
-        //check
-        if (!isset($req['mb_idx']) || $sql->getcount() < 1) {
-            Func::err_location(ERR_MSG_1, PH_DOMAIN);
-        }
+        if (!isset($req['mb_idx']) || $sql->getcount() < 1) Func::err_location(ERR_MSG_1, PH_DOMAIN);
 
         $mbinfo['mb_regdate'] = Func::datetime($mbinfo['mb_regdate']);
         $mbinfo['mb_lately'] = Func::datetime($mbinfo['mb_lately']);
         $mbinfo[0]['mb_profileimg'] = get_profileimg($mbinfo);
 
-        if (IS_MEMBER && !$mbinfo['mb_dregdate']) {
-            $is_mbinfo_show = true;
-
-        } else {
-            $is_mbinfo_show = false;
-        }
+        $is_mbinfo_show = (IS_MEMBER && !$mbinfo['mb_dregdate']) ? true : false;
 
         $this->set('mbinfo', $mbinfo);
         $this->set('is_mbinfo_show', $is_mbinfo_show);
         $this->set('gender', gender($mbinfo));
-        $this->set('get_link', get_link($mbinfo));
+        $this->set('get_link', get_link($mbinfo, $req['thisuri']));
     }
 
 }

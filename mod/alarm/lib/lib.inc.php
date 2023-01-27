@@ -3,13 +3,13 @@ namespace Module\Alarm;
 
 use Make\Database\Pdosql;
 
-///
+//
 // Module : Alarm Library
-///
+//
 
 class Library {
 
-    //새로운 알림 카운팅
+    // 새로운 알림 카운팅
     public function get_new_count()
     {
         $sql = new Pdosql();
@@ -18,9 +18,9 @@ class Library {
         if (IS_MEMBER) {
             $sql->query(
                 "
-                SELECT COUNT(*) AS total
-                FROM {$sql->table("mod:alarm")}
-                WHERE to_mb_idx=:col1 AND chked='N'
+                select count(*) as total
+                from {$sql->table("mod:alarm")}
+                where to_mb_idx=:col1 and chked='N'
                 ",
                 array(
                     MB_IDX
@@ -34,17 +34,17 @@ class Library {
 
     }
 
-    //새로운 알림 등록
+    // 새로운 알림 등록
     public function get_add_alarm($arr)
     {
         $sql = new Pdosql();
 
         $sql->query(
             "
-            INSERT INTO
+            insert into
             {$sql->table("mod:alarm")}
             (msg_from, from_mb_idx, to_mb_idx, href, memo, regdate)
-            VALUES
+            values
             (:col1, :col2, :col3, :col4, :col5, now())
             ",
             array(

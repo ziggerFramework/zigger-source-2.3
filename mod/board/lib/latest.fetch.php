@@ -2,6 +2,10 @@
 use \Corelib\Func;
 use \Make\Database\Pdosql;
 
+//
+// Controller for submit
+// ( Latest_fetch )
+//
 class Latest_fetch extends \Controller\Make_Controller {
 
     static private $called_func = 0;
@@ -10,96 +14,84 @@ class Latest_fetch extends \Controller\Make_Controller {
     {
         global $FETCH_CONF;
 
-        if (self::$called_func == 0) {
-            $this->latest_func();
-        }
+        if (self::$called_func == 0) $this->latest_func();
 
         $lat_skin = MOD_BOARD_THEME_PATH.'/latest/'.$FETCH_CONF['theme'].'/latest.tpl.php';
-
-        if (!file_exists($lat_skin)) {
-            Func::core_err('최근게시물 테마 파일이 존재하지 않습니다. : \''.$FETCH_CONF['theme'].'\'', false);
-        }
+        if (!file_exists($lat_skin)) Func::core_err('최근게시물 테마 파일이 존재하지 않습니다. : \''.$FETCH_CONF['theme'].'\'', false);
 
         $this->layout()->view($lat_skin);
     }
 
     public function latest_func()
     {
-        //게시판 링크
+        // 게시판 링크
         function get_board_link()
         {
             global $FETCH_CONF;
+
             return $FETCH_CONF['uri'];
         }
 
-        //게시글 링크
+        // 게시글 링크
         function get_link($list)
         {
             global $FETCH_CONF;
+
             return $FETCH_CONF['uri'].'/'.$list['idx'];
         }
 
-        //제목
+        // 제목
         function print_subject($list)
         {
             global $FETCH_CONF;
+
+            if (!$list['subject']) return '제목이 설정되지 않은 게시글입니다.';
             return Func::strcut($list['subject'], 0, $FETCH_CONF['subject']);
         }
 
-        //내용
+        // 내용
         function print_article($list)
         {
             global $FETCH_CONF;
+
             return Func::strcut(strip_tags(Func::deHtmlspecialchars($list['article'])), 0, $FETCH_CONF['article']);
         }
 
-        //댓글 갯수
+        // 댓글 갯수
         function comment_cnt($list)
         {
-            if ($list['comment_cnt'] > 0) {
-                return Func::number($list['comment_cnt']);
-            }
+            return ($list['comment_cnt'] > 0) ? Func::number($list['comment_cnt']) : '';
         }
 
-        //썸네일 추출
+        // 썸네일 추출
         function thumbnail($list)
         {
             global $CONF, $FETCH_CONF, $boardinfo;
 
-            //본문내 첫번째 이미지 태그를 추출
+            // 본문내 첫번째 이미지 태그를 추출
             preg_match(REGEXP_IMG,Func::htmldecode($list['article']), $match);
 
-            //썸네일의 파일 타입을 추출
+            // 썸네일의 파일 타입을 추출
             $file_type = array();
 
-            for ($i=1; $i <= 2; $i++) {
+            for ($i = 1; $i <= 2; $i++) {
                 $file_type[$i] = Func::get_filetype($list['file'.$i]);
             }
 
-            //조건에 따라 썸네일 HTML코드 리턴
+            // 조건에 따라 썸네일 HTML코드 리턴
             for ($i=1; $i <= sizeof($file_type); $i++) {
-                if (Func::chkintd('match', $file_type[$i], SET_IMGTYPE)) {
-                    $tmb = $list['file'.$i];
-                }
+                if (Func::chkintd('match', $file_type[$i], SET_IMGTYPE)) $tmb = $list['file'.$i];
             }
 
             if (isset($tmb)) {
                 $fileinfo = Func::get_fileinfo($tmb);
-
-                if ($fileinfo['storage'] == 'Y') {
-                    $tmb = $fileinfo['replink'];
-
-                } else {
-                    $tmb = MOD_BOARD_DATA_DIR.'/'.$FETCH_CONF['id'].'/thumb/'.$tmb;
-                }
+                $tmb = ($fileinfo['storage'] == 'Y') ? $fileinfo['replink'] : MOD_BOARD_DATA_DIR.'/'.$FETCH_CONF['id'].'/thumb/'.$tmb;
 
             } else if (isset($match[0])) {
                 $tmb = $match[1];
             }
 
-            if (!isset($tmb)) {
-                $tmb = SET_BLANK_IMG;
-            }
+            if (!isset($tmb)) $tmb = SET_BLANK_IMG;
 
             return $tmb;
         }
@@ -113,12 +105,12 @@ class Latest_fetch extends \Controller\Make_Controller {
 
         $sql = new Pdosql();
 
-        //게시판 검사
+        // 게시판 검사
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("config")}
-            WHERE cfg_type='mod:board:config:{$FETCH_CONF['id']}'
+            select *
+            from {$sql->table("config")}
+            where cfg_type='mod:board:config:{$FETCH_CONF['id']}'
             ", []
         );
 
@@ -127,7 +119,6 @@ class Latest_fetch extends \Controller\Make_Controller {
         if ($sql->getcount() > 0) {
             do {
                 $cfg = $sql->fetchs();
-
                 $boardinfo[$cfg['cfg_key']] = $cfg['cfg_value'];
 
             } while($sql->nextRec());
@@ -140,65 +131,46 @@ class Latest_fetch extends \Controller\Make_Controller {
             $continue = false;
         }
 
-        //옵션 값 검사
+        // 옵션 값 검사
         if (!isset($FETCH_CONF['limit']) || !$FETCH_CONF['limit'] || $FETCH_CONF['limit'] < 1) {
             $continue = Func::core_err('최근게시물 limit 옵션이 올바르지 않습니다. : "'.$FETCH_CONF['limit'].'"', false);
             $continue = false;
         }
-        if (!isset($FETCH_CONF['orderby']) || !$FETCH_CONF['orderby']) {
-            $FETCH_CONF['orderby'] = 'recent';
-        }
-        if (!isset($FETCH_CONF['subject']) || !$FETCH_CONF['subject']) {
-            $FETCH_CONF['subject'] = 30;
-        }
-        if (!isset($FETCH_CONF['article']) || !$FETCH_CONF['article']) {
-            $FETCH_CONF['article'] = 50;
-        }
-        if (!isset($FETCH_CONF['img-width']) || !$FETCH_CONF['img-width']) {
-            $FETCH_CONF['img-width'] = 150;
-        }
-        if (!isset($FETCH_CONF['img-height']) || !$FETCH_CONF['img-height']) {
-            $FETCH_CONF['img-height'] = 150;
-        }
+        if (!isset($FETCH_CONF['orderby']) || !$FETCH_CONF['orderby']) $FETCH_CONF['orderby'] = 'recent';
+        if (!isset($FETCH_CONF['subject']) || !$FETCH_CONF['subject']) $FETCH_CONF['subject'] = 30;
+        if (!isset($FETCH_CONF['article']) || !$FETCH_CONF['article']) $FETCH_CONF['article'] = 50;
+        if (!isset($FETCH_CONF['img-width']) || !$FETCH_CONF['img-width']) $FETCH_CONF['img-width'] = 150;
+        if (!isset($FETCH_CONF['img-height']) || !$FETCH_CONF['img-height']) $FETCH_CONF['img-height'] = 150;
         if (!isset($FETCH_CONF['uri']) || !$FETCH_CONF['uri']) {
             $continue = Func::core_err('uri 옵션이 올바르지 않습니다. : \''.$FETCH_CONF['uri'].'\'', false);
             $continue = false;
         }
-
         if ($continue === true) {
 
             //게시물 가져옴
             switch ($FETCH_CONF['orderby']) {
                 case 'recent' :
-                    $orderby = 'board.regdate DESC, board.idx DESC';
+                    $orderby = 'board.regdate desc, board.idx desc';
                     break;
 
                 case 'view' :
-                    $orderby = 'board.view DESC, board.regdate DESC';
+                    $orderby = 'board.view desc, board.regdate desc';
                     break;
 
                 case 'like' :
-                    $orderby = 'likes_cnt DESC, board.regdate DESC';
+                    $orderby = 'likes_cnt desc, board.regdate desc';
                     break;
             }
 
             $sql->query(
                 "
-                SELECT *,
-                (
-                    SELECT COUNT(*)
-                    FROM {$sql->table("mod:board_cmt_".$boardinfo['id'])}
-                    WHERE bo_idx=board.idx
-                ) comment_cnt,
-                (
-                    SELECT COUNT(*)
-                    FROM {$sql->table("mod:board_like")}
-                    WHERE id='{$boardinfo['id']}' AND data_idx=board.idx AND likes>0
-                ) likes_cnt
-                FROM {$sql->table("mod:board_data_".$boardinfo['id'])} board
-                WHERE board.rn=0 AND board.dregdate IS NULL
-                ORDER BY $orderby
-                LIMIT {$FETCH_CONF['limit']}
+                select *,
+                ( select count(*) from {$sql->table("mod:board_cmt_".$boardinfo['id'])} where bo_idx=board.idx ) comment_cnt,
+                ( select count(*) from {$sql->table("mod:board_like")} where id='{$boardinfo['id']}' and data_idx=board.idx and likes>0 ) likes_cnt
+                from {$sql->table("mod:board_data_".$boardinfo['id'])} board
+                where board.rn=0 and board.dregdate is null
+                order by $orderby
+                limit {$FETCH_CONF['limit']}
                 ", []
             );
 
@@ -226,17 +198,14 @@ class Latest_fetch extends \Controller\Make_Controller {
         }
 
         if ($continue === true) {
-
             $this->set('print_arr', $print_arr);
             $this->set('get_board_link', get_board_link());
             $this->set('board_title', $boardinfo['title']);
 
         } else {
-
             $this->set('print_arr', '');
             $this->set('get_board_link', '');
             $this->set('board_title', '');
-
         }
     }
 }

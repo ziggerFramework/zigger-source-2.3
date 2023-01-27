@@ -1,12 +1,9 @@
 <?php
-use Corelib\Func;
-use Corelib\Method;
-use Make\Database\Pdosql;
-use Make\Library\Paging;
 
-/***
-Index
-***/
+//
+// Controller for display
+// https://{domain}/message
+//
 class index extends \Controller\Make_Controller {
 
     public function init()

@@ -13,66 +13,49 @@ class Uploader {
     public $intdict = SET_INTDICT_FILE;
     public $file_idx = 0;
 
-    //파일 유무 검사
+    // 파일 유무 검사
     public function isfile($file)
     {
-        if (@is_file($file)) {
-            return true;
-        } else {
-            return false;
-        }
+        return (@is_file($file)) ? true : false;
     }
 
-    //디렉토리 유무 검사
+    // 디렉토리 유무 검사
     public function isdir($dir)
     {
-        if (@is_dir($dir)) {
-            return true;
-        } else {
-            return false;
-        }
+        return (@is_dir($dir)) ? true : false;
     }
 
-    //파일 검사
+    // 파일 검사
     public function chkfile($type)
     {
         $intd = explode(',', $this->intdict);
         $f_type = Func::get_filetype($this->file['name']);
         $chk = true;
 
-        for ($i=0; $i <= count($intd)-1; $i++) {
-            if ($f_type == $intd[$i]) {
+        for ($i = 0; $i <= count($intd)-1; $i++) {
+            if ($f_type == trim($intd[$i])) {
                 $chk = false;
             }
         }
 
         if ($type == 'notmatch') {
-            if ($chk === false) {
-                return false;
-            } else {
-                return true;
-            }
+            return ($chk === false) ? false : true;
 
         } else if ($type == 'match') {
-            if ($chk === false) {
-                return true;
-            }else{
-                return false;
-            }
+            return ($chk === false) ? true : false;
         }
 
     }
 
-    //첨부 파일명 변환
+    // 첨부 파일명 변환
     public function replace_filename($file)
     {
         global $CONF;
 
         $lastChar = 'N';
 
-        if (isset($CONF['use_s3']) && $CONF['use_s3'] == 'Y') {
-            $lastChar = 'Y';
-        }
+        if (isset($CONF['use_s3']) && $CONF['use_s3'] == 'Y') $lastChar = 'Y';
+
         $tstamp = md5(rand(0,999999999).date('ymdhis', time()));
         $tstamp .= md5($file);
         $file_name = $tstamp.$this->file_idx.$lastChar.'.'.Func::get_filetype($file);
@@ -82,24 +65,20 @@ class Uploader {
         return $file_name;
     }
 
-    //파일 byte 검사
+    // 파일 byte 검사
     public function chkbyte($limit)
     {
-        $chked = true;
-        if ($this->file['size'] > $limit) {
-            $chked = false;
-        }
-
-        return $chked;
+        return ($this->file['size'] > $limit) ? false : true;
     }
 
-    //저장 위치 검사 및 생성
+    // 저장 위치 검사 및 생성
     public function chkpath()
     {
         $paths = explode('/', $this->path);
 
         $path_sum = '';
         foreach ($paths as $key => $value) {
+
             if ($key > 0) {
                 $path_sum .= '/'.$value;
             } else {
@@ -113,28 +92,25 @@ class Uploader {
         }
     }
 
-    //DB 기록
+    // DB 기록
     private function record_dataupload($replace_filename, $filename = '')
     {
         global $CONF;
 
-        $storage = 'N';
-        if (isset($CONF['use_s3']) && $CONF['use_s3'] == 'Y') {
-            $storage = 'Y';
-        }
-
+        $storage = (isset($CONF['use_s3']) && $CONF['use_s3'] == 'Y') ? 'Y' : 'N';
         $path = str_replace(PH_DATA_PATH, '', $this->path);
 
         if (!$filename) {
             $filename = $this->file['name'];
         }
+
         $sql = new Pdosql();
         $sql->query(
             "
-            INSERT INTO {$sql->table("dataupload")}
-            (filepath,orgfile,repfile,storage,byte,regdate)
-            VALUES
-            ('{$path}','{$filename}','{$replace_filename}','{$storage}',{$this->file['size']},now())
+            insert into {$sql->table("dataupload")}
+            (filepath, orgfile, repfile, storage, byte, regdate)
+            values
+            ('{$path}', '{$filename}', '{$replace_filename}', '{$storage}', {$this->file['size']}, now())
             ", []
         );
     }
@@ -150,25 +126,23 @@ class Uploader {
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("dataupload")}
-            WHERE orgfile='{$fileinfo['orgfile']}' AND repfile='{$replace_filename}'
+            select *
+            from {$sql->table("dataupload")}
+            where orgfile='{$fileinfo['orgfile']}' and repfile='{$replace_filename}'
             ", []
         );
 
-        if ($sql->getcount() > 0) {
-            return;
-        }
+        if ($sql->getcount() > 0) return;
 
         $replace_path = str_replace(PH_DATA_PATH, '', $replace_filename);
         $replace_path = str_replace('/'.$replace_filename_name, '', $replace_path);
 
         $sql->query(
             "
-            INSERT INTO {$sql->table("dataupload")}
-            (filepath,orgfile,repfile,storage,byte,regdate)
-            VALUES
-            ('{$replace_path}','{$fileinfo['orgfile']}','{$replace_filename_name}','{$fileinfo['storage']}',{$fileinfo['byte']},now())
+            insert into {$sql->table("dataupload")}
+            (filepath, orgfile, repfile, storage, byte, regdate)
+            values
+            ('{$replace_path}', '{$fileinfo['orgfile']}', '{$replace_filename_name}', '{$fileinfo['storage']}', {$fileinfo['byte']}, now())
             ", []
         );
     }
@@ -178,14 +152,14 @@ class Uploader {
         $sql = new Pdosql();
         $sql->query(
             "
-            DELETE
-            FROM {$sql->table("dataupload")}
-            WHERE repfile='{$replace_filename}'
+            delete
+            from {$sql->table("dataupload")}
+            where repfile='{$replace_filename}'
             ", []
         );
     }
 
-    //S3
+    // S3
     private function get_s3_action($type, $filename, $copy_filename = '', $tmp = true)
     {
         global $CONF;
@@ -203,15 +177,17 @@ class Uploader {
             )
         );
 
-        //upload
+        // S3 upload
         if ($type == 'upload') {
 
             if ($tmp === false) {
                 $savefile = $this->file;
+
             } else {
                 $savefile = $this->file['tmp_name'];
             }
-            $awsSource = fopen($savefile,'rb');
+
+            $awsSource = fopen($savefile, 'rb');
 
             try {
                 $s3->putObject([
@@ -229,7 +205,7 @@ class Uploader {
             }
         }
 
-        //delete
+        // S3 delete
         if ($type == 'delete') {
             try {
                 $s3->deleteObject([
@@ -245,7 +221,7 @@ class Uploader {
             }
         }
 
-        //copy
+        // S3 copy
         if ($type == 'copy') {
             try {
                 $s3->copyObject([
@@ -265,7 +241,7 @@ class Uploader {
 
     }
 
-    //copy
+    // copy
     public function filecopy($old_file, $new_file)
     {
         $old_filename = basename($old_file);
@@ -274,23 +250,20 @@ class Uploader {
 
         $this->path = str_replace('/'.basename($old_file), '', $old_file);
 
-        //s3
+        // s3
         if ($fileinfo['storage'] == 'Y') {
             $this->get_s3_action('copy', $old_file, $new_file);
-
-        //local
-        } else {
-
-            if ($this->isfile($old_file)) {
-                @copy($old_file, $new_file);
-            }
+        }
+        // local
+        else if ($this->isfile($old_file)) {
+            copy($old_file, $new_file);
 
         }
 
         $this->record_datacopy($old_file, $new_file);
     }
 
-    //save
+    // save
     public function upload($file, $tmp = true)
     {
         global $CONF;
@@ -299,81 +272,64 @@ class Uploader {
 
         //s3
         if (isset($CONF['use_s3']) && $CONF['use_s3'] == 'Y') {
-
             $this->get_s3_action('upload', $file, '', $tmp);
+        }
 
         //local
-        } else {
-
-            if ($tmp === false) {
-                $savefile = $this->file;
-            } else {
-                $savefile = $this->file['tmp_name'];
-            }
-            if (!$this->file_upload = move_uploaded_file($savefile, $this->path.'/'.$file)) {
-                $chked = false;
-            }
-
+        else {
+            $savefile =  ($tmp === false) ? $this->file : $this->file['tmp_name'];
+            if (!$this->file_upload = move_uploaded_file($savefile, $this->path.'/'.$file)) $chked = false;
         }
 
-        if ($chked === true) {
-            $this->record_dataupload($file);
-        }
+        if ($chked === true) $this->record_dataupload($file);
 
         return $chked;
     }
 
-    //delete
+    // delete
     public function drop($file)
     {
         global $CONF;
 
         $fileinfo = Func::get_fileinfo($file);
 
-        //s3
+        // s3
         if ($fileinfo['storage'] == 'Y') {
-
             $this->get_s3_action('delete', $file);
+        }
 
-        //local
-        } else {
-
-            if ($this->isfile($this->path.'/'.$file)) {
-                unlink($this->path.'/'.$file);
-            }
-
+        // local
+        else if ($this->isfile($this->path.'/'.$file)) {
+            unlink($this->path.'/'.$file);
         }
 
         $this->record_datadrop($file);
 
     }
 
-    //delete directory
+    // delete directory
     public function dropdir()
     {
         if ($this->isdir($this->path)) {
             $dir = dir($this->path);
             while (($entry=$dir->read()) !== false) {
-                if ($entry != '.' && $entry != '..') {
-                    @unlink($this->path.'/'.$entry);
-                }
+                if ($entry != '.' && $entry != '..') unlink($this->path.'/'.$entry);
             }
             $dir->close();
             @rmdir($this->path);
         }
     }
 
-    //에디터 사진 삭제
+    // ckeditor plugin 사진 삭제
     public function edt_drop($article)
     {
         $this->path = PH_PLUGIN_PATH.'/'.PH_PLUGIN_CKEDITOR;
+
         preg_match_all("/ckeditor\/[a-zA-Z0-9-_\.]+.(jpg|gif|png|bmp)/i", $article,$sEditor_images_ex);
 
-        for ($i=0; $i < count($sEditor_images_ex[0]); $i++) {
+        for ($i = 0; $i < count($sEditor_images_ex[0]); $i++) {
             $this->name = str_replace(PH_PLUGIN_CKEDITOR.'/', '', $this->sEditor_images_ex[0][$i]);
-            if ($this->isfile($this->name)) {
-                $this->filedrop($this->name);
-            }
+            if ($this->isfile($this->name)) $this->filedrop($this->name);
         }
     }
 

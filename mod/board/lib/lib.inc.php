@@ -4,12 +4,13 @@ namespace Module\Board;
 use Corelib\Func;
 use Make\Database\Pdosql;
 
-///
+//
 // Module : Board Library
-///
+//
+
 class Library {
 
-    //설정 정보 가져옴
+    // 설정 정보 가져옴
     public function load_conf($board_id)
     {
         global $CONF, $func;
@@ -18,20 +19,15 @@ class Library {
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("config")}
-            WHERE cfg_type='mod:board:config:{$board_id}'
+            select *
+            from {$sql->table("config")}
+            where cfg_type='mod:board:config:{$board_id}'
             ", []
         );
 
-        //올바른 접근인지 검사
-        if (!$board_id) {
-            Func::err_location('게시판이 지정되지 않았습니다.', PH_DOMAIN);
-        }
-
-        if ($sql->getcount() < 1) {
-            Func::err_location('존재하지 않는 게시판 입니다.', PH_DOMAIN);
-        }
+        // 올바른 접근인지 검사
+        if (!$board_id) Func::err_location('게시판이 지정되지 않았습니다.', PH_DOMAIN);
+        if ($sql->getcount() < 1) Func::err_location('존재하지 않는 게시판 입니다.', PH_DOMAIN);
 
         $conf = array();
 
@@ -54,12 +50,7 @@ class Library {
 
         } while($sql->nextRec());
 
-        if ($CONF['use_mobile'] == 'Y' && Func::chkdevice() == 'mobile') {
-            $ex_slt = 1;
-
-        } else {
-            $ex_slt = 0;
-        }
+        $ex_slt = ($CONF['use_mobile'] == 'Y' && Func::chkdevice() == 'mobile') ? 1 : 0;
 
         $use_list = explode('|', $conf['use_list']);
         $conf['use_list'] = $use_list[$ex_slt];
@@ -73,7 +64,7 @@ class Library {
         return $conf;
     }
 
-    //add stylesheet & javascript
+    // add stylesheet & javascript
     public function print_headsrc($theme)
     {
         global $mode;
@@ -81,9 +72,7 @@ class Library {
         Func::add_stylesheet(MOD_BOARD_THEME_DIR.'/board/'.$theme.'/style.css');
         Func::add_javascript(MOD_BOARD_THEME_DIR.'/board/'.$theme.'/script.js');
 
-        if ($mode == 'write') {
-            Func::add_javascript(PH_PLUGIN_DIR.'/'.PH_PLUGIN_CKEDITOR.'/ckeditor.js');
-        }
+        if ($mode == 'write') Func::add_javascript(PH_PLUGIN_DIR.'/'.PH_PLUGIN_CKEDITOR.'/ckeditor.js');
     }
 
 }

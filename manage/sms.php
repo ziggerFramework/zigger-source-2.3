@@ -8,9 +8,10 @@ use Make\Library\Sms;
 use Make\Library\Uploader;
 use Manage\ManageFunc;
 
-/***
-Tomember
-***/
+//
+// Controller for display
+// https://{domain}/manage/sms/tomember
+//
 class Tomember extends \Controller\Make_Controller {
 
     public function init()
@@ -28,10 +29,7 @@ class Tomember extends \Controller\Make_Controller {
 
         $req = Method::request('get', 'smsto');
 
-        $is_show_wait = false;
-        if ($CONF['use_sms'] != 'Y') {
-            $is_show_wait = true;
-        }
+        $is_show_wait = ($CONF['use_sms'] != 'Y') ? true : false;
 
         $this->set('manage', $manage);
         $this->set('smsto', $req['smsto']);
@@ -49,9 +47,10 @@ class Tomember extends \Controller\Make_Controller {
 
 }
 
-/***
-Send
-***/
+//
+// Controller for display
+// https://{domain}/manage/sms/send
+//
 class Send extends \Controller\Make_Controller {
 
     public function init()
@@ -69,10 +68,7 @@ class Send extends \Controller\Make_Controller {
 
         $req = Method::request('get', 'smsto');
 
-        $is_show_wait = false;
-        if ($CONF['use_sms'] != 'Y') {
-            $is_show_wait = true;
-        }
+        $is_show_wait = ($CONF['use_sms'] != 'Y') ? true : false;
 
         $this->set('manage', $manage);
         $this->set('is_show_wait', $is_show_wait);
@@ -89,9 +85,10 @@ class Send extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for Send
-***/
+//
+// Controller for submit
+// ( Send )
+//
 class Tomember_submit{
 
     public function init()
@@ -108,9 +105,7 @@ class Tomember_submit{
         $file = Method::request('file', 'image');
         $manage->req_hidden_inp('post');
 
-        if ($CONF['use_sms'] != 'Y') {
-            Valid::error('', 'SMS 발송 기능이 활성화 되지 않아 SMS 발송이 불가합니다.');
-        }
+        if ($CONF['use_sms'] != 'Y') Valid::error('', 'SMS 발송 기능이 활성화 되지 않아 SMS 발송이 불가합니다.');
 
         Valid::get(
             array(
@@ -121,6 +116,7 @@ class Tomember_submit{
 
         $rcv_sms = array();
 
+        // 단일 회원 발송
         if ($req['type'] == 1) {
 
             Valid::get(
@@ -132,21 +128,18 @@ class Tomember_submit{
 
             $sql->query(
                 "
-                SELECT *
-                FROM {$sql->table("member")}
-                WHERE mb_id=:col1 AND mb_dregdate IS NULL
+                select *
+                from {$sql->table("member")}
+                where mb_id=:col1 and mb_dregdate is null
                 ",
                 array(
                     $req['to_mb']
                 )
             );
 
-            if ($sql->getcount() < 1) {
-                Valid::error('', '존재하지 않는 회원 id 입니다.');
-            }
-            if (!$sql->fetch('mb_phone')) {
-                Valid::error('', '회원 휴대전화 번호가 등록되어 있지 않습니다.');
-            }
+            if ($sql->getcount() < 1) Valid::error('', '존재하지 않는 회원 id 입니다.');
+            if (!$sql->fetch('mb_phone')) Valid::error('', '회원 휴대전화 번호가 등록되어 있지 않습니다.');
+
             $rcv_sms[] = $sql->fetch('mb_phone');
 
             $req['level_from'] = 0;
@@ -154,28 +147,24 @@ class Tomember_submit{
             $req['to_phone'] = '';
         }
 
+        // 회원 범위 발송
         if ($req['type'] == 2) {
 
-            if ($req['level_from'] > $req['level_to']) {
-                Valid::error('level_to', '수신 종료 level 보다 시작 level이 클 수 없습니다.');
-            }
+            if ($req['level_from'] > $req['level_to']) Valid::error('level_to', '수신 종료 level 보다 시작 level이 클 수 없습니다.');
 
             $sql->query(
                 "
-                SELECT *
-                FROM {$sql->table("member")}
-                WHERE mb_level>=:col1 AND mb_level<=:col2 AND mb_phone IS NOT NULL AND mb_phone!='' AND mb_dregdate IS NULL
-                ORDER BY mb_idx ASC
+                select *
+                from {$sql->table("member")}
+                where mb_level>=:col1 and mb_level<=:col2 and mb_phone is not null and mb_phone!='' and mb_dregdate is null
+                order by mb_idx ASC
                 ",
                 array(
-                    $req['level_from'],
-                    $req['level_to']
+                    $req['level_from'], $req['level_to']
                 )
             );
 
-            if ($sql->getcount() < 1) {
-                Valid::error('', '범위내 수신할 회원이 존재하지 않습니다.');
-            }
+            if ($sql->getcount() < 1) Valid::error('', '범위내 수신할 회원이 존재하지 않습니다.');
 
             do {
                 $rcv_sms[] = $sql->fetch('mb_phone');
@@ -187,6 +176,7 @@ class Tomember_submit{
 
         }
 
+        // 비회원 발송
         if ($req['type'] == 3) {
 
             $phone_exp = explode(',', $req['to_phone']);
@@ -213,16 +203,14 @@ class Tomember_submit{
 
         }
 
-        //send
+        // 발송 수행
         $sms_arr = array();
         $sms_arr = array(
             'to' => $rcv_sms,
             'memo' => stripslashes($req['memo'])
         );
 
-        if ($req['subject']) {
-            $sms_arr['subject'] = $req['subject'];
-        }
+        if ($req['subject']) $sms_arr['subject'] = $req['subject'];
 
         if ($req['use_resv'] == 'checked') {
             Valid::get(
@@ -245,15 +233,12 @@ class Tomember_submit{
 
             $uploader = new Uploader();
             $uploader->file = $file['image'];
-            $uploader->intdict = 'jpg,jpeg';
+            $uploader->intdict = 'jpg, jpeg';
 
-            if ($uploader->chkfile('match') !== true) {
-                Valid::error('image', '허용되지 않는 이미지 유형입니다.');
-            }
+            if ($uploader->chkfile('match') !== true) Valid::error('image', '허용되지 않는 이미지 유형입니다.');
+            if ($file['image']['size'] > 409600) Valid::error('image', '이미지 용량은 400 Kbyte를 넘을 수 없습니다.');
 
-            $sms_arr['attach'] = array(
-                $file['image']['tmp_name']
-            );
+            $sms_arr['attach'] = array($file['image']['tmp_name']);
         }
 
         $sms->set($sms_arr);
@@ -261,10 +246,10 @@ class Tomember_submit{
 
         $sql->query(
             "
-            INSERT INTO {$sql->table("sentsms")}
-            (sendtype,to_mb,level_from,level_to,subject,memo,use_resv,resv_date,resv_hour,resv_min,to_phone,regdate)
-            VALUES
-            (:col1,:col2,:col3,:col4,:col5,:col6,:col7,:col8,:col9,:col10,:col11,now())
+            insert into {$sql->table("sentsms")}
+            (sendtype, to_mb, level_from, level_to, subject, memo, use_resv, resv_date, resv_hour, resv_min, to_phone, regdate)
+            values
+            (:col1, :col2, :col3, :col4, :col5, :col6, :col7, :col8, :col9, :col10, :col11, now())
             ",
             array(
                 $sms->sendType, $req['to_mb'], $req['level_from'], $req['level_to'], $req['subject'], $req['memo'], $req['use_resv'], $req['resv_date'], $req['resv_hour'], $req['resv_min'], trim($req['to_phone'])
@@ -282,9 +267,10 @@ class Tomember_submit{
 
 }
 
-/***
-History
-***/
+//
+// Controller for display
+// https://{domain}/manage/sms/history
+//
 class History extends \Controller\Make_Controller {
 
     public function init(){
@@ -329,21 +315,15 @@ class History extends \Controller\Make_Controller {
         function print_to_mb($arr)
         {
             global $MB;
-            if (!$arr['to_mb']) {
-                return '-';
-            } else {
-                return $arr['to_mb'];
-            }
+
+            return (!$arr['to_mb']) ? '-' : $arr['to_mb'];
         }
 
         function print_to_phone($arr)
         {
             global $MB;
-            if (!$arr['to_phone']) {
-                return '-';
-            } else {
-                return $arr['to_phone'];
-            }
+
+            return (!$arr['to_phone']) ? '-' : $arr['to_phone'];
         }
     }
 
@@ -355,31 +335,31 @@ class History extends \Controller\Make_Controller {
         $paging = new Paging();
         $manage = new ManageFunc();
 
-        //sortby
+        // sortby
         $sortby = '';
         $sort_arr = array();
 
         $sql->query(
             "
-            SELECT
+            select
             (
-                SELECT COUNT(*)
-                FROM {$sql->table("sentsms")}
+                select count(*)
+                from {$sql->table("sentsms")}
             ) total,
             (
-                SELECT COUNT(*)
-                FROM {$sql->table("sentsms")}
-                WHERE to_mb IS NOT NULL AND to_mb!=''
+                select count(*)
+                from {$sql->table("sentsms")}
+                where to_mb is not null and to_mb!=''
             ) to_mb_total,
             (
-                SELECT COUNT(*)
-                FROM {$sql->table("sentsms")}
-                WHERE (to_mb IS NULL OR to_mb='') AND (to_phone IS NULL OR to_phone='')
+                select count(*)
+                from {$sql->table("sentsms")}
+                where (to_mb is null OR to_mb='') and (to_phone is null OR to_phone='')
             ) level_from_total,
             (
-                SELECT COUNT(*)
-                FROM {$sql->table("sentsms")}
-                WHERE to_phone IS NOT NULL AND to_phone!=''
+                select count(*)
+                from {$sql->table("sentsms")}
+                where to_phone is not null and to_phone!=''
             ) to_phone_total
             ", []
         );
@@ -390,38 +370,35 @@ class History extends \Controller\Make_Controller {
 
         switch ($PARAM['sort']) {
             case 'to_mb' :
-                $sortby = 'AND to_mb IS NOT NULL AND to_mb!=\'\'';
+                $sortby = 'and to_mb is not null and to_mb!=\'\'';
                 break;
 
             case 'level_from' :
-                $sortby = 'AND ((to_mb IS NULL OR to_mb=\'\') AND (to_phone IS NULL OR to_phone=\'\'))';
+                $sortby = 'and ((to_mb is null OR to_mb=\'\') and (to_phone is null OR to_phone=\'\'))';
                 break;
 
             case 'to_phone' :
-                $sortby = 'AND to_phone IS NOT NULL AND to_phone!=\'\'';
+                $sortby = 'and to_phone is not null and to_phone!=\'\'';
                 break;
         }
 
-        //orderby
-        if (!$PARAM['ordtg']) {
-            $PARAM['ordtg'] = 'regdate';
-        }
-        if (!$PARAM['ordsc']) {
-            $PARAM['ordsc'] = 'desc';
-        }
+        // orderby
+        if (!$PARAM['ordtg']) $PARAM['ordtg'] = 'regdate';
+        if (!$PARAM['ordsc']) $PARAM['ordsc'] = 'desc';
         $orderby = $PARAM['ordtg'].' '.$PARAM['ordsc'];
 
-        //list
+        // list
         $sql->query(
             $paging->query(
                 "
-                SELECT *
-                FROM {$sql->table("sentsms")}
-                WHERE 1 $sortby $searchby
-                ORDER BY $orderby
+                select *
+                from {$sql->table("sentsms")}
+                where 1 $sortby $searchby
+                order by $orderby
                 ", []
             )
         );
+
         $list_cnt = $sql->getcount();
         $total_cnt = Func::number($paging->totalCount);
         $print_arr = array();

@@ -1,10 +1,11 @@
 <?php
 namespace Make\Library;
 
+use Corelib\Func;
+
 class Sms {
 
     public $timestamp;
-    public $apiurl = 'https://sens.apigw.ntruss.com/sms/v2/services/';
     public $from;
     public $to = array();
     public $sendType;
@@ -19,47 +20,41 @@ class Sms {
 
     public function set($arr)
     {
-        foreach($arr as $key => $value) {
+        foreach ($arr as $key => $value) {
             $this->{$key} = $value;
         }
     }
 
-    //apiurl
+    // apiurl
     protected function getApiUrl()
     {
         global $CONF;
 
-        $apiurl = $this->apiurl;
-
-        if ($CONF['sms_key1']) {
-            $apiurl = $CONF['sms_key1'];
-        }
-
-        return $apiurl;
+        return ($CONF['sms_key1']) ? $CONF['sms_key1'] : $CONF['sms_key1'];
     }
 
-    //accesskey
+    // accesskey
     protected function getAccesskey()
     {
         global $CONF;
         return $CONF['sms_key3'];
     }
 
-    //secretkey
+    // secretkey
     protected function getSecretkey()
     {
         global $CONF;
         return $CONF['sms_key4'];
     }
 
-    //api id
+    // api id
     protected function getServiceId()
     {
         global $CONF;
         return $CONF['sms_key2'];
     }
 
-    //sigstamp
+    // sigstamp
     protected function getSigstamp()
     {
         $sigstamp = "POST";
@@ -74,19 +69,17 @@ class Sms {
         return $signature;
     }
 
-    //from
+    // from
     protected function getFrom()
     {
         global $CONF;
 
-        if (!$this->from) {
-            $this->from = $CONF['sms_from'];
-        }
+        if (!$this->from) $this->from = $CONF['sms_from'];
 
         return $this->from;
     }
 
-    //sendType
+    // sendType
     protected function getSendType()
     {
         if (!strtolower($this->sendType)) {
@@ -103,7 +96,7 @@ class Sms {
         return $this->sendType;
     }
 
-    //attach
+    // attach
     protected function getAttach()
     {
         $arr = array();
@@ -124,7 +117,7 @@ class Sms {
         return $arr;
     }
 
-    //headers
+    // headers
     protected function getTimestamp()
     {
         list($microtime, $timestamp) = explode(' ',microtime());
@@ -148,38 +141,40 @@ class Sms {
         $this->smsHeaderArray[$content] = $value;
     }
 
-    //make body
+    // make body
     protected function makeBody()
     {
         $body = array();
 
-        //default
-        $body['type'] = $this->getSendType();
-        $body['contentType'] = 'COMM';
-        $body['countryCode'] = $this->countryCode;
-        $body['from'] = $this->getFrom();
-        $body['subject'] = $this->subject;
-        $body['content'] = $this->memo;
+        // default
+        $body = array(
+            'type' => $this->getSendType(),
+            'contentType' => 'COMM',
+            'countryCode' => $this->countryCode,
+            'from' => $this->getFrom(),
+            'subject' => $this->subject,
+            'content' => $this->memo
+        );
 
-        //reserve data
+        // reserve data
         if ($this->reserveTime) {
             $body['reserveTime'] = $this->reserveTime;
             $body['reserveTimeZone'] = $this->reserveTimeZone;
         }
 
-        //to
+        // to
         foreach ($this->to as $key => $value) {
             $body['messages'][] = array(
                 'to' => $value
             );
         }
 
-        //attach
+        // attach
         if (count($this->attach) >= 1) {
             $body['files'] = $this->getAttach();
         }
 
-        //scheduleCode
+        // scheduleCode
         if ($this->scheduleCode) {
             $body['scheduleCode'] = $this->scheduleCode;
         }
@@ -187,28 +182,22 @@ class Sms {
         return $body;
     }
 
-    //Send
+    // send
     public function send()
     {
         global $CONF;
 
-        if (!$CONF['sms_key1'] || !$CONF['sms_key2'] || !$CONF['sms_key3'] || !$CONF['sms_key4']) {
-            return false;
-        }
+        if (!$CONF['sms_key1'] || !$CONF['sms_key2'] || !$CONF['sms_key3'] || !$CONF['sms_key4']) return false;
 
         $this->setCommonHeader();
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $this->smsHeaderArray);
-        curl_setopt($ch, CURLOPT_URL, $this->getApiUrl().$this->getServiceId().'/messages');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($this->makeBody()));
-        $response = curl_exec($ch);
-        $json = json_decode($response);
-        curl_close($ch);
+        $response = Func::url_get_contents(
+            $this->getApiUrl().$this->getServiceId().'/messages', // url
+            true, // post
+            $this->smsHeaderArray, // header
+            json_encode($this->makeBody()) // body
+        );
+        $json = $response;
 
         return $json;
     }

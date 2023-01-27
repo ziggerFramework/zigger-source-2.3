@@ -1,6 +1,6 @@
-///
+//
 // 관리 checkbox 전체 선택
-///
+//
 $(function() {
     $(document).on('click', '.cnum_allchk', function() {
         var chked = $(this).is(':checked');
@@ -14,9 +14,9 @@ $(function() {
     });
 });
 
-///
+//
 // 관리팝업
-///
+//
 $(function() {
     var $form = '';
     var $ctrpop = '';
@@ -34,8 +34,8 @@ $(function() {
             return false;
         }
 
-        $('<div id="ctrpop-bg"></div>').appendTo('body');
-        $('<div id="ctrpop"></div>').appendTo('body');
+        $('<div id="ctrpop-bg" data-no-tab-index></div>').appendTo('body');
+        $('<div id="ctrpop" data-no-tab-index></div>').appendTo('body');
         $ctrpop = $('#ctrpop');
         $ctrpopBG = $('#ctrpop-bg');
 
@@ -50,7 +50,7 @@ $(function() {
                 $ctrpopBG.fadeIn(100);
 
                 //접근성 위해 layer로 focus 이동.
-                $mbpop.find('.close').focus();
+                $ctrpop.find('.close').focus();
             }
         });
     });
@@ -60,8 +60,8 @@ $(function() {
         e.preventDefault();
 
         //접근성 위해 layer띄운 요소로 focus 이동.
-        $('*[data-tab-index='+NOW_TABINDEX+']').focus();
-        
+        $('*[data-tab-index='+PH_NOW_TABINDEX+']').focus();
+
         $ctrpop.fadeOut(100);
         $ctrpopBG.fadeOut(100);
     });
@@ -94,9 +94,9 @@ $(function() {
     });
 });
 
-///
+//
 // 작성자 정보 팝업
-///
+//
 $(function() {
 
     var $form = '';
@@ -109,15 +109,16 @@ $(function() {
 
         var mb_idx = $(this).data('profile');
         var board_id = $('input[name=board_id]').val();
+        var thisuri = $(this).attr('href');
 
-        $('<div id="mbpop-bg"></div>').appendTo('body');
-        $('<div id="mbpop"></div>').appendTo('body');
+        $('<div id="mbpop-bg" data-no-tab-index></div>').appendTo('body');
+        $('<div id="mbpop" data-no-tab-index></div>').appendTo('body');
         $mbpop = $('#mbpop');
         $mbpopBG = $('#mbpop-bg');
 
         $.ajax({
             'type' : 'GET',
-            'url' : MOD_BOARD_DIR + '/controller/pop/writer',
+            'url' : MOD_BOARD_DIR + '/controller/pop/writer?thisuri=' + thisuri,
             'cache' : false,
             'data' : {
                 'board_id' : board_id,
@@ -139,7 +140,7 @@ $(function() {
         e.preventDefault();
 
         //접근성 위해 layer띄운 요소로 focus 이동.
-        $('*[data-tab-index='+NOW_TABINDEX+']').focus();
+        $('*[data-tab-index='+PH_NOW_TABINDEX+']').focus();
 
         $mbpop.fadeOut(100);
         $mbpopBG.fadeOut(100);
@@ -147,9 +148,9 @@ $(function() {
 
 });
 
-///
+//
 // 공지사항 옵션 체크시 답변알림 옵션 & 카테고리 숨김
-///
+//
 var use_notice_opt = function($this) {
     var chked = $this.is(':checked');
     if (chked) {
@@ -171,9 +172,9 @@ $(function() {
     use_notice_opt($opt);
 });
 
-///
+//
 // view 하단 리스트 로드
-///
+//
 $(function() {
     if ($('#board-ft-list').length > 0) {
         var $ftlist_wrap = $('#board-ft-list');
@@ -188,9 +189,9 @@ $(function() {
     }
 });
 
-///
+//
 // view 좋아요 / 싫어요
-///
+//
 $(function() {
     $(document).on('click', '#board-likes .btn-likes', function(e) {
         e.preventDefault();
@@ -206,9 +207,9 @@ $(function() {
     });
 });
 
-///
+//
 // 글 삭제
-///
+//
 $(function() {
     $(document).on('click', '#del-btn', function(e) {
         e.preventDefault();
@@ -222,9 +223,9 @@ $(function() {
     });
 });
 
-///
+//
 // Comment 로드
-///
+//
 cmt_stat_mdf = false;
 
 function view_cmt_load() {
@@ -253,9 +254,9 @@ $(function() {
     view_cmt_load();
 });
 
-///
+//
 // Comment 작성
-///
+//
 $(function() {
     $(document).on('click', '#commentForm .sbm', function(e) {
         e.preventDefault();
@@ -265,9 +266,9 @@ $(function() {
     });
 });
 
-///
+//
 // Comment 삭제
-///
+//
 $(function() {
     $(document).on('click', '#cmt-delete',function(e) {
         e.preventDefault();
@@ -280,9 +281,9 @@ $(function() {
     });
 });
 
-///
+//
 // Comment 답글 작성
-///
+//
 $(function() {
     var comm_re_form_idx = 0;
     var $comm_re_form;
@@ -320,9 +321,9 @@ $(function() {
     });
 });
 
-///
+//
 // Comment 수정
-///
+//
 $(function() {
     $(document).on('click', '#cmt-modify', function(e) {
         e.preventDefault();
@@ -355,9 +356,9 @@ $(function() {
     });
 });
 
-///
+//
 // Comment 답글 & 수정 Submit
-///
+//
 $(document).on('click', '#comm-re-form .re_sbm, #commentForm .re_sbm', function(e) {
     e.preventDefault();
     $('#commentForm input[name=mode]').val(cmt_stat_val);

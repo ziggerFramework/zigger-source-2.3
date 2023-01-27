@@ -19,12 +19,12 @@ RewriteRule ^manage$ manage/index.php [L]
 RewriteRule ^manage/$ manage/index.php [L]
 
 RewriteCond %{QUERY_STRING} ^(.*)$ [NC]
-RewriteRule ^([a-zA-Z0-9/_-]+)/([0-9]+)$ index.php?rewritepage=$1&mode=view&read=$2&%1 [L]
+RewriteRule ^(.*)/([0-9]+)$ index.php?rewritepage=$1&mode=view&read=$2&%1 [L]
 
 RewriteRule ^($|/.*) - [L]
 RewriteRule ^(.*)/$ index.php?rewritepage=$1 [L]
 
-RewriteCond %{REQUEST_URI} !(\.php|\.css|\.js|\.png|\.jpg|\.gif|\.woff|\.eot|\.svg)$ [NC]
+RewriteCond %{REQUEST_URI} !(robots.txt|\.php|\.css|\.js|\.png|\.jpg|\.gif|\.woff|\.woff2|\.eot|\.svg)$ [NC]
 RewriteCond %{QUERY_STRING} ^(.*)$ [NC]
 RewriteRule ^(.*)$ index.php?rewritepage=$1&%1 [L]
 

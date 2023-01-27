@@ -6,16 +6,16 @@ class Popup_fetch {
 
     public function init()
     {
-        global $MB, $CONF, $FETCH_CONF;
+        global $CONF, $MB, $FETCH_CONF;
 
         $sql = new Pdosql();
 
-        //팝업 정보
+        // 팝업 정보
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("popup")}
-            WHERE show_from<now() AND show_to>now()
+            select *
+            from {$sql->table("popup")}
+            where show_from<now() and show_to>now()
             ", ''
         );
 
@@ -23,9 +23,9 @@ class Popup_fetch {
 
             $arr = $sql->fetchs();
 
-            //팝업 html 출력
+            // 팝업 html 출력
             $pop_html = '';
-            $pop_i = 0;
+            $pop_idx = 0;
 
             do {
                 $pop_arr = $sql->fetchs();
@@ -38,7 +38,7 @@ class Popup_fetch {
                     <div id=\"ph-pop-{$pop_arr['idx']}\" class=\"ph-pop nostyle\" alt=\"{$pop_arr['title']}\" title=\"{$pop_arr['title']}\" style=\"top: {$pop_arr['pos_top']}px;left: {$pop_arr['pos_left']}px;\">
                 ";
 
-                if ($pop_arr['link'] != "") {
+                if ($pop_arr['link'] != '') {
                     $pop_html .= "
                         <a href=\"{$pop_arr['link']}\" target=\"{$pop_arr['link_target']}\" class=\"link\"></a>
                     ";
@@ -66,11 +66,9 @@ class Popup_fetch {
                     </div>
                 ";
 
-                if ($pop_arr['level_from'] <= $MB['level'] && $pop_arr['level_to'] >= $MB['level'] && !isset($_COOKIE['ph_pop_'.$pop_arr['idx']])) {
-                    echo $pop_html;
-                }
+                if ($pop_arr['level_from'] <= $MB['level'] && $pop_arr['level_to'] >= $MB['level'] && !isset($_COOKIE['ph_pop_'.$pop_arr['idx']])) echo $pop_html;
 
-                $pop_i++;
+                $pop_idx++;
 
             } while ($sql->nextRec());
         }

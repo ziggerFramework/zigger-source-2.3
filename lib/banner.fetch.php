@@ -13,20 +13,17 @@ class Banner_fetch
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("banner")}
-            WHERE bn_key=:col1
-            ORDER BY zindex ASC
+            select *
+            from {$sql->table("banner")}
+            where bn_key=:col1
+            order by zindex asc
             ",
             array(
                 $FETCH_CONF['key']
             )
         );
 
-        if ($sql->getcount() < 1) {
-            Func::core_err('Banner Key 가 존재하지 않습니다. : '.$FETCH_CONF['key'], false);
-        }
-
+        if ($sql->getcount() < 1) Func::core_err('Banner Key 가 존재하지 않습니다. : '.$FETCH_CONF['key'], false);
         $bn_html = '<ul>';
 
         if ($sql->getcount() < 1) return;
@@ -56,7 +53,7 @@ class Banner_fetch
                     ';
                 }
             } else {
-                if ( $bn_arr['mo_img'] ) {
+                if ($bn_arr['mo_img']) {
                     $bn_html .= '
                         <img src="'.PH_DATA_DIR.'/manage/'.$bn_arr['mo_img'].'" />
                     ';
@@ -81,8 +78,6 @@ class Banner_fetch
             </ul>
         ';
 
-        if ($sql->getcount() > 0 ){
-            echo $bn_html;
-        }
+        if ($sql->getcount() > 0) echo $bn_html;
     }
 }

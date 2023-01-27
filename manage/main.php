@@ -9,13 +9,16 @@ define('MAINPAGE',true);
 
 class Dash extends \Controller\Make_Controller {
 
-    public function init(){
+    public function init()
+
+    {
         $this->layout()->mng_head();
         $this->layout()->view(PH_MANAGE_PATH.'/html/main.tpl.php');
         $this->layout()->mng_foot();
     }
 
-    public function make(){
+    public function make()
+    {
         $req = Method::request('get', 'view_dash_feed, page');
 
         $sql = new Pdosql();
@@ -25,14 +28,14 @@ class Dash extends \Controller\Make_Controller {
         $print_arr = array();
         $pagingprint = array();
 
-        //new member
+        // new member
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("member")}
-            WHERE mb_adm!='Y' AND mb_dregdate IS NULL
-            ORDER BY mb_regdate DESC
-            LIMIT 5
+            select *
+            from {$sql->table("member")}
+            where mb_adm!='Y' and mb_dregdate IS NULL
+            order by mb_regdate desc
+            limit 5
             ", []
         );
         $list_cnt['new_mb'] = $sql->getcount();
@@ -45,18 +48,19 @@ class Dash extends \Controller\Make_Controller {
                 $arr['mb_regdate'] = Func::datetime($arr['mb_regdate']);
                 $arr['mb_id'] = Func::strcut($arr['mb_id'], 0, 20);
                 $print_arr['new_mb'][] = $arr;
+
             } while ($sql->nextRec());
         }
 
-        //visit member
+        // visit member
         $sql->query(
             "
-            SELECT visit.*,IFNULL(member.mb_level,10) mb_level
-            FROM {$sql->table("visitcount")} visit
-            LEFT OUTER JOIN {$sql->table("member")} member
-            ON visit.mb_idx=member.mb_idx
-            ORDER BY regdate DESC
-            LIMIT 5
+            select visit.*,ifnull(member.mb_level,10) mb_level
+            from {$sql->table("visitcount")} visit
+            left outer join {$sql->table("member")} member
+            on visit.mb_idx=member.mb_idx
+            order by regdate desc
+            limit 5
             ", []
         );
         $list_cnt['visit_mb'] = $sql->getcount();
@@ -73,19 +77,20 @@ class Dash extends \Controller\Make_Controller {
                     $arr['mb_id'] = Func::strcut($arr['mb_id'], 0, 20);
                 }
                 $print_arr['visit_mb'][] = $arr;
+
             } while ($sql->nextRec());
         }
 
-        //session member
+        // session member
         $sql->query(
             "
-            SELECT sess.*,member.*,IFNULL(member.mb_level,10) mb_level
-            FROM {$sql->table("session")} sess
-            LEFT OUTER JOIN
+            select sess.*, member.*, ifnull(member.mb_level, 10) mb_level
+            from {$sql->table("session")} sess
+            left outer join
             {$sql->table("member")} member
-            ON sess.mb_idx=member.mb_idx
-            WHERE regdate>=DATE_SUB(now(),interval 10 minute)
-            ORDER BY regdate DESC
+            on sess.mb_idx=member.mb_idx
+            where regdate>=DATE_SUB(now(), interval 10 minute)
+            order by regdate desc
             ", []
         );
         $list_cnt['stat_mb'] = $sql->getcount();
@@ -102,18 +107,19 @@ class Dash extends \Controller\Make_Controller {
                     $arr['mb_id'] = Func::strcut($arr['mb_id'], 0, 20);
                 }
                 $print_arr['stat_mb'][] = $arr;
+
             } while ($sql->nextRec());
         }
 
-        //manage feeds
+        // manage feeds
         if (isset($req['view_dash_feed'])) {
             if ($req['view_dash_feed'] == 'read_all') {
 
                 $sql->query(
                     "
-                    UPDATE {$sql->table("mng_feeds")}
-                    SET chked='Y'
-                    WHERE chked='N'
+                    update {$sql->table("mng_feeds")}
+                    set chked='Y'
+                    where chked='N'
                     ", []
                 );
 
@@ -121,9 +127,9 @@ class Dash extends \Controller\Make_Controller {
 
                 $sql->query(
                     "
-                    UPDATE {$sql->table("mng_feeds")}
-                    SET chked='Y'
-                    WHERE idx=:col1 AND chked='N'
+                    update {$sql->table("mng_feeds")}
+                    set chked='Y'
+                    where idx=:col1 and chked='N'
                     ",
                     array(
                         $req['view_dash_feed']
@@ -140,17 +146,18 @@ class Dash extends \Controller\Make_Controller {
         $sql->query(
             $paging->query(
                 "
-                SELECT *,
+                select *,
                 (
-                    SELECT COUNT(*)
-                    FROM {$sql->table("mng_feeds")}
-                    WHERE chked='N'
-                ) AS total
-                FROM {$sql->table("mng_feeds")}
-                ORDER BY regdate DESC
+                    select count(*)
+                    from {$sql->table("mng_feeds")}
+                    where chked='N'
+                ) as total
+                from {$sql->table("mng_feeds")}
+                order by regdate desc
                 ", []
             )
         );
+
         $list_cnt['mng_feed'] = $sql->getcount();
         $news_newfeeds_count = Func::number($sql->fetch('total'));
         $total_cnt = Func::number($paging->totalCount);
@@ -164,9 +171,7 @@ class Dash extends \Controller\Make_Controller {
                 $arr['memo'] = $sql->fetch('memo');
                 $arr['regdate'] = Func::datetime($arr['regdate']);
 
-                if ($arr['chked'] == 'N') {
-                    $no_chked++;
-                }
+                if ($arr['chked'] == 'N') $no_chked++;
                 $print_arr['mng_feed'][] = $arr;
 
             } while ($sql->nextRec());

@@ -11,9 +11,10 @@ use Make\Library\Uploader;
 use Module\Message\Library as Message_Library;
 use Module\Alarm\Library as Alarm_Library;
 
-/***
-Index
-***/
+//
+// Controller for display
+// https://{domain}/member
+//
 class Index extends \Controller\Make_Controller {
 
     public function init()
@@ -39,9 +40,10 @@ class Index extends \Controller\Make_Controller {
 
 }
 
-/***
-Info
-***/
+//
+// Controller for display
+// https://{domain}/member/info
+//
 class Info extends \Controller\Make_Controller {
 
     public function init()
@@ -53,18 +55,15 @@ class Info extends \Controller\Make_Controller {
 
     public function func()
     {
-        //성별 처리
+        // 성별 처리
         function gender_chked($obj)
         {
-            $arr = array(
-                'M' => '',
-                'F' => ''
-            );
+            $arr = array('M' => '', 'F' => '');
+
             foreach ($arr as $key => $value) {
-                if ($key == $obj['mb_gender']) {
-                    $arr[$key] = 'checked';
-                }
+                if ($key == $obj['mb_gender']) $arr[$key] = 'checked';
             }
+
             return $arr;
         }
     }
@@ -77,16 +76,14 @@ class Info extends \Controller\Make_Controller {
 
         Func::getlogin(SET_NOAUTH_MSG);
 
-        if ($MB['adm'] == 'Y') {
-            Func::err_location('최고 레벨의 관리자는 Manage 에서 정보 변경 가능합니다.', PH_DOMAIN);
-        }
+        if ($MB['adm'] == 'Y') Func::err_location('최고 레벨의 관리자는 Manage 에서 정보 변경 가능합니다.', PH_DOMAIN);
 
-        //회원 정보 select
+        // 회원 정보 select
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("member")}
-            WHERE mb_idx=:col1 AND mb_dregdate IS NULL
+            select *
+            from {$sql->table("member")}
+            where mb_idx=:col1 and mb_dregdate is null
             ",
             array(
                 MB_IDX
@@ -98,20 +95,20 @@ class Info extends \Controller\Make_Controller {
         $arr['mb_regdate'] = Func::datetime($arr['mb_regdate']);
         $arr['mb_lately'] = Func::datetime($arr['mb_lately']);
 
+        // 주소 처리
         $arr[0]['mb_address'] = explode('|', $arr['mb_address']);
+        if (!isset($arr[0]['mb_address'][0])) $arr[0]['mb_address'][0] = '';
+        if (!isset($arr[0]['mb_address'][1])) $arr[0]['mb_address'][1] = '';
+        if (!isset($arr[0]['mb_address'][2])) $arr[0]['mb_address'][2] = '';
 
-        if (!$arr[0]['mb_address'][0]) {
-            $arr[0]['mb_address'][0] = null;
-            $arr[0]['mb_address'][1] = null;
-            $arr[0]['mb_address'][2] = null;
-        }
-
+        // 프로필 이미지 처리
         $arr[0]['mb_profileimg'] = '';
         if ($arr['mb_profileimg']) {
             $fileinfo = Func::get_fileinfo($arr['mb_profileimg']);
             $arr[0]['mb_profileimg'] = $fileinfo['replink'];
         }
 
+        // 변수 재정의
         $mb = array();
 
         if (isset($arr)) {
@@ -126,6 +123,7 @@ class Info extends \Controller\Make_Controller {
         $this->set('siteconf', $CONF);
         $this->set('gender_chked', gender_chked($arr));
         $this->set('mb', $mb);
+        $this->set('max_pfimg_size', Func::getbyte(SET_MAX_PFIMG_UPLOAD, 'k'));
     }
 
     public function form()
@@ -138,9 +136,10 @@ class Info extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for Info
-***/
+//
+// Controller for submit
+// ( Info )
+//
 class Info_submit {
 
     public function init()
@@ -152,9 +151,7 @@ class Info_submit {
         $req = Method::request('post', 'mode, email, pwd, pwd2, name, gender, phone_chg, phone, phone_code, telephone, address1, address2, address3, email_chg_cc');
         $file = Method::request('file', 'profileimg');
 
-        if (!IS_MEMBER) {
-            Valid::error('', SET_NOAUTH_MSG);
-        }
+        if (!IS_MEMBER) Valid::error('', SET_NOAUTH_MSG);
 
         switch ($req['mode']) {
             case 'mdf' :
@@ -164,15 +161,18 @@ class Info_submit {
             case 'lv' :
                 $this->get_lv();
                 break;
+
+            default :
+                Valid::error('', ERR_MSG_9);
         }
     }
 
-    ///
+    //
     // 회원 정보 변경
-    ///
+    //
     private function get_mdf()
     {
-        global $MB, $CONF, $req, $file;
+        global $CONF, $MB, $req, $file;
 
         $sql = new Pdosql();
         $mail = new Mail();
@@ -188,15 +188,12 @@ class Info_submit {
             )
         );
 
-        //기존 회원 정보에 이메일이 없다면 수정 금지
-        if (!$req['email'] && $req['email_chg_cc'] != 'checked' && !$MB['email']) {
-            Valid::error('email', '기존 회원정보에 이메일 정보가 없어 수정이 불가합니다. 수정 전 이메일 변경 먼저 해주세요.');
-        }
+        // 기존 회원 정보에 이메일이 없다면 수정 금지
+        if (!$req['email'] && $req['email_chg_cc'] != 'checked' && !$MB['email']) Valid::error('email', '기존 회원정보에 이메일 정보가 없어 수정이 불가합니다. 수정 전 이메일 변경 먼저 해주세요.');
 
-        //비밀번호가 입력된 경우
-        if ($req['pwd'] != $req['pwd2']) {
-            Valid::error('pwd2', '비밀번호와 비밀번호 확인이 일치하지 않습니다.');
-        }
+        // 비밀번호가 입력된 경우
+        if ($req['pwd'] != $req['pwd2']) Valid::error('pwd2', '비밀번호와 비밀번호 확인이 일치하지 않습니다.');
+
         if ($req['pwd'] != '') {
             Valid::get(
                 array(
@@ -209,12 +206,11 @@ class Info_submit {
             );
         }
 
-        //이메일이 입력된 경우
+        // 이메일이 입력된 경우
         $mb_email_chg = $MB['email_chg'];
 
-        if ($req['email'] != '' && $req['email'] == $MB['email']) {
-            Valid::error('email', '회원님이 이미 사용중인 이메일입니다.');
-        }
+        if ($req['email'] != '' && $req['email'] == $MB['email']) Valid::error('email', '회원님이 이미 사용중인 이메일입니다.');
+
         if ($req['email'] != '') {
             Valid::get(
                 array(
@@ -228,9 +224,9 @@ class Info_submit {
 
             $sql->query(
                 "
-                SELECT COUNT(*) AS total
-                FROM {$sql->table("member")}
-                WHERE mb_email=:col1 AND mb_email!=:col2 AND mb_dregdate IS NULL
+                select count(*) as total
+                from {$sql->table("member")}
+                where mb_email=:col1 and mb_email!=:col2 and mb_dregdate is null
                 ",
                 array(
                     $req['email'],
@@ -238,13 +234,11 @@ class Info_submit {
                 )
             );
 
-            if ($sql->fetch('total') > 0) {
-                Valid::error('email', '다른 회원이 사용중인 이메일입니다.');
-            }
+            if ($sql->fetch('total') > 0) Valid::error('email', '다른 회원이 사용중인 이메일입니다.');
             $mb_email_chg = $req['email'];
         }
 
-        //이메일이 입력된 경우 인증 메일 발송
+        // 이메일이 입력된 경우 인증 메일 발송
         if ($req['email'] != '') {
             $chk_code = md5(date('YmdHis').$req['email']);
             $chk_url = PH_DOMAIN.'/sign/emailchk?chk_code='.$chk_code;
@@ -266,10 +260,10 @@ class Info_submit {
 
             $sql->query(
                 "
-                INSERT INTO {$sql->table("mbchk")}
-                (mb_idx,chk_code,chk_chk,chk_mode,chk_regdate)
-                VALUES
-                (:col1,:col2,'N','chg',now())
+                insert into {$sql->table("mbchk")}
+                (mb_idx, chk_code, chk_chk, chk_mode, chk_regdate)
+                values
+                (:col1, :col2, 'N', 'chg', now())
                 ",
                 array(
                     MB_IDX,
@@ -278,97 +272,76 @@ class Info_submit {
             );
         }
 
-        //이메일 변경 취소
-        if (!$req['email'] && $req['email_chg_cc'] == 'checked') {
-            $mb_email_chg = '';
-        }
+        // 이메일 변경 취소
+        if (!$req['email'] && $req['email_chg_cc'] == 'checked') $mb_email_chg = '';
 
-        //휴대전화 번호 검사
+        // 휴대전화 번호 검사
         $mb_phone = $req['phone'];
 
-        if ($MB['phone'] && !$req['phone'] && $CONF['use_phonechk'] == 'Y') {
-            $mb_phone = $MB['phone'];
-        }
+        if ($MB['phone'] && !$req['phone'] && $CONF['use_phonechk'] == 'Y') $mb_phone = $MB['phone'];
 
-        $null = true;
-        if ($CONF['use_mb_phone'] == 'Y') {
-            $null = false;
-        }
         Valid::get(
             array(
                 'input' => 'phone',
                 'value' => $mb_phone,
                 'check' => array(
-                    'null' => $null,
+                    'null' => ($CONF['use_mb_phone'] == 'Y') ? false : true,
                     'defined' => 'phone'
                 )
             )
         );
 
-
         if ($CONF['use_phonechk'] == 'Y' && $CONF['use_sms'] == 'Y' && $req['phone']) {
 
-            //중복 확인
+            // 중복 확인
             $sql->query(
                 "
-                SELECT COUNT(*) AS total
-                FROM {$sql->table("member")}
-                WHERE mb_phone=:col1 AND mb_dregdate IS NULL
+                select count(*) as total
+                from {$sql->table("member")}
+                where mb_phone=:col1 and mb_dregdate is null
                 ",
                 array(
                     $req['phone']
                 )
             );
-            if ($sql->fetch('total') > 0) {
-                Valid::error('phone', '이미 등록된 휴대전화 번호입니다.');
-            }
+            if ($sql->fetch('total') > 0) Valid::error('phone', '이미 등록된 휴대전화 번호입니다.');
 
-            //인증여부 확인
+            // 인증여부 확인
             $sql->query(
                 "
-                SELECT COUNT(*) AS total
-                FROM {$sql->table("mbchk")}
-                WHERE chk_code=:col1 AND chk_mode='pchk' AND chk_chk='Y' AND chk_dregdate IS NULL
-                ORDER BY chk_regdate DESC
-                LIMIT 1
+                select count(*) as total
+                from {$sql->table("mbchk")}
+                where chk_code=:col1 and chk_mode='pchk' and chk_chk='Y' and chk_dregdate is null
+                order by chk_regdate desc
+                limit 1
                 ",
                 array(
                     $req['phone'].':'.$req['phone_code']
                 )
             );
-            if ($sql->fetch('total') < 1) {
-                Valid::error('phone', '인증되지 않은 휴대전화 번호입니다. 휴대전화를 인증해주세요.');
-            }
+            if ($sql->fetch('total') < 1) Valid::error('phone', '인증되지 않은 휴대전화 번호입니다. 휴대전화를 인증해주세요.');
 
         }
 
-        //전화번호 검사
-        $null = true;
-        if ($CONF['use_mb_telephone'] == 'Y') {
-            $null = false;
-        }
+        // 전화번호 검사
         Valid::get(
             array(
                 'input' => 'telephone',
                 'value' => $req['telephone'],
                 'check' => array(
-                    'null' => $null,
+                    'null' => ($CONF['use_mb_telephone'] == 'Y') ? false : true,
                     'defined' => 'phone'
                 )
             )
         );
 
-        //주소 검사
-        $null = true;
-        if ($CONF['use_mb_address'] == 'Y') {
-            $null = false;
-        }
+        // 주소 검사
         Valid::get(
             array(
                 'input' => 'address1',
                 'value' => $req['address1'],
                 'check' => array(
-                    'null' => $null
+                    'null' => ($CONF['use_mb_address'] == 'Y') ? false : true
                 )
             )
         );
@@ -377,7 +350,7 @@ class Info_submit {
                 'input' => 'address2',
                 'value' => $req['address2'],
                 'check' => array(
-                    'null' => $null
+                    'null' => ($CONF['use_mb_address'] == 'Y') ? false : true
                 )
             )
         );
@@ -386,66 +359,59 @@ class Info_submit {
                 'input' => 'address3',
                 'value' => $req['address3'],
                 'check' => array(
-                    'null' => $null
+                    'null' => ($CONF['use_mb_address'] == 'Y') ? false : true
                 )
             )
         );
 
-        //프로필 이미지 첨부
-        $uploader->path= PH_DATA_PATH.'/memberprofile';
+        // 프로필 이미지 처리
+        $uploader->path = PH_DATA_PATH.'/memberprofile';
         $uploader->chkpath();
 
         $profileimg_name = '';
 
-        if ($file['profileimg']['size'] > 0) {
+        if (isset($file['profileimg'])) {
             $uploader->file = $file['profileimg'];
             $uploader->intdict = SET_IMGTYPE;
-            if ($uploader->chkfile('match') !== true) {
-                Valid::error('profileimg', '허용되지 않는 프로필 이미지 유형입니다.');
-            }
-            if ($uploader->chkbyte(512000) !== true) {
-                Valid::error('profileimg', '프로필 이미지 용량이 허용 용량을 초과합니다.');
-            }
+
+            if ($uploader->chkfile('match') !== true) Valid::error('profileimg', '허용되지 않는 프로필 이미지 유형입니다.');
+            if ($uploader->chkbyte(SET_MAX_PFIMG_UPLOAD) !== true) Valid::error('profileimg', '프로필 이미지 용량이 허용 용량을 초과합니다.');
             $profileimg_name = $uploader->replace_filename($file['profileimg']['name']);
-            if (!$uploader->upload($profileimg_name)) {
-                Valid::error('profileimg', '프로필 이미지 업로드 실패');
-            }
-        }
-        if (($file['profileimg']['size'] > 0 && $MB['profileimg'] != '')) {
-            $uploader->drop($MB['profileimg']);
-        }
-        if ($MB['profileimg'] != '' && !$file['profileimg']['name']) {
-            $profileimg_name = $MB['profileimg'];
+            if (!$uploader->upload($profileimg_name)) Valid::error('profileimg', '프로필 이미지 업로드 실패');
         }
 
-        //update
+        if ((isset($file['profileimg']) && $MB['profileimg'] != '')) $uploader->drop($MB['profileimg']);
+        if ($MB['profileimg'] != '' && !isset($file['profileimg'])) $profileimg_name = $MB['profileimg'];
+
+        // update
         if ($req['pwd'] != '') {
             $sql->query(
                 "
-                UPDATE {$sql->table("member")}
-                SET mb_pwd={$sql->set_password($req['pwd'])},mb_name=:col1,mb_gender=:col2,mb_phone=:col3,mb_address=:col4,mb_telephone=:col5,mb_email_chg=:col6,mb_profileimg=:col7
-                WHERE mb_idx=:col8 AND mb_dregdate IS NULL
+                update {$sql->table("member")}
+                set mb_pwd={$sql->set_password($req['pwd'])}, mb_name=:col2, mb_gender=:col3, mb_phone=:col4, mb_address=:col5, mb_telephone=:col6, mb_email_chg=:col7, mb_profileimg=:col8
+                where mb_idx=:col1 and mb_dregdate is null
                 ",
                 array(
+                    MB_IDX,
                     $req['name'],
                     $req['gender'],
                     $mb_phone,
                     $req['address1'].'|'.$req['address2'].'|'.$req['address3'],
                     $req['telephone'],
                     $mb_email_chg,
-                    $profileimg_name,
-                    MB_IDX
+                    $profileimg_name
                 )
             );
 
         } else {
             $sql->query(
                 "
-                UPDATE {$sql->table("member")}
-                SET mb_pwd=:col1,mb_name=:col2,mb_gender=:col3,mb_phone=:col4,mb_address=:col5,mb_telephone=:col6,mb_email_chg=:col7,mb_profileimg=:col8
-                WHERE mb_idx=:col9 AND mb_dregdate IS NULL
+                update {$sql->table("member")}
+                set mb_pwd=:col2, mb_name=:col3, mb_gender=:col4, mb_phone=:col5, mb_address=:col6, mb_telephone=:col7, mb_email_chg=:col8, mb_profileimg=:col9
+                where mb_idx=:col1 and mb_dregdate is null
                 ",
                 array(
+                    MB_IDX,
                     $MB['pwd'],
                     $req['name'],
                     $req['gender'],
@@ -453,13 +419,12 @@ class Info_submit {
                     $req['address1'].'|'.$req['address2'].'|'.$req['address3'],
                     $req['telephone'],
                     $mb_email_chg,
-                    $profileimg_name,
-                    MB_IDX
+                    $profileimg_name
                 )
             );
         }
 
-        //return
+        // return
         Valid::set(
             array(
                 'return' => 'alert->reload',
@@ -469,9 +434,9 @@ class Info_submit {
         Valid::turn();
     }
 
-    ///
+    //
     // 회원 탈퇴
-    ///
+    //
     private function get_lv()
     {
         global $MB;
@@ -479,31 +444,28 @@ class Info_submit {
         $sql = new Pdosql();
         $uploader = new Uploader();
 
-        if ($MB['adm'] == 'Y') {
-            Valid::error('', '최고 관리자는 탈퇴할 수 없습니다.');
-        }
+        if ($MB['adm'] == 'Y') Valid::error('', '최고 관리자는 탈퇴할 수 없습니다.');
 
-        //delete
+        // delete
         $sql->query(
             "
-            UPDATE {$sql->table("member")}
-            SET mb_dregdate=now()
-            WHERE mb_idx=:col1 AND mb_dregdate IS NULL
+            update {$sql->table("member")}
+            set mb_dregdate=now()
+            where mb_idx=:col1 and mb_dregdate is null
             ",
             array(
                 MB_IDX
             )
         );
 
-        //로그인 세션 삭제
+        // 로그인 세션 삭제
         Session::drop_sess();
 
-        //프로필 이미지 삭제
+        // 프로필 이미지 삭제
         $uploader->path= PH_DATA_PATH.'/memberprofile';
-        $uploader->chkpath();
         $uploader->drop($MB['profileimg']);
 
-        //return
+        // return
         Valid::set(
             array(
                 'return' => 'alert->location',
@@ -515,9 +477,10 @@ class Info_submit {
     }
 }
 
-/***
-Point list
-***/
+//
+// Controller for display
+// https://{domain}/member/point
+//
 class point extends \Controller\Make_Controller {
 
     public function init()
@@ -536,15 +499,13 @@ class point extends \Controller\Make_Controller {
 
         Func::getlogin(SET_NOAUTH_MSG);
 
-        $paging->setlimit(SET_LIST_LIMIT);
-
         $sql->query(
             $paging->query(
                 "
-                SELECT *
-                FROM {$sql->table("mbpoint")}
-                WHERE mb_idx=:col1
-                ORDER BY regdate DESC
+                select *
+                from {$sql->table("mbpoint")}
+                where mb_idx=:col1
+                order by regdate desc
                 ",
                 array(
                     MB_IDX
@@ -564,19 +525,20 @@ class point extends \Controller\Make_Controller {
 
                 $print_arr[] = $arr;
 
-            } while($sql->nextRec());
+            } while ($sql->nextRec());
         }
 
         $this->set('print_arr', $print_arr);
-        $this->set('pagingprint', $paging->pagingprint(''));
+        $this->set('pagingprint', $paging->pagingprint());
         $this->set('total_point', Func::number($MB['point']));
     }
 
 }
 
-/***
-Warning
-***/
+//
+// Controller for display
+// https://{domain}/member/warning
+//
 class Warning extends \Controller\Make_Controller {
 
     public function init()
@@ -588,7 +550,7 @@ class Warning extends \Controller\Make_Controller {
 
     public function make()
     {
-        global $MB,$ip_qry;
+        global $MB, $ip_qry;
 
         $sql = new Pdosql();
 
@@ -596,10 +558,10 @@ class Warning extends \Controller\Make_Controller {
 
         $sql->query(
             "
-            SELECT *, COUNT(*) AS total
-            FROM {$sql->table("blockmb")}
-            WHERE (ip=:col1 OR ip=:col2 OR ip=:col3 OR ip=:col4) OR (mb_idx=:col5 AND mb_id=:col6)
-            LIMIT 1
+            select *, count(*) as total
+            from {$sql->table("blockmb")}
+            where (ip=:col1 or ip=:col2 or ip=:col3 or ip=:col4) or (mb_idx=:col5 and mb_id=:col6)
+            limit 1
             ",
             array(
                 $ip_qry[0],
@@ -611,13 +573,9 @@ class Warning extends \Controller\Make_Controller {
             )
         );
 
-        if ($sql->fetch('total') < 1) {
-            Func::err_location('차단 내역이 없습니다.', PH_DOMAIN);
-        }
+        if ($sql->fetch('total') < 1) Func::err_location('차단 내역이 없습니다.', PH_DOMAIN);
 
-        $msg = $sql->fetch('memo');
-
-        $this->set('msg', $msg);
+        $this->set('msg', $sql->fetch('memo'));
     }
 
 }

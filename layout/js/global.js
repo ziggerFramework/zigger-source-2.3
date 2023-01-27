@@ -1,6 +1,6 @@
-///
+//
 // Popup
-///
+//
 var SitePopup = {
     'init' : function() {
         this.action();
@@ -15,7 +15,7 @@ var SitePopup = {
                 e.preventDefault();
                 $(this).parents('.ph-pop').remove();
             }
-        })
+        });
         $ele.closeTodayBtn.on({
             'click' : function(e) {
                 e.preventDefault();
@@ -23,16 +23,16 @@ var SitePopup = {
                 setCookie("ph_pop_"+idx, 1, 1);
                 $(this).parents('.ph-pop').remove();
             }
-        })
+        });
     }
 }
 $(function() {
     SitePopup.init();
-})
+});
 
-///
+//
 // 휴대전화번호 SMS 인증 코드 발송 및 검증
-///
+//
 var Get_phonecheck = {
     'init' : function() {
         this.action();
@@ -107,23 +107,27 @@ var Get_phonecheck = {
 }
 $(function() {
     Get_phonecheck.init();
-})
+});
 
-///
+//
 // 카카오 주소검색
-///
+//
 var Get_kakaoAddress = {
     'init' : function() {
         this.action();
     },
     'action' : function() {
+        if (typeof PH_KPOSTCODE_API_URL == 'undefined' || typeof PH_KPOSTCODE_API_URL == 'null') {
+            return false;
+        }
+
         var $ele = {
             'wrap' : $('#get-address-search-wrap'),
             'searchBtn' : $('#get-address-search-wrap').find('.search-address-btn'),
         }
 
         var script = document.createElement('script');
-        script.src = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+        script.src = PH_KPOSTCODE_API_URL;
         document.getElementsByTagName('head')[0].appendChild(script);
 
         var getSearch = function() {
@@ -153,9 +157,9 @@ var Get_kakaoAddress = {
             'click' : function() {
                 getSearch();
             }
-        })
+        });
     },
 }
 $(function() {
     Get_kakaoAddress.init();
-})
+});

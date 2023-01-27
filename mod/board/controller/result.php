@@ -7,6 +7,10 @@ use Make\Library\Paging;
 use Make\Database\Pdosql;
 use Module\Board\Library as Board_Library;
 
+//
+// Module Controller
+// ( Result )
+//
 class Result extends \Controller\Make_Controller {
 
     public function init()
@@ -17,9 +21,7 @@ class Result extends \Controller\Make_Controller {
 
         $board_id = (isset($req['board_id'])) ? $req['board_id'] : $MOD_CONF['id'];
 
-        if ($req['is_ftlist'] == 'Y') {
-            $board_id = $req['board_id'];
-        }
+        if ($req['is_ftlist'] == 'Y') $board_id = $req['board_id'];
 
         $boardlib = new Board_Library();
         $boardconf = $boardlib->load_conf($board_id);
@@ -29,41 +31,36 @@ class Result extends \Controller\Make_Controller {
 
     public function func()
     {
-        //전체 게시글 갯수
+        // 전체 게시글 개수
         function total_cnt($notice_cnt, $total_cnt)
         {
             return Func::number($notice_cnt + $total_cnt);
         }
 
-        //제목
+        // 제목
         function print_subject($arr)
         {
             global $boardconf;
 
-            if (!$arr['dregdate']) {
+            if (!$arr['subject']) return reply_ico($arr).'제목이 설정되지 않은 게시글입니다.';
 
+            if (!$arr['dregdate']) {
                 return reply_ico($arr).Func::strcut($arr['subject'],0,$boardconf['sbj_limit']);
+
             } else {
                 return reply_ico($arr).'<strike>'.$arr['dregdate'].'에 삭제된 게시글입니다.'.'</strike>';
             }
         }
 
-        //링크
+        // link
         function get_link($arr, $page, $category, $where, $keyword, $thisuri)
         {
             $link = $thisuri.'/'.$arr['idx'];
             $param = array();
-            $vars = array(
-                'page' => $page,
-                'category' => $category,
-                'where' => $where,
-                'keyword' => $keyword
-            );
+            $vars = array('page' => $page, 'category' => $category, 'where' => $where, 'keyword' => $keyword);
 
             foreach ($vars as $key => $value) {
-                if ($value != '') {
-                    $param[] = $key.'='.$value;
-                }
+                if ($value != '') $param[] = $key.'='.$value;
             }
 
             $paramImp = implode('&', $param);
@@ -71,7 +68,7 @@ class Result extends \Controller\Make_Controller {
             return $link.Func::get_param_combine($paramImp, '?');
         }
 
-        //내용
+        // 내용
         function print_article($arr)
         {
             global $boardconf;
@@ -79,7 +76,7 @@ class Result extends \Controller\Make_Controller {
             return Func::strcut(strip_tags(Func::htmldecode($arr['article'])), 0, $boardconf['txt_limit']);
         }
 
-        //첨부파일 아이콘
+        // 첨부파일 아이콘
         function file_ico($arr)
         {
             global $boardconf;
@@ -88,7 +85,7 @@ class Result extends \Controller\Make_Controller {
             $is_file = false;
 
             if ($boardconf['ico_file'] == 'Y') {
-                for ($i = 1; $i<=2; $i++) {
+                for ($i = 1; $i <= 2; $i++) {
                     $file_type = Func::get_filetype($arr['file'.$i]);
 
                     if (Func::chkintd('match', $file_type, SET_IMGTYPE)) {
@@ -108,19 +105,17 @@ class Result extends \Controller\Make_Controller {
             }
         }
 
-        //답글 아이콘
+        // 답글 아이콘
         function reply_ico($arr)
         {
             $nbsp = '';
             if ($arr['rn'] > 0) {
-                for ($i = 1; $i <= $arr['rn']; $i++) {
-                    $nbsp .= '&nbsp;&nbsp;';
-                }
+                for ($i = 1; $i <= $arr['rn']; $i++) $nbsp .= '&nbsp;&nbsp;';
                 return $nbsp.'<img src="'.MOD_BOARD_THEME_DIR.'/images/reply-ico.png" align="absmiddle" title="답글" alt="답글" class="reply-ico" />&nbsp;';
             }
         }
 
-        //비밀글 아이콘
+        // 비밀글 아이콘
         function secret_ico($arr)
         {
             global $boardconf;
@@ -130,7 +125,7 @@ class Result extends \Controller\Make_Controller {
             }
         }
 
-        //NEW 아이콘
+        // new 아이콘
         function new_ico($arr)
         {
             global $boardconf;
@@ -138,12 +133,12 @@ class Result extends \Controller\Make_Controller {
             $now_date = date('Y-m-d H:i:s');
             $wr_date = date('Y-m-d H:i:s', strtotime($arr['regdate']));
 
-            if ( ((strtotime($now_date) - strtotime($wr_date)) / 60) < $boardconf['ico_new_case'] && $boardconf['ico_new'] == 'Y') {
+            if (((strtotime($now_date) - strtotime($wr_date)) / 60) < $boardconf['ico_new_case'] && $boardconf['ico_new'] == 'Y') {
                 return '<img src="'.MOD_BOARD_THEME_DIR.'/images/new-ico.png" align="absmiddle" title="NEW" alt="NEW" />';
             }
         }
 
-        //HOT 아이콘
+        // hot 아이콘
         function hot_ico($arr)
         {
             global $boardconf;
@@ -151,13 +146,13 @@ class Result extends \Controller\Make_Controller {
             $ico_hot_case = explode('|', $boardconf['ico_hot_case']);
 
             if ($boardconf['ico_hot'] == 'Y') {
-                if (($ico_hot_case[1] == 'AND' && $arr['likes_cnt'] >= $ico_hot_case[0] && $arr['view'] >= $ico_hot_case[2]) || ($ico_hot_case[1] == 'OR' && ($arr['likes_cnt'] >= $ico_hot_case[0] || $arr['view'] >= $ico_hot_case[2]))) {
+                if (($ico_hot_case[1] == 'and' && $arr['likes_cnt'] >= $ico_hot_case[0] && $arr['view'] >= $ico_hot_case[2]) || ($ico_hot_case[1] == 'OR' && ($arr['likes_cnt'] >= $ico_hot_case[0] || $arr['view'] >= $ico_hot_case[2]))) {
                     return '<img src="'.MOD_BOARD_THEME_DIR.'/images/hot-ico.png" align="absmiddle" title="HOT" alt="HOT" />';
                 }
             }
         }
 
-        //댓글 갯수
+        // 댓글 개수
         function comment_cnt($arr)
         {
             global $boardconf;
@@ -167,7 +162,7 @@ class Result extends \Controller\Make_Controller {
             }
         }
 
-        //관리 버튼
+        // 관리 버튼
         function ctr_btn()
         {
             global $MB, $boardconf;
@@ -177,28 +172,23 @@ class Result extends \Controller\Make_Controller {
             }
         }
 
-        //작성 버튼
+        // 작성 버튼
         function write_btn($page, $where, $keyword, $category, $thisuri)
         {
             global $MB, $boardconf;
 
             if ($MB['level'] <= $boardconf['write_level']) {
-                return '<a href="'.$thisuri.'?mode=write&category='.urlencode($category).'&page='.$page.'&where='.$where.'&keyword='.urlencode($keyword).'" class="btn1">글 작성</a>';
+                return '<a href="'.$thisuri.Func::get_param_combine('mode=write&category='.urlencode($category).'&page='.$page.'&where='.$where.'&keyword='.urlencode($keyword), '?').'" class="btn1">글 작성</a>';
             }
         }
 
-        //게시물 번호
+        // 게시물 번호
         function print_number($arr, $read, $paging)
         {
-            if ($read == $arr['idx']) {
-                return '<i class="fa fa-angle-right"></i>';
-
-            } else {
-                return $paging->getnum();
-            }
+            return ($read == $arr['idx']) ? '<i class="fa fa-angle-right"></i>' : $paging->getnum();
         }
 
-        //회원 프로필
+        // 회원 프로필
         function print_profileimg($arr)
         {
             if ($arr['mb_profileimg']) {
@@ -210,15 +200,10 @@ class Result extends \Controller\Make_Controller {
             }
         }
 
-        //회원 이름
-        function print_writer($arr)
+        // 회원 이름
+        function print_writer($arr, $thisuri)
         {
-            if ($arr['mb_idx'] != 0) {
-                return '<a href="#" data-profile="'.$arr['mb_idx'].'">'.$arr['writer'].'</a>';
-
-            } else {
-                return $arr['writer'];
-            }
+            return ($arr['mb_idx'] != 0) ? '<a href="'.$thisuri.'" data-profile="'.$arr['mb_idx'].'">'.$arr['writer'].'</a>' : $arr['writer'];
         }
 
         //카테고리
@@ -226,14 +211,12 @@ class Result extends \Controller\Make_Controller {
         {
             global $boardconf;
 
-            if (!$boardconf['category']) {
-                return;
-            }
+            if (!$boardconf['category']) return;
 
             $cat_exp = explode('|', $boardconf['category']);
             $html = '<ul>';
 
-            for ($i = 0; $i<=sizeOf($cat_exp); $i++) {
+            for ($i = 0; $i <= count($cat_exp); $i++) {
                 $j = $i - 1;
 
                 if ($j == -1) {
@@ -257,64 +240,49 @@ class Result extends \Controller\Make_Controller {
             return $html;
         }
 
-        //썸네일 추출
+        // 썸네일 추출
         function thumbnail($arr)
         {
             global $CONF, $board_id;
 
-            //본문내 첫번째 이미지 태그를 추출
+            // 본문내 첫번째 이미지 태그를 추출
             preg_match(REGEXP_IMG, Func::htmldecode($arr['article']), $match);
 
-            //썸네일의 파일 타입을 추출
+            // 썸네일의 파일 타입을 추출
             $file_type = array();
             for ($i = 1; $i <= 2; $i++) {
                 $file_type[$i] = Func::get_filetype($arr['file'.$i]);
             }
 
-            //조건에 따라 썸네일 HTML코드 리턴
+            // 조건에 따라 썸네일 HTML코드 리턴
             for ($i = 1; $i <= sizeof($file_type); $i++) {
                 if (Func::chkintd('match', $file_type[$i], SET_IMGTYPE)) {
                     $fileinfo = Func::get_fileinfo($arr['file'.$i]);
-                    if ($fileinfo['storage'] == 'Y') {
-                        $tmb = $fileinfo['replink'];
-
-                    } else {
-                        $tmb = PH_DOMAIN.MOD_BOARD_DATA_DIR.'/'.$board_id.'/thumb/'.$arr['file'.$i];
-                    }
+                    $tmb = ($fileinfo['storage'] == 'Y') ? $fileinfo['replink'] : PH_DOMAIN.MOD_BOARD_DATA_DIR.'/'.$board_id.'/thumb/'.$arr['file'.$i];
                 }
             }
 
             if (!isset($tmb)) {
-                if (isset($match[1])) {
-                    $tmb = $match[1];
-
-                } else {
-                    $tmb = '';
-                }
+                $tmb = (isset($match[1])) ? $match[1] : '';
             }
 
             return $tmb;
         }
 
-        //where selectbox 선택 처리
+        // where selectbox 선택 처리
         function where_slted($where)
         {
             $arr = array('all', 'subjectAndArticle', 'subject', 'article', 'writer', 'mb_id');
             $opt = array();
 
             foreach ($arr as $key => $value) {
-                if ($where == $value) {
-                    $opt[$value] = 'selected';
-
-                } else {
-                    $opt[$value] = '';
-                }
+                $opt[$value] = ($where == $value) ? 'selected' : '';
             }
 
             return $opt;
         }
 
-        //list arr setting
+        // list arr setting
         function get_listarr($req, $arr, $paging, $thisuri, $keyword, $category)
         {
             $arr['view'] = Func::number($arr['view']);
@@ -329,7 +297,7 @@ class Result extends \Controller\Make_Controller {
             $arr[0]['subject'] = print_subject($arr);
             $arr[0]['article'] = print_article($arr);
             $arr[0]['comment_cnt'] = comment_cnt($arr);
-            $arr[0]['writer'] = print_writer($arr);
+            $arr[0]['writer'] = print_writer($arr, $req['thisuri']);
             $arr[0]['profileimg'] = print_profileimg($arr);
             $arr[0]['thumbnail'] = thumbnail($arr);
 
@@ -345,33 +313,21 @@ class Result extends \Controller\Make_Controller {
         $boardlib = new Board_Library();
         $paging = new Paging();
 
-        $req = Method::request('get', 'page, where, keyword, read, category, is_ftlist');
+        $req = Method::request('get', 'page, where, keyword, read, category, thisuri, is_ftlist');
 
-        if (!$req['is_ftlist']) {
-            $board_id = $MOD_CONF['id'];
-        }
-
+        if (!$req['is_ftlist']) $board_id = $MOD_CONF['id'];
         if ($req['is_ftlist'] == 'Y') {
             $ft_req = Method::request('get','board_id, thisuri');
             $board_id = $ft_req['board_id'];
         }
 
-        if (isset($ft_req['thisuri'])) {
-            $thisuri = $ft_req['thisuri'];
+        $thisuri = (isset($ft_req['thisuri'])) ? $ft_req['thisuri'] : Func::thisuri();
 
-        } else {
-            $thisuri = Func::thisuri();
-        }
-
-        //add title
-        if (!$req['is_ftlist']) {
-            Func::add_title($boardconf['title']);
-        }
+        // add title
+        if (!$req['is_ftlist']) Func::add_title($boardconf['title']);
 
         //add stylesheet & javascript
-        if (!$req['is_ftlist']) {
-            $boardlib->print_headsrc($boardconf['theme']);
-        }
+        if (!$req['is_ftlist']) $boardlib->print_headsrc($boardconf['theme']);
 
         //접근 권한 검사
         if (!IS_MEMBER && $MB['level'] > $boardconf['list_level']) {
@@ -381,13 +337,11 @@ class Result extends \Controller\Make_Controller {
             Func::err_location('접근 권한이 없습니다.', PH_DOMAIN);
         }
 
-        //카테고리 처리
+        // 카테고리 처리
         $category = urldecode($req['category']);
         $search = '';
 
-        if ($category) {
-            $search = 'AND board.category=\''.$req['category'].'\'';
-        }
+        if ($category) $search = 'and board.category=\''.$req['category'].'\'';
 
         //검색 키워드 처리
         $keyword = htmlspecialchars(urlencode($req['keyword']));
@@ -398,9 +352,9 @@ class Result extends \Controller\Make_Controller {
 
             switch ($req['where']) {
                 case 'subjectAndArticle' :
-                    $search .= 'AND (';
+                    $search .= 'and (';
                     $search .= 'board.subject like \'%'.$req['keyword'].'%\'';
-                    $search .= 'OR board.article like \'%'.$req['keyword'].'%\'';
+                    $search .= 'or board.article like \'%'.$req['keyword'].'%\'';
                     $search .= ')';
                     break;
 
@@ -408,77 +362,36 @@ class Result extends \Controller\Make_Controller {
                 case 'article' :
                 case 'writer' :
                 case 'mb_id' :
-                    $search .= 'AND board.'.$req['where'].' like \'%'.$req['keyword'].'%\'';
+                    $search .= 'and board.'.$req['where'].' like \'%'.$req['keyword'].'%\'';
                     break;
 
                 default :
-                    $search .= 'AND (';
+                    $search .= 'and (';
                     foreach ($where_arr as $key => $value) {
-                        $search .= ($key > 0 ? ' OR ' : '').'board.'.$value.' like \'%'.$req['keyword'].'%\'';
+                        $search .= ($key > 0 ? ' or ' : '').'board.'.$value.' like \'%'.$req['keyword'].'%\'';
                     }
                     $search .= ')';
             }
         }
 
-        if ($boardconf['use_category'] == 'Y' && $boardconf['category'] != '') {
-            $is_category_show = true;
+        $is_category_show = ($boardconf['use_category'] == 'Y' && $boardconf['category'] != '') ? true : false;
+        $is_ctr_show = ($MB['level'] <= $boardconf['ctr_level'] || $MB['adm'] == 'Y') ? true : false;
+        $is_comment_show = ($boardconf['use_comment'] == 'Y') ? true : false;
+        $is_likes_show = ($boardconf['use_likes'] == 'Y') ? true : false;
+        $is_tf_source_show = ($req['is_ftlist'] == 'Y') ? false : true;
 
-        } else {
-            $is_category_show = false;
-        }
-
-        if ($MB['level'] <= $boardconf['ctr_level'] || $MB['adm'] == 'Y') {
-            $is_ctr_show = true;
-
-        } else {
-            $is_ctr_show = false;
-        }
-
-        if ($boardconf['use_comment'] == 'Y') {
-            $is_comment_show = true;
-
-        } else {
-            $is_comment_show = false;
-        }
-
-        if ($boardconf['use_likes'] == 'Y') {
-            $is_likes_show = true;
-
-        } else {
-            $is_likes_show = false;
-        }
-
-        if ($req['is_ftlist'] == 'Y') {
-            $is_tf_source_show = false;
-
-        } else {
-            $is_tf_source_show = true;
-        }
-
-        //notice
+        // notice
         $sql->query(
             "
-            SELECT *, member.mb_profileimg,
-            (
-                SELECT COUNT(*)
-                FROM {$sql->table("mod:board_cmt_".$board_id)}
-                WHERE bo_idx=board.idx
-            ) comment_cnt,
-            (
-                SELECT COUNT(*)
-                FROM {$sql->table("mod:board_like")}
-                WHERE id='$board_id' AND data_idx=board.idx AND likes>0
-            ) likes_cnt,
-            (
-                SELECT COUNT(*)
-                FROM {$sql->table("mod:board_like")}
-                WHERE id='$board_id' AND data_idx=board.idx AND unlikes>0
-            ) unlikes_cnt
-            FROM {$sql->table("mod:board_data_".$board_id)} board
-            LEFT OUTER JOIN {$sql->table("member")} member
-            ON board.mb_idx=member.mb_idx
-            WHERE board.use_notice='Y'
-            ORDER BY board.regdate DESC
+            select *, member.mb_profileimg,
+            ( select count(*) from {$sql->table("mod:board_cmt_".$board_id)} where bo_idx=board.idx ) comment_cnt,
+            ( select count(*) from {$sql->table("mod:board_like")} where id='$board_id' and data_idx=board.idx and likes>0 ) likes_cnt,
+            ( select count(*) from {$sql->table("mod:board_like")} where id='$board_id' and data_idx=board.idx and unlikes>0 ) unlikes_cnt
+            from {$sql->table("mod:board_data_".$board_id)} board
+            left outer join {$sql->table("member")} member
+            on board.mb_idx=member.mb_idx
+            where board.use_notice='Y'
+            order by board.regdate desc
             ", []
         );
         $notice_cnt = $sql->getcount();
@@ -492,34 +405,22 @@ class Result extends \Controller\Make_Controller {
             } while ($sql->nextRec());
         }
 
-        //list
+        // list
         $paging->thispage = $thisuri;
         $paging->setlimit($boardconf['list_limit']);
 
         $sql->query(
             $paging->query(
                 "
-                SELECT *, member.mb_profileimg,
-                (
-                    SELECT COUNT(*)
-                    FROM {$sql->table("mod:board_cmt_".$board_id)}
-                    WHERE bo_idx=board.idx
-                ) comment_cnt,
-                (
-                    SELECT COUNT(*)
-                    FROM {$sql->table("mod:board_like")}
-                    WHERE id='$board_id' AND data_idx=board.idx AND likes>0
-                ) likes_cnt,
-                (
-                    SELECT COUNT(*)
-                    FROM {$sql->table("mod:board_like")}
-                    WHERE id='$board_id' AND data_idx=board.idx AND unlikes>0
-                ) unlikes_cnt
-                FROM {$sql->table("mod:board_data_".$board_id)} board
-                LEFT OUTER JOIN {$sql->table("member")} member
-                ON board.mb_idx=member.mb_idx
-                WHERE board.use_notice='N' $search
-                ORDER BY board.ln DESC, board.rn ASC, board.regdate DESC
+                select *, member.mb_profileimg,
+                ( select count(*) from {$sql->table("mod:board_cmt_".$board_id)} where bo_idx=board.idx ) comment_cnt,
+                ( select count(*) from {$sql->table("mod:board_like")} where id='$board_id' and data_idx=board.idx and likes>0 ) likes_cnt,
+                ( select count(*) from {$sql->table("mod:board_like")} where id='$board_id' and data_idx=board.idx and unlikes>0 ) unlikes_cnt
+                from {$sql->table("mod:board_data_".$board_id)} board
+                left outer join {$sql->table("member")} member
+                on board.mb_idx=member.mb_idx
+                where board.use_notice='N' $search
+                order by board.ln DESC, board.rn asc, board.regdate desc
                 ", []
             )
         );

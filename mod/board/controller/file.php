@@ -6,6 +6,10 @@ use Corelib\Func;
 use Make\Database\Pdosql;
 use Make\Library\Uploader;
 
+//
+// Module Controller
+// ( Down )
+//
 class Down extends \Controller\Make_Controller {
 
     public function init()
@@ -18,31 +22,27 @@ class Down extends \Controller\Make_Controller {
 
         $board_id = $req['board_id'];
 
-        if (!$board_id) {
-            Func::err('board_id 가 누락되었습니다.');
-        }
+        if (!$board_id) Func::err('board_id 가 누락되었습니다.');
 
-        //게시글의 첨부파일 정보 불러옴
+        // 게시글의 첨부파일 정보 불러옴
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("mod:board_data_".$board_id)}
-            WHERE file1=:col1 OR file2=:col1
+            select *
+            from {$sql->table("mod:board_data_".$board_id)}
+            where file1=:col1 or file2=:col1
             ",
             array(
                 $req['file']
             )
         );
 
-        //첨부파일이 확인되지 않는 경우
-        if ($sql->getcount() < 1) {
-            Func::err('첨부파일이 확인되지 않습니다.');
-        }
+        // 첨부파일이 확인되지 않는 경우
+        if ($sql->getcount() < 1) Func::err('첨부파일이 확인되지 않습니다.');
 
-        //파일 정보
+        // 파일 정보
         $fileinfo = Func::get_fileinfo($req['file']);
 
-        //Object Storage에 저장된 파일인 경우
+        // Object Storage에 저장된 파일인 경우
         if ($fileinfo['storage'] == 'Y') {
 
             $ch = curl_init();
@@ -70,7 +70,7 @@ class Down extends \Controller\Make_Controller {
 
         }
 
-        //Local에 저장된 파일인 경우
+        // Local에 저장된 파일인 경우
         else if ($fileinfo['storage'] == 'N') {
 
             $fileinfo = array();
@@ -79,16 +79,16 @@ class Down extends \Controller\Make_Controller {
             $fileinfo['parts'] = pathinfo($fileinfo['path']);
             $fileinfo['name'] = $fileinfo['parts']['basename'];
 
-            //파일 다운로드 스트림
+            // 파일 다운로드 스트림
             $file_datainfo = Func::get_fileinfo($fileinfo['name']);
 
-            Header('Content-Type:application/octet-stream');
-            Header('Content-Disposition:attachment; filename='.$file_datainfo['orgfile']);
-            Header('Content-Transfer-Encoding:binary');
-            Header('Content-Length:'.(string)$fileinfo['size']);
-            Header('Cache-Control:Cache,must-revalidate');
-            Header('Pragma:No-Cache');
-            Header('Expires:0');
+            header('Content-Type:application/octet-stream');
+            header('Content-Disposition:attachment; filename='.$file_datainfo['orgfile']);
+            header('Content-Transfer-Encoding:binary');
+            header('Content-Length:'.(string)$fileinfo['size']);
+            header('Cache-Control:Cache,must-revalidate');
+            header('Pragma:No-Cache');
+            header('Expires:0');
             ob_clean();
             flush();
 
@@ -96,7 +96,7 @@ class Down extends \Controller\Make_Controller {
 
         }
 
-        //파일 다운로드 횟수 증가
+        // 파일 다운로드 횟수 증가
         $qry_file = array();
         $qry_file_cnt = array();
 
@@ -104,25 +104,19 @@ class Down extends \Controller\Make_Controller {
             $downfile = urldecode($req['file']);
             $isfile = $sql->fetch('file'.$i);
 
-            if ($isfile == $downfile) {
-                $qry_file_cnt[$i] = 1;
-
-            } else {
-                $qry_file_cnt[$i] = 0;
-            }
+            $qry_file_cnt[$i] = ($isfile == $downfile) ? 1 : 0;
         }
 
         $sql->query(
             "
-            UPDATE {$sql->table("mod:board_data_".$board_id)}
-            SET file1_cnt=file1_cnt+:col1,file2_cnt=file2_cnt+:col2
-            WHERE file1=:col3 OR file2=:col3
+            update {$sql->table("mod:board_data_".$board_id)}
+            set file1_cnt=file1_cnt+:col2, file2_cnt=file2_cnt+:col3
+            where file1=:col1 or file2=:col1
             ",
             array(
-                $qry_file_cnt[1], $qry_file_cnt[2], $downfile
+                $downfile, $qry_file_cnt[1], $qry_file_cnt[2]
             )
         );
-
 
     }
 

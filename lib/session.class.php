@@ -5,9 +5,7 @@ class Session {
 
     static function set_sess($name,$val)
     {
-        if ($name == 'MB_IDX') {
-            SessionHandler::$dbinfo['mb_idx'] = $val;
-        }
+        if ($name == 'MB_IDX') SessionHandler::$dbinfo['mb_idx'] = $val;
         $_SESSION[$name] = $val;
     }
 
@@ -15,9 +13,7 @@ class Session {
     {
         global $_SESSION;
 
-        if ($name == 'MB_IDX') {
-            SessionHandler::$dbinfo['mb_idx'] = 0;
-        }
+        if ($name == 'MB_IDX') SessionHandler::$dbinfo['mb_idx'] = 0;
         unset($_SESSION[$name]);
     }
 
@@ -28,22 +24,12 @@ class Session {
 
     static function sess($name)
     {
-        if (isset($_SESSION[$name])) {
-            return $_SESSION[$name];
-
-        } else {
-            return null;
-        }
+        return (isset($_SESSION[$name])) ? $_SESSION[$name] : null;
     }
 
     static function is_sess($name)
     {
-        if (isset($_SESSION[$name])) {
-            return true;
-        } else {
-
-            return false;
-        }
+        return (isset($_SESSION[$name])) ? true : false;
     }
 
 }
@@ -69,9 +55,9 @@ class SessionHandler extends \Make\Database\Pdosql {
     {
         $this->query(
             "
-            SELECT *
-            FROM {$this->table("session")}
-            WHERE sesskey=:col1 AND expiry>
+            select *
+            from {$this->table("session")}
+            where sesskey=:col1 and expiry>
             ".time(),
             array(
                 $key
@@ -87,10 +73,10 @@ class SessionHandler extends \Make\Database\Pdosql {
             $this->expiry = time() + $this->sess_life;
             $this->query(
                 "
-                INSERT INTO {$this->table("session")}
-                (sesskey,expiry,value,mb_idx,ip,regdate)
+                insert into {$this->table("session")}
+                (sesskey, expiry, value, mb_idx, ip, regdate)
                 VALUES
-                (:col1,:col2,0,0,:col3,now())
+                (:col1, :col2, 0, 0, :col3, now())
                 ",
                 array(
                     $key,
@@ -112,9 +98,9 @@ class SessionHandler extends \Make\Database\Pdosql {
         if (isset(self::$dbinfo['mb_idx'])) {
             $this->query(
                 "
-                UPDATE {$this->table("session")}
-                SET expiry=:col1,value=:col2,regdate=now(),mb_idx=:col3
-                WHERE sesskey=:col4 AND expiry>
+                update {$this->table("session")}
+                set expiry=:col1, value=:col2, regdate=now(), mb_idx=:col3
+                where sesskey=:col4 and expiry>
                 ".time(),
                 array(
                     $this->expiry,
@@ -127,9 +113,9 @@ class SessionHandler extends \Make\Database\Pdosql {
         } else {
             $this->query(
                 "
-                UPDATE {$this->table("session")}
-                SET expiry=:col1,value=:col2,regdate=now()
-                WHERE sesskey=:col3 AND expiry>
+                update {$this->table("session")}
+                set expiry=:col1, value=:col2, regdate=now()
+                where sesskey=:col3 and expiry>
                 ".time(),
                 array(
                     $this->expiry,
@@ -145,9 +131,9 @@ class SessionHandler extends \Make\Database\Pdosql {
     {
         $this->query(
             "
-            DELETE
-            FROM {$this->table("session")}
-            WHERE sesskey=:col1
+            delete
+            from {$this->table("session")}
+            where sesskey=:col1
             ",
             array(
                 $key
@@ -159,11 +145,12 @@ class SessionHandler extends \Make\Database\Pdosql {
     public function gc(){
         $this->query(
             "
-            DELETE
-            FROM {$this->table("session")}
-            WHERE expiry<
+            delete
+            from {$this->table("session")}
+            where expiry<
             ".time(), ''
         );
+
         return true;
     }
 
@@ -188,6 +175,4 @@ if (SET_SESS_FILE !== true) {
     session_save_path(PH_SESSION_FILE_PATH);
 }
 
-if (ini_get('session.auto_start') != 1) {
-    session_start();
-}
+if (ini_get('session.auto_start') != 1) session_start();

@@ -10,33 +10,29 @@ $sql = new Pdosql();
 Method::security('request_get');
 $req = Method::request('get', 'idx, key');
 
-if (!$req['idx'] || !$req['key']) {
-    Func::location(PH_DOMAIN);
-}
+if (!$req['idx'] || !$req['key']) Func::location(PH_DOMAIN);
 
 $sql->query(
     "
-    SELECT link
-    FROM {$sql->table("banner")}
-    WHERE idx=:col1 AND bn_key=:col2
+    select link
+    from {$sql->table("banner")}
+    where idx=:col1 and bn_key=:col2
     ",
     array(
         $req['idx'], $req['key']
     )
 );
 
-if ($sql->getcount() < 1) {
-    Func::location(PH_DOMAIN);
-}
+if ($sql->getcount() < 1) Func::location(PH_DOMAIN.PH_DIR);
 
 $link = $sql->fetch('link');
 
 $sql->query(
     "
-    UPDATE
+    update
     {$sql->table("banner")}
-    SET hit=hit+1
-    WHERE idx=:col1 AND bn_key=:col2
+    set hit=hit+1
+    where idx=:col1 and bn_key=:col2
     ",
     array(
         $req['idx'], $req['key']

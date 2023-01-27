@@ -8,6 +8,10 @@ use Make\Library\Uploader;
 use Make\Library\Mail;
 use Module\Board\Library as Board_Library;
 
+//
+// Module Controller
+// ( Delete )
+//
 class Delete extends \Controller\Make_Controller {
 
     static private $show_pwdform = 0;
@@ -15,13 +19,9 @@ class Delete extends \Controller\Make_Controller {
 
     public function init()
     {
-        $this->layout()->view('');
-
-        if (Delete::$show_pwdform == 0) {
-            $this->layout()->view(MOD_BOARD_THEME_PATH.'/board/'.Delete::$boardconf['theme'].'/delete.tpl.php', false);
-        } else {
-            $this->layout()->view(MOD_BOARD_THEME_PATH.'/board/'.Delete::$boardconf['theme'].'/password.tpl.php', false);
-        }
+        $this->layout()->view();
+        $tpl = (Delete::$show_pwdform == 0) ? MOD_BOARD_THEME_PATH.'/board/'.Delete::$boardconf['theme'].'/delete.tpl.php' : MOD_BOARD_THEME_PATH.'/board/'.Delete::$boardconf['theme'].'/password.tpl.php';
+        $this->layout()->view($tpl, false);
     }
 
     public function make()
@@ -39,32 +39,28 @@ class Delete extends \Controller\Make_Controller {
         $board_id = $MOD_CONF['id'];
         Delete::$boardconf = $boardlib->load_conf($board_id);
 
-        //패스워드가 submit 된 경우
+        // 패스워드가 post로 submit 된 경우
         if (isset($req['s_password'])) {
-
             $s_req = Method::request('post','s_read, s_page, s_category, s_where, s_keyword');
             $req['read'] = $s_req['s_read'];
             $req['page'] = $s_req['s_page'];
             $req['category'] = $s_req['s_category'];
             $req['where'] = $s_req['s_where'];
             $req['keyword'] = $s_req['s_keyword'];
-
         }
 
-        //add stylesheet & javascript
+        // add stylesheet & javascript
         $boardlib->print_headsrc(Delete::$boardconf['theme']);
 
-        //check
-        if (!$board_id || !Delete::$boardconf['id']) {
-            Func::err_back(ERR_MSG_1);
-        }
+        // check
+        if (!$board_id || !Delete::$boardconf['id']) Func::err_back(ERR_MSG_1);
 
-        //원본 글 정보
+        // 원본 글 정보
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("mod:board_data_".$board_id)}
-            WHERE idx=:col1
+            select *
+            from {$sql->table("mod:board_data_".$board_id)}
+            where idx=:col1
             ",
             array(
                 $req['read']
@@ -72,7 +68,7 @@ class Delete extends \Controller\Make_Controller {
         );
         $arr = $sql->fetchs();
 
-        //권한 check
+        // 권한 check
         if ($MB['level'] <= Delete::$boardconf['ctr_level']) {
             $del_level = 1;
 
@@ -89,7 +85,7 @@ class Delete extends \Controller\Make_Controller {
             }
         }
 
-        //패스워드가 submit된 경우 패스워드가 일치 하는지 검사
+        // 패스워드가 submit된 경우 패스워드가 일치 하는지 검사
         if (isset($req['s_password'])) {
             if ($arr['pwd'] == $req['s_password']) {
                 $del_level = 1;
@@ -100,13 +96,11 @@ class Delete extends \Controller\Make_Controller {
             }
         }
 
-        //권한이 없는 경우 경고창
-        if ($del_level == 0) {
-            Func::arr_back('삭제 권한이 없습니다.');
-        }
+        // 권한이 없는 경우 경고창
+        if ($del_level == 0) Func::arr_back('삭제 권한이 없습니다.');
 
-        //패스워드 입력폼 노출
-        if ($del_level == 2 ){
+        // 패스워드 입력폼 노출
+        if ($del_level == 2) {
             Delete::$show_pwdform = 1;
 
             $this->set('mode', 'delete');
@@ -120,33 +114,36 @@ class Delete extends \Controller\Make_Controller {
             $this->set('bottom_source', Delete::$boardconf['bottom_source']);
         }
 
-        //delete
+        // delete
         if ($del_level == 1) {
 
-            //최소/최대 ln값 구함
+            // 최소/최대 ln값 구함
             $ln_min = (int)(ceil($arr['ln'] / 1000) * 1000) - 1000;
             $ln_max = (int)(ceil($arr['ln'] / 1000) * 1000);
 
-            //엮인 답글 갯수 구함
+            // 엮인 답글 갯수 구함
             if ($arr['rn'] < 1) {
 
                 $sql->query(
                     "
-                    SELECT *
-                    FROM {$sql->table("mod:board_data_".$board_id)}
-                    WHERE ln<=:col1 AND ln>:col2 AND rn>=:col3
+                    select *
+                    from {$sql->table("mod:board_data_".$board_id)}
+                    where ln<=:col1 and ln>:col2 and rn>=:col3
                     ",
                     array(
                         $ln_max, $ln_min, '0'
                     )
                 );
 
-            } else {
+            } else if ($arr['rn'] >= 1) {
 
                 $sql->query(
                     "
-                    SELECT MAX(ln)+1000 AS ln_max
-                    FROM {$sql->table("mod:board_data_".$board_id)}
+                    select ln
+                    from {$sql->table("mod:board_data_".$board_id)}
+                    where ln>=:col1 and ln<:col2 and rn=:col3
+                    order by ln desc
+                    limit 1
                     ",
                     array(
                         $ln_min, $arr['ln'], $arr['rn']
@@ -158,9 +155,9 @@ class Delete extends \Controller\Make_Controller {
 
                     $sql->query(
                         "
-                        SELECT *
-                        FROM {$sql->table("mod:board_data_".$board_id)}
-                        WHERE ln<=:col1 AND ln>:col2 AND rn>=:col3
+                        select *
+                        from {$sql->table("mod:board_data_".$board_id)}
+                        where ln<=:col1 and ln>:col2 and rn>=:col3
                         ",
                         array(
                             $arr['ln'], $ln_min, $arr['rn']
@@ -171,9 +168,9 @@ class Delete extends \Controller\Make_Controller {
 
                     $sql->query(
                         "
-                        SELECT *
-                        FROM {$sql->table("mod:board_data_".$board_id)}
-                        WHERE ln<=:col1 AND ln>:col2 AND rn>=:col3
+                        select *
+                        from {$sql->table("mod:board_data_".$board_id)}
+                        where ln<=:col1 and ln>:col2 and rn>=:col3
                         ",
                         array(
                             $arr['ln'], $ln_arr['ln'], $arr['rn']
@@ -181,17 +178,16 @@ class Delete extends \Controller\Make_Controller {
                     );
 
                 }
-
             }
 
             $rp_count = $sql->getcount();
 
-            //첨부파일 삭제
+            // 첨부파일 삭제
             $sql->query(
                 "
-                SELECT *
-                FROM {$sql->table("mod:board_data_".$board_id)}
-                WHERE idx=:col1
+                select *
+                from {$sql->table("mod:board_data_".$board_id)}
+                where idx=:col1
                 ",
                 array(
                     $req['read']
@@ -213,15 +209,15 @@ class Delete extends \Controller\Make_Controller {
                 }
             } while ($sql->nextRec());
 
-            //댓글 삭제 (엮인 글이 없는 경우)
+            // 댓글 삭제 (엮인 글이 없는 경우)
             if ($rp_count < 2) {
                 $bo_idx = $sql->fetch('idx');
 
                 $sql->query(
                     "
-                    DELETE
-                    FROM {$sql->table("mod:board_cmt_".$board_id)}
-                    WHERE idx=:col1
+                    delete
+                    from {$sql->table("mod:board_cmt_".$board_id)}
+                    where idx=:col1
                     ",
                     array(
                         $bo_idx
@@ -229,13 +225,13 @@ class Delete extends \Controller\Make_Controller {
                 );
             }
 
-            //delete (엮인 글이 없는 경우)
+            // delete (엮인 글이 없는 경우)
             if ($rp_count < 2) {
                 $sql->query(
                     "
-                    DELETE
-                    FROM {$sql->table("mod:board_data_".$board_id)}
-                    WHERE idx=:col1
+                    delete
+                    from {$sql->table("mod:board_data_".$board_id)}
+                    where idx=:col1
                     ",
                     array(
                         $req['read']
@@ -243,13 +239,13 @@ class Delete extends \Controller\Make_Controller {
                 );
             }
 
-            //modify (엮인 글이 있는 경우 dragdate만 변경)
+            // modify (엮인 글이 있는 경우 dragdate만 변경)
             if ($rp_count > 1) {
                 $sql->query(
                     "
-                    UPDATE {$sql->table("mod:board_data_".$board_id)}
-                    SET dregdate=now(),file1='',file2=''
-                    WHERE idx=:col1
+                    update {$sql->table("mod:board_data_".$board_id)}
+                    set dregdate=now(), file1='', file2=''
+                    where idx=:col1
                     ",
                     array(
                         $req['read']
@@ -257,8 +253,8 @@ class Delete extends \Controller\Make_Controller {
                 );
             }
 
-            //return
-            Func::location(PH_DOMAIN.Func::thisuri().Func::get_param_combine('page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category'])), '?');
+            // return
+            Func::location(PH_DOMAIN.Func::thisuri().Func::get_param_combine('page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category']), '?'));
         }
     }
 

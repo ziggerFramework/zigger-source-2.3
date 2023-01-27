@@ -3,13 +3,13 @@ namespace Module\Message;
 
 use Make\Database\Pdosql;
 
-///
+//
 // Module : Message Library
-///
+//
 
 class Library {
 
-    //새로운 메시지 카운팅
+    // 새로운 메시지 카운팅
     public function get_new_count()
     {
         $sql = new Pdosql();
@@ -18,9 +18,9 @@ class Library {
         if (IS_MEMBER) {
             $sql->query(
                 "
-                SELECT COUNT(*) AS total
-                FROM {$sql->table("mod:message")}
-                WHERE to_mb_idx=:col1 AND chked IS NULL
+                select count(*) as total
+                from {$sql->table("mod:message")}
+                where to_mb_idx=:col1 and chked is null
                 ",
                 array(
                     MB_IDX

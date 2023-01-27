@@ -10,6 +10,10 @@ use Make\Library\Mail;
 use Manage\ManageFunc;
 use Module\Board\Library as Board_Library;
 
+//
+// Controller for display
+// https://{domain}/manage/mod/board/result/result
+//
 class Result extends \Controller\Make_Controller {
 
     public function init()
@@ -36,9 +40,9 @@ class Result extends \Controller\Make_Controller {
 
             $sql->query(
                 "
-                SELECT *
-                FROM {$sql->table("mod:board_data_".$board_id)}
-                WHERE use_notice='Y' or use_notice='N'
+                select *
+                from {$sql->table("mod:board_data_".$board_id)}
+                where use_notice='Y' or use_notice='N'
                 ",
                 array(
                     $board_id
@@ -59,35 +63,27 @@ class Result extends \Controller\Make_Controller {
 
         $sql->query(
             "
-            SELECT
-            (
-                SELECT COUNT(*)
-                FROM {$sql->table("config")}
-                WHERE cfg_type like 'mod:board:config:%' AND cfg_key='id'
-            ) board_total
+            select
+            ( select count(*) from {$sql->table("config")} where cfg_type like 'mod:board:config:%' and cfg_key='id' ) board_total
             ", []
         );
         $sort_arr['board_total'] = $sql->fetch('board_total');
 
-        //orderby
-        if (!$PARAM['ordtg']) {
-            $PARAM['ordtg'] = 'config.cfg_regdate';
-        }
-        if (!$PARAM['ordsc']) {
-            $PARAM['ordsc'] = 'desc';
-        }
+        // orderby
+        if (!$PARAM['ordtg']) $PARAM['ordtg'] = 'config.cfg_regdate';
+        if (!$PARAM['ordsc']) $PARAM['ordsc'] = 'desc';
         $orderby = $PARAM['ordtg'].' '.$PARAM['ordsc'];
 
-        //list
+        // list
         $sql->query(
             $paging->query(
                 "
-                SELECT config.*,board_name_tbl.cfg_value AS board_name
-                FROM {$sql->table("config")} config
-                LEFT OUTER JOIN {$sql->table("config")} board_name_tbl
-                ON config.cfg_type=board_name_tbl.cfg_type AND board_name_tbl.cfg_key='title'
-                WHERE config.cfg_type like 'mod:board:config:%' AND config.cfg_key='id' $searchby
-                ORDER BY $orderby
+                select config.*,board_name_tbl.cfg_value AS board_name
+                from {$sql->table("config")} config
+                left outer join {$sql->table("config")} board_name_tbl
+                on config.cfg_type=board_name_tbl.cfg_type and board_name_tbl.cfg_key='title'
+                where config.cfg_type like 'mod:board:config:%' and config.cfg_key='id' $searchby
+                order by $orderby
                 ", []
             )
         );
@@ -101,9 +97,9 @@ class Result extends \Controller\Make_Controller {
 
                 $sql2->query(
                     "
-                    SELECT *
-                    FROM {$sql2->table("config")}
-                    WHERE cfg_type='mod:board:config:{$arr['cfg_value']}'
+                    select *
+                    from {$sql2->table("config")}
+                    where cfg_type='mod:board:config:{$arr['cfg_value']}'
                     ", []
                 );
 
@@ -147,9 +143,10 @@ class Result extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for Result clone
-***/
+//
+// Controller for submit
+// ( Result_clone )
+//
 class Result_clone_submit{
 
     public function init()
@@ -161,7 +158,7 @@ class Result_clone_submit{
 
         Method::security('referer');
         Method::security('request_post');
-        $req = Method::request('post','board_id, clone_id');
+        $req = Method::request('post', 'board_id, clone_id');
 
         Valid::get(
             array(
@@ -187,15 +184,13 @@ class Result_clone_submit{
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("config")}
-            WHERE cfg_type='mod:board:config:{$board_id}'
+            select *
+            from {$sql->table("config")}
+            where cfg_type='mod:board:config:{$board_id}'
             ", []
         );
 
-        if ($sql->getcount() < 1) {
-            Valid::error('', '복제할 게시판이 존재하지 않습니다.');
-        }
+        if ($sql->getcount() < 1) Valid::error('', '복제할 게시판이 존재하지 않습니다.');
 
         $arr = array();
 
@@ -209,49 +204,43 @@ class Result_clone_submit{
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("config")}
-            WHERE cfg_type='mod:board:config:{$clone_id}'
+            select *
+            from {$sql->table("config")}
+            where cfg_type='mod:board:config:{$clone_id}'
             ", []
         );
 
-        if ($sql->getcount() > 0) {
-            Valid::error('clone_id', '생성할 게시판 id가 이미 존재하는 id입니다.');
-        }
+        if ($sql->getcount() > 0) Valid::error('clone_id', '생성할 게시판 id가 이미 존재하는 id입니다.');
 
         foreach ($arr as $key => $value) {
 
-            if ($key == 'title') {
-                $value = $board_title.'에서 복제됨';
-            }
-            if ($key == 'id') {
-                $value = $clone_id;
-            }
+            if ($key == 'title') $value = $board_title.'에서 복제됨';
+            if ($key == 'id') $value = $clone_id;
 
             $sql->query(
                 "
-                INSERT INTO {$sql->table("config")}
-                (cfg_type,cfg_key,cfg_value,cfg_regdate)
-                VALUES
-                ('mod:board:config:{$clone_id}','{$key}','{$value}',now())
+                insert into {$sql->table("config")}
+                (cfg_type, cfg_key, cfg_value, cfg_regdate)
+                values
+                ('mod:board:config:{$clone_id}', '{$key}', '{$value}', now())
                 ", []
             );
         }
 
         $sql->query(
             "
-            CREATE TABLE IF NOT EXISTS {$sql->table("mod:board_data_")}$clone_id (
-            idx int(11) NOT NULL auto_increment,
-            category varchar(255) default NULL,
+            create table if not exists {$sql->table("mod:board_data_")}$clone_id (
+            idx int(11) not null auto_increment,
+            category varchar(255) default null,
             ln int(11) default '0',
             rn int(11) default '0',
             mb_idx int(11) default '0',
-            mb_id varchar(255) default NULL,
-            writer varchar(255) default NULL,
+            mb_id varchar(255) default null,
+            writer varchar(255) default null,
             pwd text,
-            email varchar(255) default NULL,
+            email varchar(255) default null,
             article text,
-            subject varchar(255) default NULL,
+            subject varchar(255) default null,
             file1 text,
             file1_cnt int(11) default '0',
             file2 text,
@@ -261,9 +250,9 @@ class Result_clone_submit{
             use_html char(1) default 'Y',
             use_email char(1) default 'Y',
             view int(11) default '0',
-            ip varchar(255) default NULL,
-            regdate datetime default NULL,
-            dregdate datetime default NULL,
+            ip varchar(255) default null,
+            regdate datetime default null,
+            dregdate datetime default null,
             data_1 text,
             data_2 text,
             data_3 text,
@@ -274,23 +263,23 @@ class Result_clone_submit{
             data_8 text,
             data_9 text,
             data_10 text,
-            PRIMARY KEY(idx)
-            )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+            primary key(idx)
+            )engine=InnoDB default charset=utf8;
             ", []
         );
 
         $sql->query(
             "
-            CREATE TABLE IF NOT EXISTS {$sql->table("mod:board_cmt_")}$clone_id (
-            idx int(11) NOT NULL auto_increment,
+            create table if not exists {$sql->table("mod:board_cmt_")}$clone_id (
+            idx int(11) not null auto_increment,
             ln int(11) default '0',
             rn int(11) default '0',
-            bo_idx int(11) default NULL,
+            bo_idx int(11) default null,
             mb_idx int(11) default '0',
-            writer varchar(255) default NULL,
+            writer varchar(255) default null,
             comment text,
-            ip varchar(255) default NULL,
-            regdate datetime default NULL,
+            ip varchar(255) default null,
+            regdate datetime default null,
             cmt_1 text,
             cmt_2 text,
             cmt_3 text,
@@ -301,8 +290,8 @@ class Result_clone_submit{
             cmt_8 text,
             cmt_9 text,
             cmt_10 text,
-            PRIMARY KEY(idx)
-            )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+            primary key(idx)
+            )engine=InnoDB default charset=utf8;
             ", []
         );
 
@@ -317,9 +306,10 @@ class Result_clone_submit{
 
 }
 
-/***
-Regist
-***/
+//
+// Controller for display
+// https://{domain}/manage/mod/board/result/regist
+//
 class Regist extends \Controller\Make_Controller {
 
     public function init(){
@@ -369,9 +359,10 @@ class Regist extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for Regist
-***/
+//
+// Controller for submit
+// ( Regist )
+//
 class Regist_submit {
 
     public function init(){
@@ -442,36 +433,16 @@ class Regist_submit {
             )
         );
 
-        if ($req['use_category'] == 'Y' && !$req['category']) {
-            Valid::error('category', '카테고리 설정을 확인하세요.');
-        }
-        if (!$req['list_limit']) {
-            $req['list_limit'] = 15;
-        }
-        if (!$req['m_list_limit']) {
-            $req['m_list_limit'] = 10;
-        }
-        if (!$req['sbj_limit']) {
-            $req['sbj_limit'] = 50;
-        }
-        if (!$req['m_sbj_limit']) {
-            $req['m_sbj_limit'] = 30;
-        }
-        if (!$req['txt_limit']) {
-            $req['txt_limit'] = 150;
-        }
-        if (!$req['m_txt_limit']) {
-            $req['m_txt_limit'] = 100;
-        }
-        if (!$req['article_min_len']) {
-            $req['article_min_len'] = 30;
-        }
-        if (!$req['read_point']) {
-            $req['read_point'] = 0;
-        }
-        if (!$req['write_point']) {
-            $req['write_point'] = 0;
-        }
+        if ($req['use_category'] == 'Y' && !$req['category']) Valid::error('category', '카테고리 설정을 확인하세요.');
+        if (!$req['list_limit']) $req['list_limit'] = 15;
+        if (!$req['m_list_limit']) $req['m_list_limit'] = 10;
+        if (!$req['sbj_limit']) $req['sbj_limit'] = 50;
+        if (!$req['m_sbj_limit']) $req['m_sbj_limit'] = 30;
+        if (!$req['txt_limit']) $req['txt_limit'] = 150;
+        if (!$req['m_txt_limit']) $req['m_txt_limit'] = 100;
+        if (!$req['article_min_len']) $req['article_min_len'] = 30;
+        if (!$req['read_point']) $req['read_point'] = 0;
+        if (!$req['write_point']) $req['write_point'] = 0;
 
         $conf_exp = $sql->etcfd_exp(implode('|', $req['conf_exp']));
 
@@ -483,18 +454,18 @@ class Regist_submit {
 
         $sql->query(
             "
-            CREATE TABLE IF NOT EXISTS {$sql->table("mod:board_data_")}$board_id (
-            idx int(11) NOT NULL auto_increment,
-            category varchar(255) default NULL,
+            create table if not exists {$sql->table("mod:board_data_")}$board_id (
+            idx int(11) not null auto_increment,
+            category varchar(255) default null,
             ln int(11) default '0',
             rn int(11) default '0',
             mb_idx int(11) default '0',
-            mb_id varchar(255) default NULL,
-            writer varchar(255) default NULL,
+            mb_id varchar(255) default null,
+            writer varchar(255) default null,
             pwd text,
-            email varchar(255) default NULL,
+            email varchar(255) default null,
             article text,
-            subject varchar(255) default NULL,
+            subject varchar(255) default null,
             file1 text,
             file1_cnt int(11) default '0',
             file2 text,
@@ -504,9 +475,9 @@ class Regist_submit {
             use_html char(1) default 'Y',
             use_email char(1) default 'Y',
             view int(11) default '0',
-            ip varchar(255) default NULL,
-            regdate datetime default NULL,
-            dregdate datetime default NULL,
+            ip varchar(255) default null,
+            regdate datetime default null,
+            dregdate datetime default null,
             data_1 text,
             data_2 text,
             data_3 text,
@@ -517,23 +488,23 @@ class Regist_submit {
             data_8 text,
             data_9 text,
             data_10 text,
-            PRIMARY KEY(idx)
-            )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+            primary key(idx)
+            )engine=InnoDB default charset=utf8;
             ", []
         );
 
         $sql->query(
             "
-            CREATE TABLE IF NOT EXISTS {$sql->table("mod:board_cmt_")}$board_id (
-            idx int(11) NOT NULL auto_increment,
+            create table if not exists {$sql->table("mod:board_cmt_")}$board_id (
+            idx int(11) not null auto_increment,
             ln int(11) default '0',
             rn int(11) default '0',
-            bo_idx int(11) default NULL,
+            bo_idx int(11) default null,
             mb_idx int(11) default '0',
-            writer varchar(255) default NULL,
+            writer varchar(255) default null,
             comment text,
-            ip varchar(255) default NULL,
-            regdate datetime default NULL,
+            ip varchar(255) default null,
+            regdate datetime default null,
             cmt_1 text,
             cmt_2 text,
             cmt_3 text,
@@ -544,8 +515,8 @@ class Regist_submit {
             cmt_8 text,
             cmt_9 text,
             cmt_10 text,
-            PRIMARY KEY(idx)
-            )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+            primary key(idx)
+            )engine=InnoDB default charset=utf8;
             ", []
         );
 
@@ -604,10 +575,10 @@ class Regist_submit {
         foreach ($data as $key => $value) {
             $sql->query(
                 "
-                INSERT INTO {$sql->table("config")}
-                (cfg_type,cfg_key,cfg_value,cfg_regdate)
-                VALUES
-                ('mod:board:config:{$req['id']}','{$key}','{$value}',now())
+                insert into {$sql->table("config")}
+                (cfg_type, cfg_key, cfg_value, cfg_regdate)
+                values
+                ('mod:board:config:{$req['id']}', '{$key}', '{$value}', now())
                 ", []
             );
         }
@@ -624,12 +595,14 @@ class Regist_submit {
 
 }
 
-/***
-Modify
-***/
+//
+// Controller for display
+// https://{domain}/manage/mod/board/result/modify
+//
 class Modify extends \Controller\Make_Controller {
 
-    public function init(){
+    public function init()
+    {
         $this->layout()->mng_head();
         $this->layout()->view(MOD_BOARD_PATH.'/manage.set/html/modify.tpl.php');
         $this->layout()->mng_foot();
@@ -645,10 +618,9 @@ class Modify extends \Controller\Make_Controller {
 
             while ($dir = readdir($topen)) {
                 $slted = '';
+
                 if ($dir != '.' && $dir != '..') {
-                    if ($dir == $arr['theme']) {
-                        $slted = 'selected';
-                    }
+                    if ($dir == $arr['theme']) $slted = 'selected';
                     $topt .= '<option value="'.$dir.'" '.$slted.'>'.$dir.'</option>';
                 }
             }
@@ -664,10 +636,9 @@ class Modify extends \Controller\Make_Controller {
                 'OR' => ''
             );
             foreach ($setarr as $key => $value) {
-                if ($key == $arr[$val]) {
-                    $setarr[$key] = 'checked';
-                }
+                if ($key == $arr[$val]) $setarr[$key] = 'checked';
             }
+
             return $setarr;
         }
     }
@@ -685,15 +656,13 @@ class Modify extends \Controller\Make_Controller {
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("config")}
-            WHERE cfg_type='mod:board:config:{$req['id']}'
+            select *
+            from {$sql->table("config")}
+            where cfg_type='mod:board:config:{$req['id']}'
             ", []
         );
 
-        if ($sql->getcount() < 1) {
-            Func::err_back('게시판이 존재하지 않습니다.');
-        }
+        if ($sql->getcount() < 1) Func::err_back('게시판이 존재하지 않습니다.');
 
         $arr = array();
 
@@ -785,9 +754,10 @@ class Modify extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for Modify
-***/
+//
+// Controller for submit
+// ( Modify )
+//
 class Modify_submit {
 
     public function init()
@@ -812,9 +782,9 @@ class Modify_submit {
         }
     }
 
-    ///
+    //
     // modify
-    ///
+    //
     public function get_modify()
     {
         global $req;
@@ -868,36 +838,16 @@ class Modify_submit {
             )
         );
 
-        if ($req['use_category'] == 'Y' && !$req['category']) {
-            Valid::error('category', '카테고리 설정을 확인하세요.');
-        }
-        if (!$req['list_limit']) {
-            $req['list_limit'] = 15;
-        }
-        if (!$req['m_list_limit']) {
-            $req['m_list_limit'] = 10;
-        }
-        if (!$req['sbj_limit']) {
-            $req['sbj_limit'] = 50;
-        }
-        if (!$req['m_sbj_limit']) {
-            $req['m_sbj_limit'] = 30;
-        }
-        if (!$req['txt_limit']) {
-            $req['txt_limit'] = 150;
-        }
-        if (!$req['m_txt_limit']) {
-            $req['m_txt_limit'] = 100;
-        }
-        if (!$req['article_min_len'] || $req['article_min_len'] < 0) {
-            $req['article_min_len'] = 0;
-        }
-        if (!$req['read_point']) {
-            $req['read_point'] = 0;
-        }
-        if (!$req['write_point']) {
-            $req['write_point'] = 0;
-        }
+        if ($req['use_category'] == 'Y' && !$req['category']) Valid::error('category', '카테고리 설정을 확인하세요.');
+        if (!$req['list_limit']) $req['list_limit'] = 15;
+        if (!$req['m_list_limit']) $req['m_list_limit'] = 10;
+        if (!$req['sbj_limit']) $req['sbj_limit'] = 50;
+        if (!$req['m_sbj_limit']) $req['m_sbj_limit'] = 30;
+        if (!$req['txt_limit']) $req['txt_limit'] = 150;
+        if (!$req['m_txt_limit']) $req['m_txt_limit'] = 100;
+        if (!$req['article_min_len'] || $req['article_min_len'] < 0) $req['article_min_len'] = 0;
+        if (!$req['read_point']) $req['read_point'] = 0;
+        if (!$req['write_point']) $req['write_point'] = 0;
 
         $conf_exp = $sql->etcfd_exp(implode('|', $req['conf_exp']));
 
@@ -961,9 +911,9 @@ class Modify_submit {
         foreach ($data as $key => $value) {
             $sql->query(
                 "
-                SELECT *
-                FROM {$sql->table("config")}
-                WHERE cfg_type='mod:board:config:{$req['id']}' AND cfg_key='{$key}'
+                select *
+                from {$sql->table("config")}
+                where cfg_type='mod:board:config:{$req['id']}' and cfg_key='{$key}'
                 ",
                 array(
                     $value
@@ -972,11 +922,11 @@ class Modify_submit {
             if ($sql->getcount() < 1) {
                 $sql->query(
                     "
-                    INSERT INTO
+                    insert into
                     {$sql->table("config")}
-                    (cfg_type,cfg_key)
-                    VALUES
-                    ('mod:board:config:{$req['id']}','{$key}')
+                    (cfg_type, cfg_key)
+                    values
+                    ('mod:board:config:{$req['id']}', '{$key}')
                     ",
                     array(
                         $value
@@ -985,11 +935,11 @@ class Modify_submit {
             }
             $sql->query(
                 "
-                UPDATE
+                update
                 {$sql->table("config")}
-                SET
+                set
                 cfg_value=:col1
-                WHERE cfg_type='mod:board:config:{$req['id']}' AND cfg_key='{$key}'
+                where cfg_type='mod:board:config:{$req['id']}' and cfg_key='{$key}'
                 ",
                 array(
                     $value
@@ -1006,12 +956,12 @@ class Modify_submit {
         Valid::turn();
     }
 
-    ///
+    //
     // delete
-    ///
+    //
     public function get_delete()
     {
-        global $req, $board_id;
+        global $board_id, $req;
 
         $sql = new Pdosql();
         $uploader = new Uploader();
@@ -1019,35 +969,33 @@ class Modify_submit {
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("config")}
-            WHERE cfg_type='mod:board:config:{$req['id']}' AND cfg_key='id' AND cfg_value='{$req['id']}'
+            select *
+            from {$sql->table("config")}
+            where cfg_type='mod:board:config:{$req['id']}' and cfg_key='id' and cfg_value='{$req['id']}'
             ", []
         );
 
         $board_id = $sql->fetch('cfg_value');
 
-        if ($sql->getcount() < 1) {
-            Valid::error('', '게시판이 존재하지 않습니다.');
-        }
+        if ($sql->getcount() < 1) Valid::error('', '게시판이 존재하지 않습니다.');
 
         $sql->query(
             "
-            DELETE
-            FROM {$sql->table("config")}
-            WHERE cfg_type='mod:board:config:{$board_id}'
+            delete
+            from {$sql->table("config")}
+            where cfg_type='mod:board:config:{$board_id}'
             ", []
         );
 
         $sql->query(
             "
-            DROP TABLE {$sql->table("mod:board_data_")}$board_id
+            drop table {$sql->table("mod:board_data_")}$board_id
             ", []
         );
 
         $sql->query(
             "
-            DROP TABLE {$sql->table("mod:board_cmt_")}$board_id
+            drop table {$sql->table("mod:board_cmt_")}$board_id
             ", []
         );
 
@@ -1068,14 +1016,15 @@ class Modify_submit {
 
 }
 
-/***
-Board
-***/
+//
+// Controller for display
+// https://{domain}/manage/mod/board/result/board
+//
 class Board extends \Controller\Make_Controller {
 
     public function init()
     {
-        global $req, $boardconf;
+        global $boardconf, $req;
 
         $req = Method::request('get', 'id, read, category, page');
 
@@ -1097,41 +1046,39 @@ class Board extends \Controller\Make_Controller {
 
             $sql->query(
                 "
-                SELECT *
-                FROM {$sql->table("mod:board_data_".$req['id'])}
-                WHERE use_notice='Y' or use_notice='N'
+                select *
+                from {$sql->table("mod:board_data_".$req['id'])}
+                where use_notice='Y' or use_notice='N'
                 ", []
             );
             return Func::number($sql->getcount());
         }
 
-        //전체 게시글 갯수
+        // 전체 게시글 개수
         function total_cnt($notice_cnt, $total_cnt)
         {
             return Func::number($notice_cnt + $total_cnt);
         }
 
-        //제목
+        // 제목
         function print_subject($arr)
         {
             global $boardconf;
 
-            if (!$arr['dregdate']) {
+            if (!$arr['subject']) return reply_ico($arr).'제목이 설정되지 않은 게시글입니다.';
 
-                return reply_ico($arr).Func::strcut($arr['subject'],0,$boardconf['sbj_limit']);
-            } else {
-                return reply_ico($arr).'<strike>'.$arr['dregdate'].'에 삭제된 게시글입니다.'.'</strike>';
-            }
+            return (!$arr['dregdate']) ? reply_ico($arr).Func::strcut($arr['subject'],0,$boardconf['sbj_limit']) : reply_ico($arr).'<strike>'.$arr['dregdate'].'에 삭제된 게시글입니다.'.'</strike>';
         }
 
-        //링크
+        // 링크
         function get_link($arr, $thisuri, $board_id, $category)
         {
             global $manage;
+
             return './board-view'.$manage->lnk_def_param('&id='.$board_id.'&read='.$arr['idx'].'&category='.$category);
         }
 
-        //내용
+        // 내용
         function print_article($arr)
         {
             global $boardconf;
@@ -1139,7 +1086,7 @@ class Board extends \Controller\Make_Controller {
             return Func::strcut(strip_tags(Func::htmldecode($arr['article'])), 0, $boardconf['txt_limit']);
         }
 
-        //첨부파일 아이콘
+        // 첨부파일 아이콘
         function file_ico($arr)
         {
             global $boardconf;
@@ -1168,7 +1115,7 @@ class Board extends \Controller\Make_Controller {
             }
         }
 
-        //답글 아이콘
+        // 답글 아이콘
         function reply_ico($arr)
         {
             $nbsp = '';
@@ -1176,21 +1123,20 @@ class Board extends \Controller\Make_Controller {
                 for ($i = 1; $i <= $arr['rn']; $i++) {
                     $nbsp .= '&nbsp;&nbsp;';
                 }
+
                 return $nbsp.'<img src="'.MOD_BOARD_DIR.'/manage.set/images/reply-ico.png" align="absmiddle" title="답글" alt="답글" class="reply-ico" />&nbsp;';
             }
         }
 
-        //비밀글 아이콘
+        // 비밀글 아이콘
         function secret_ico($arr)
         {
             global $boardconf;
 
-            if ($arr['use_secret'] == 'Y' && $boardconf['ico_secret'] == 'Y') {
-                return '<img src="'.MOD_BOARD_DIR.'/manage.set/images/secret-ico.png" align="absmiddle" title="비밀글" alt="비밀글" />';
-            }
+            return ($arr['use_secret'] == 'Y' && $boardconf['ico_secret'] == 'Y') ? '<img src="'.MOD_BOARD_DIR.'/manage.set/images/secret-ico.png" align="absmiddle" title="비밀글" alt="비밀글" />' : '';
         }
 
-        //NEW 아이콘
+        // new 아이콘
         function new_ico($arr)
         {
             global $boardconf;
@@ -1203,7 +1149,7 @@ class Board extends \Controller\Make_Controller {
             }
         }
 
-        //HOT 아이콘
+        // hot 아이콘
         function hot_ico($arr)
         {
             global $boardconf;
@@ -1217,66 +1163,54 @@ class Board extends \Controller\Make_Controller {
             }
         }
 
-        //댓글 갯수
+        // 댓글 개수
         function comment_cnt($arr)
         {
             global $boardconf;
 
-            if ($arr['comment_cnt'] > 0 && $boardconf['use_comment'] == 'Y') {
-                return Func::number($arr['comment_cnt']);
-            }
+            return ($arr['comment_cnt'] > 0 && $boardconf['use_comment'] == 'Y') ? Func::number($arr['comment_cnt']) : '';
         }
 
-        //작성 버튼
+        // 작성 버튼
         function write_btn($page, $category, $thisuri)
         {
             global $manage, $MB, $boardconf;
 
-            if ($MB['level'] <= $boardconf['write_level']) {
-                return '<a href="write'.$manage->lnk_def_param('&id='.$boardconf['id'].'&category='.urlencode($category).'&wrmode=').'" class="btn1">글 작성</a>';
-            }
+            return ($MB['level'] <= $boardconf['write_level']) ? '<a href="write'.$manage->lnk_def_param('&id='.$boardconf['id'].'&category='.urlencode($category).'&wrmode=').'" class="btn1">글 작성</a>' : '';
         }
 
-        //게시물 번호
+        // 게시물 번호
         function print_number($arr, $read, $paging)
         {
             return $paging->getnum();
         }
 
-        //회원 이름
+        // 회원 이름
         function print_writer($arr)
         {
-            if ($arr['mb_idx'] != 0) {
-                return '<a href="'.PH_MANAGE_DIR.'/member/modify?idx='.$arr['mb_idx'].'" target="_blank">'.$arr['writer'].'</a>';
-
-            } else {
-                return $arr['writer'];
-            }
+            return ($arr['mb_idx'] != 0) ? '<a href="'.PH_MANAGE_DIR.'/member/modify?idx='.$arr['mb_idx'].'" target="_blank">'.$arr['writer'].'</a>' : $arr['writer'];
         }
 
-        //카테고리
+        // 카테고리
         function category_sort($category, $where, $keyword, $thisuri)
         {
             global $boardconf, $req;
 
-            if (!$boardconf['category']) {
-                return;
-            }
+            if (!$boardconf['category']) return;
 
             $cat_exp = explode('|', $boardconf['category']);
             $html = '';
 
-            if ($boardconf['use_category'] != 'Y') {
-                return '';
-            }
-            for ($i = 0; $i<sizeOf($cat_exp); $i++) {
+            if ($boardconf['use_category'] != 'Y') return;
+
+            for ($i = 0; $i < count($cat_exp); $i++) {
                 $html .= '<li><a href="board?id='.$req['id'].'&category='.urlencode($cat_exp[$i]).'"><em>'.$cat_exp[$i].'</em></a></li>'.PHP_EOL;
             }
 
             return $html;
         }
 
-        //where selectbox 선택 처리
+        // where selectbox 선택 처리
         function where_slted($where)
         {
             $arr = array('all', 'subjectAndArticle', 'subject', 'article', 'writer', 'mb_id');
@@ -1294,7 +1228,7 @@ class Board extends \Controller\Make_Controller {
             return $opt;
         }
 
-        //list arr setting
+        // list arr setting
         function get_listarr($req, $arr, $paging, $thisuri, $keyword, $category)
         {
             global $PARAM;
@@ -1327,22 +1261,17 @@ class Board extends \Controller\Make_Controller {
 
         $board_id = $req['id'];
 
-        //board_id 검사
-        if (!$sql->table_exists("mod:board_data_".$req['id'])) {
-            Func::err_back('게시판이 존재하지 않습니다.');
-        }
-
+        // board_id 검사
+        if (!$sql->table_exists("mod:board_data_".$req['id'])) Func::err_back('게시판이 존재하지 않습니다.');
         $thisuri = Func::thisuri();
 
-        //카테고리 처리
+        // 카테고리 처리
         $category = urldecode($req['category']);
         $search = '';
 
-        if ($category) {
-            $search = 'AND board.category=\''.$req['category'].'\'';
-        }
+        if ($category) $search = 'and board.category=\''.$req['category'].'\'';
 
-        //검색 키워드 처리
+        // 검색 키워드 처리
         $keyword = htmlspecialchars(urlencode($PARAM['keyword']));
 
         if ($keyword) {
@@ -1351,9 +1280,9 @@ class Board extends \Controller\Make_Controller {
 
             switch ($PARAM['where']) {
                 case 'subjectAndArticle' :
-                    $search .= 'AND (';
+                    $search .= 'and (';
                     $search .= 'board.subject like \'%'.$PARAM['keyword'].'%\'';
-                    $search .= 'OR board.article like \'%'.$PARAM['keyword'].'%\'';
+                    $search .= 'or board.article like \'%'.$PARAM['keyword'].'%\'';
                     $search .= ')';
                     break;
 
@@ -1361,63 +1290,34 @@ class Board extends \Controller\Make_Controller {
                 case 'article' :
                 case 'writer' :
                 case 'mb_id' :
-                    $search .= 'AND board.'.$PARAM['where'].' like \'%'.$PARAM['keyword'].'%\'';
+                    $search .= 'and board.'.$PARAM['where'].' like \'%'.$PARAM['keyword'].'%\'';
                     break;
 
                 default :
-                    $search .= 'AND (';
+                    $search .= 'and (';
                     foreach ($where_arr as $key => $value) {
-                        $search .= ($key > 0 ? ' OR ' : '').'board.'.$value.' like \'%'.$PARAM['keyword'].'%\'';
+                        $search .= ($key > 0 ? ' or ' : '').'board.'.$value.' like \'%'.$PARAM['keyword'].'%\'';
                     }
                     $search .= ')';
             }
         }
 
-        if ($boardconf['use_category'] == 'Y' && $boardconf['category'] != '') {
-            $is_category_show = true;
+        $is_category_show = ($boardconf['use_category'] == 'Y' && $boardconf['category'] != '') ? true : false;
+        $is_comment_show = ($boardconf['use_comment'] == 'Y') ? true : false;
+        $is_likes_show = ($boardconf['use_likes'] == 'Y') ? true : false;
 
-        } else {
-            $is_category_show = false;
-        }
-
-        if ($boardconf['use_comment'] == 'Y') {
-            $is_comment_show = true;
-
-        } else {
-            $is_comment_show = false;
-        }
-
-        if ($boardconf['use_likes'] == 'Y') {
-            $is_likes_show = true;
-
-        } else {
-            $is_likes_show = false;
-        }
-
-        //notice
+        // notice
         $sql->query(
             "
-            SELECT *,
-            (
-                SELECT COUNT(*)
-                FROM {$sql->table("mod:board_cmt_".$board_id)}
-                WHERE bo_idx=board.idx
-            ) comment_cnt,
-            (
-                SELECT COUNT(*)
-                FROM {$sql->table("mod:board_like")}
-                WHERE id='$board_id' AND data_idx=board.idx AND likes>0
-            ) likes_cnt,
-            (
-                SELECT COUNT(*)
-                FROM {$sql->table("mod:board_like")}
-                WHERE id='$board_id' AND data_idx=board.idx AND unlikes>0
-            ) unlikes_cnt
-            FROM {$sql->table("mod:board_data_".$board_id)} board
-            LEFT OUTER JOIN {$sql->table("member")} member
-            ON board.mb_idx=member.mb_idx
-            WHERE board.use_notice='Y'
-            ORDER BY board.idx DESC
+            select *,
+            ( select count(*) from {$sql->table("mod:board_cmt_".$board_id)} where bo_idx=board.idx ) comment_cnt,
+            ( select count(*) from {$sql->table("mod:board_like")} where id='$board_id' and data_idx=board.idx and likes>0 ) likes_cnt,
+            ( select count(*) from {$sql->table("mod:board_like")} where id='$board_id' and data_idx=board.idx and unlikes>0 ) unlikes_cnt
+            from {$sql->table("mod:board_data_".$board_id)} board
+            left outer join {$sql->table("member")} member
+            on board.mb_idx=member.mb_idx
+            where board.use_notice='Y'
+            order by board.idx desc
             ", []
         );
         $notice_cnt = $sql->getcount();
@@ -1431,34 +1331,22 @@ class Board extends \Controller\Make_Controller {
             } while ($sql->nextRec());
         }
 
-        //list
+        // list
         $paging->thispage = $thisuri;
         $paging->setlimit($boardconf['list_limit']);
 
         $sql->query(
             $paging->query(
                 "
-                SELECT *,
-                (
-                    SELECT COUNT(*)
-                    FROM {$sql->table("mod:board_cmt_".$board_id)}
-                    WHERE bo_idx=board.idx
-                ) comment_cnt,
-                (
-                    SELECT COUNT(*)
-                    FROM {$sql->table("mod:board_like")}
-                    WHERE id='$board_id' AND data_idx=board.idx AND likes>0
-                ) likes_cnt,
-                (
-                    SELECT COUNT(*)
-                    FROM {$sql->table("mod:board_like")}
-                    WHERE id='$board_id' AND data_idx=board.idx AND unlikes>0
-                ) unlikes_cnt
-                FROM {$sql->table("mod:board_data_".$board_id)} board
-                LEFT OUTER JOIN {$sql->table("member")} member
-                ON board.mb_idx=member.mb_idx
-                WHERE board.use_notice='N' $search
-                ORDER BY board.ln DESC, board.rn ASC, board.regdate DESC
+                select *,
+                ( select count(*) from {$sql->table("mod:board_cmt_".$board_id)} where bo_idx=board.idx ) comment_cnt,
+                ( select count(*) from {$sql->table("mod:board_like")} where id='$board_id' and data_idx=board.idx and likes>0 ) likes_cnt,
+                ( select count(*) from {$sql->table("mod:board_like")} where id='$board_id' and data_idx=board.idx and unlikes>0 ) unlikes_cnt
+                from {$sql->table("mod:board_data_".$board_id)} board
+                left outer join {$sql->table("member")} member
+                on board.mb_idx=member.mb_idx
+                where board.use_notice='N' $search
+                order by board.ln desc, board.rn asc, board.regdate desc
                 ", []
             )
         );
@@ -1472,7 +1360,6 @@ class Board extends \Controller\Make_Controller {
 
             } while($sql->nextRec());
         }
-
 
         $this->set('manage', $manage);
         $this->set('write_btn', write_btn($req['page'], $category, $thisuri));
@@ -1514,14 +1401,16 @@ class Board extends \Controller\Make_Controller {
 
 }
 
-/***
-Board Write
-***/
+//
+// Controller for display
+// https://{domain}/manage/mod/board/result/write
+//
 class Write extends \Controller\Make_Controller {
 
     static public $boardconf;
 
-    public function init(){
+    public function init()
+    {
         $this->layout()->mng_head();
         $this->layout()->view(MOD_BOARD_PATH.'/manage.set/html/write.tpl.php');
         $this->layout()->mng_foot();
@@ -1529,29 +1418,25 @@ class Write extends \Controller\Make_Controller {
 
     public function func()
     {
-        //category
+        // category
         function category_option($arr, $category)
         {
             $cat = explode('|', Write::$boardconf['category']);
             $opt = '';
 
-            for ($i = 0; $i < sizeOf($cat); $i++) {
+            for ($i = 0; $i < count($cat); $i++) {
                 $slted = '';
 
-                if (isset($arr['category']) && urldecode($cat[$i]) == $arr['category']) {
-                    $slted = 'selected';
-                }
-                if (urldecode($cat[$i]) == $category) {
-                    $slted = 'selected';
-
-                }
+                if (isset($arr['category']) && urldecode($cat[$i]) == $arr['category']) $slted = 'selected';
+                if (urldecode($cat[$i]) == $category) $slted = 'selected';
 
                 $opt .= '<option value="'.$cat[$i].'" '.$slted.'>'.$cat[$i].'</option>';
             }
+
             return $opt;
         }
 
-        //파일명
+        // 파일명
         function uploaded_file($arr, $wrmode)
         {
             if ($wrmode != 'reply') {
@@ -1571,7 +1456,7 @@ class Write extends \Controller\Make_Controller {
             }
         }
 
-        //공지글 옵션
+        // 공지글 옵션
         function opt_notice($arr, $wrmode)
         {
             global $MB;
@@ -1593,7 +1478,7 @@ class Write extends \Controller\Make_Controller {
             return $notice_opt;
         }
 
-        //비밀글 옵션
+        // 비밀글 옵션
         function opt_secret($arr)
         {
             $secret_opt = '';
@@ -1611,7 +1496,7 @@ class Write extends \Controller\Make_Controller {
             return $secret_opt;
         }
 
-        //이메일 답변 옵션
+        // 이메일 답변 옵션
         function opt_return_email($arr)
         {
             $email_opt = '';
@@ -1625,7 +1510,7 @@ class Write extends \Controller\Make_Controller {
             return $email_opt;
         }
 
-        //취소 버튼
+        // 취소 버튼
         function cancel_btn($page, $category)
         {
             global $manage, $board_id;
@@ -1633,26 +1518,29 @@ class Write extends \Controller\Make_Controller {
             return '<a href="board'.$manage->lnk_def_param('&id='.$board_id.'&category='.$category).'" class="btn2">취소</a>';
         }
 
-        //글쓰기 타이틀
+        // 글쓰기 타이틀
         function write_title($wrmode)
         {
-            if ($wrmode == 'modify') {
-                return '글 수정';
+            switch ($wrmode) {
+                case 'modify' :
+                    return '글 수정';
+                    break;
 
-            } else if ($wrmode == 'reply') {
-                return '답글 작성';
+                case 'reply' :
+                    return '답글 작성';
+                    break;
 
-            } else {
-                return '새로운 글 작성';
+                default :
+                    return '새로운 글 작성';
             }
         }
 
-        //첨부 가능한 파일 사이즈
+        // 첨부 가능한 파일 사이즈
         function print_filesize()
         {
             global $func;
 
-            return Func::getbyte(Write::$boardconf['file_limit'], 'M').'M';
+            return Func::getbyte(Write::$boardconf['file_limit'], 'm').'M';
         }
     }
 
@@ -1668,21 +1556,17 @@ class Write extends \Controller\Make_Controller {
 
         $board_id = $req['id'];
 
-        //load config
+        // load config
         Write::$boardconf = $boardlib->load_conf($board_id);
 
-        //수정 or 답글인 경우 원본 글 불러옴
+        // 수정 or 답글인 경우 원본 글 불러옴
         if ($req['wrmode'] == 'modify' || $req['wrmode'] == 'reply') {
             $sql->query(
                 "
-                SELECT board.*,ceil(board.ln) ceil_ln,
-                (
-                    SELECT COUNT(*)
-                    FROM {$sql->table("mod:board_data_".$board_id)}
-                    WHERE ln<=((ceil_ln/1000)*1000) AND ln>((ceil_ln/1000)*1000)-1000 AND rn>0
-                ) reply_cnt
-                FROM {$sql->table("mod:board_data_".$board_id)} board
-                WHERE board.idx=:col1
+                select board.*,ceil(board.ln) ceil_ln,
+                ( select count(*) from {$sql->table("mod:board_data_".$board_id)} where ln<=((ceil_ln/1000)*1000) and ln>((ceil_ln/1000)*1000)-1000 and rn>0 ) reply_cnt
+                from {$sql->table("mod:board_data_".$board_id)} board
+                where board.idx=:col1
                 ",
                 array(
                     $req['read']
@@ -1692,9 +1576,7 @@ class Write extends \Controller\Make_Controller {
             $sql->specialchars = 1;
             $sql->nl2br = 0;
 
-            if ($sql->getcount() < 1) {
-                Func::err_back('해당 글이 존재하지 않습니다.');
-            }
+            if ($sql->getcount() < 1) Func::err_back('해당 글이 존재하지 않습니다.');
 
             $arr['article'] = $sql->fetch('article');
             $arr['wdate_date'] = substr($arr['regdate'], 0, 10);
@@ -1709,41 +1591,27 @@ class Write extends \Controller\Make_Controller {
                 } else {
                     $arr['article'] = '\n\n\nOrg: '.$arr['subject'].'\n'.$arr['article'];
                 }
+
                 $arr['subject'] = 'Re: '.$arr['subject'];
             }
+
         } else {
             $arr = null;
         }
 
-        //check
-        if (!$board_id) {
-            Func::err_back('게시판이 지정되지 않았습니다.');
-        }
+        // check
+        if (!$board_id) Func::err_back('게시판이 지정되지 않았습니다.');
 
-        if (!$req['wrmode'] || $req['wrmode'] == 'reply') {
-            if (Write::$boardconf['write_point'] < 0) {
-                if ($MB['point'] < (0 - Write::$boardconf['write_point'])) {
-                    Func::err_back('포인트가 부족하여 글을 작성할 수 없습니다.');
-                }
-            }
+        if (!$req['wrmode'] || $req['wrmode'] == 'reply' && Write::$boardconf['write_point'] < 0) {
+            if ($MB['point'] < (0 - Write::$boardconf['write_point'])) Func::err_back('포인트가 부족하여 글을 작성할 수 없습니다.');
         }
-        if ($req['wrmode'] == 'reply' && Write::$boardconf['use_reply'] == 'N') {
-            Func::err_back('답변글을 등록할 수 없습니다.');
-        }
+        if ($req['wrmode'] == 'reply' && Write::$boardconf['use_reply'] == 'N') Func::err_back('답변글을 등록할 수 없습니다.');
 
-        //삭제된 게시글인지 검사
-        if ($req['wrmode'] == 'modify' || $req['wrmode'] == 'reply') {
-            if ($arr['dregdate']) {
-                Func::err_back('삭제된 게시물입니다.');
-            }
-        }
+        // 삭제된 게시글인지 검사
+        if (($req['wrmode'] == 'modify' || $req['wrmode'] == 'reply') && $arr['dregdate']) Func::err_back('삭제된 게시물입니다.');
 
-        //답글 모드인 경우 권한 검사
-        if ($req['wrmode'] == 'reply') {
-            if ($arr['use_notice'] == 'Y') {
-                Func::err_back('공지글에는 답글을 달 수 없습니다.');
-            }
-        }
+        // 답글 모드인 경우 권한 검사
+        if ($req['wrmode'] == 'reply' && $arr['use_notice'] == 'Y') Func::err_back('공지글에는 답글을 달 수 없습니다.');
 
         //작성 폼 노출
         if ($req['wrmode'] == 'modify' && $arr['mb_idx'] == '0') {
@@ -1760,32 +1628,19 @@ class Write extends \Controller\Make_Controller {
         $is_file_show = array();
 
         for ($i = 1; $i <= 2; $i++) {
-            if (Write::$boardconf['use_file'.$i] == 'Y') {
-                $is_file_show[$i] = true;
-
-            } else {
-                $is_file_show[$i] = false;
-
-            }
+            $is_file_show[$i] = (Write::$boardconf['use_file'.$i] == 'Y') ? true : false;
 
             $is_filename_show[$i] = false;
 
             if ($req['wrmode'] == 'modify') {
-                if ($arr['file'.$i] != '') {
-                    $is_filename_show[$i] = true;
-                }
+                if ($arr['file'.$i] != '') $is_filename_show[$i] = true;
 
             } else {
                 $is_filename_show[$i] = false;
             }
         }
 
-        if (Write::$boardconf['use_category'] == 'Y' && Write::$boardconf['category'] != '' && $req['wrmode'] != 'reply' && $arr['rn'] == 0 && $arr['reply_cnt'] < 1) {
-            $is_category_show = true;
-
-        } else {
-            $is_category_show = false;
-        }
+        $is_category_show = (Write::$boardconf['use_category'] == 'Y' && Write::$boardconf['category'] != '' && $req['wrmode'] != 'reply' && $arr['rn'] == 0 && $arr['reply_cnt'] < 1) ? true : false;
 
         $write = array();
         if (isset($arr)) {
@@ -1793,19 +1648,8 @@ class Write extends \Controller\Make_Controller {
                 $write[$key] = $value;
             }
 
-
         } else {
-            $write = array(
-                'subject' => '',
-                'article' => '',
-                'writer' => '',
-                'pwd' => '',
-                'email' => '',
-                'wdate_date' => '',
-                'wdate_h' => '',
-                'wdate_i' => '',
-                'wdate_s' => ''
-            );
+            $write = array('subject' => '', 'article' => '', 'writer' => '', 'pwd' => '', 'email' => '', 'wdate_date' => '', 'wdate_h' => '', 'wdate_i' => '', 'wdate_s' => '');
 
             for ($i = 1; $i <= 10; $i++) {
                 $write['data_'.$i] = '';
@@ -1829,7 +1673,6 @@ class Write extends \Controller\Make_Controller {
         $this->set('is_email_show', $is_email_show);
         $this->set('is_file_show', $is_file_show);
         $this->set('is_filename_show', $is_filename_show);
-
         $this->set('board_id', $board_id);
         $this->set('mode', $req['mode']);
         $this->set('wrmode', $req['wrmode']);
@@ -1858,14 +1701,16 @@ class Write extends \Controller\Make_Controller {
 
 }
 
-/***
-Board View
-***/
+//
+// Controller for display
+// https://{domain}/manage/mod/board/result/board-view
+//
 class Board_view extends \Controller\Make_Controller {
 
     static public $boardconf;
 
-    public function init(){
+    public function init()
+    {
         $this->layout()->mng_head();
         $this->layout()->view(MOD_BOARD_PATH.'/manage.set/html/board-view.tpl.php');
         $this->layout()->mng_foot();
@@ -1873,49 +1718,29 @@ class Board_view extends \Controller\Make_Controller {
 
     public function func()
     {
-        //비밀글 아이콘 출력
+        // 비밀글 아이콘 출력
         function secret_ico($arr)
         {
-            if ($arr['use_secret'] == 'Y') {
-                return '<img src=\''.MOD_BOARD_DIR.'/manage.set/images/secret-ico.png\' align=\'absmiddle\' title=\'비밀글\' alt=\'비밀글\' />';
-            }
+            return ($arr['use_secret'] == 'Y') ? '<img src=\''.MOD_BOARD_DIR.'/manage.set/images/secret-ico.png\' align=\'absmiddle\' title=\'비밀글\' alt=\'비밀글\' />' : '';
         }
 
-        //수정 버튼
+        // 수정 버튼
         function modify_btn($arr, $read, $category)
         {
             global $manage, $board_id;
 
-            $is_btn_show = false;
-
-            if (!$arr['dregdate']) {
-                $is_btn_show = true;
-
-            }
-
-            if ($is_btn_show) {
-                return '<a href=\'write'.$manage->lnk_def_param('&wrmode=modify&id='.$board_id.'&category='.urlencode($category).'&read='.$read).'\' class=\'btn1\'>수정</a>';
-            }
+            return (!$arr['dregdate']) ? '<a href=\'write'.$manage->lnk_def_param('&wrmode=modify&id='.$board_id.'&category='.urlencode($category).'&read='.$read).'\' class=\'btn1\'>수정</a>' : '';
         }
 
-        //답글 버튼
+        // 답글 버튼
         function reply_btn($arr, $read, $category)
         {
             global $manage, $board_id;
 
-            $is_btn_show = true;
-
-            if ($arr['use_notice'] == 'Y' || Board_view::$boardconf['use_reply'] == 'N' || $arr['dregdate'] != '') {
-                $is_btn_show = false;
-
-            }
-
-            if ($is_btn_show) {
-                return '<a href=\'write'.$manage->lnk_def_param('&wrmode=reply&id='.$board_id.'&category='.urlencode($category).'&read='.$read).'\' class=\'btn1\'>답글</a>';
-            }
+            return ($arr['use_notice'] == 'Y' || Board_view::$boardconf['use_reply'] == 'N' || $arr['dregdate'] != '') ? '' : '<a href=\'write'.$manage->lnk_def_param('&wrmode=reply&id='.$board_id.'&category='.urlencode($category).'&read='.$read).'\' class=\'btn1\'>답글</a>';
         }
 
-        //리스트 버튼
+        // 리스트 버튼
         function list_btn($category)
         {
             global $manage, $board_id;
@@ -1923,7 +1748,7 @@ class Board_view extends \Controller\Make_Controller {
             return '<a href="board'.$manage->lnk_def_param('&id='.$board_id.'&category='.urlencode($category)).'" class="btn2">리스트</a>';
         }
 
-        //첨부 이미지 출력
+        // 첨부 이미지 출력
         function print_imgfile($arr)
         {
             $files = array();
@@ -1934,9 +1759,8 @@ class Board_view extends \Controller\Make_Controller {
                 if (Func::chkintd('match', $filetype,SET_IMGTYPE)) {
                     if ($fileinfo['storage'] == 'N' && file_exists(MOD_BOARD_DATA_PATH.'/'.Board_view::$boardconf['id'].'/thumb/'.$fileinfo['repfile'])) {
                         $files[$i] = '<img src=\''.PH_DOMAIN.MOD_BOARD_DATA_DIR.'/'.Board_view::$boardconf['id'].'/thumb/'.$fileinfo['repfile'].'\' alt=\'첨부된 이미지파일\' />';
-                        if (Func::get_filetype($fileinfo['repfile']) == 'gif') {
-                            $files[$i] = '<img src=\''.PH_DOMAIN.MOD_BOARD_DATA_DIR.'/'.Board_view::$boardconf['id'].'/'.$fileinfo['repfile'].'\' alt=\'첨부된 이미지파일\' />';
-                        }
+                        if (Func::get_filetype($fileinfo['repfile']) == 'gif') $files[$i] = '<img src=\''.PH_DOMAIN.MOD_BOARD_DATA_DIR.'/'.Board_view::$boardconf['id'].'/'.$fileinfo['repfile'].'\' alt=\'첨부된 이미지파일\' />';
+
                     } else {
                         $files[$i] = '<img src=\''.$fileinfo['replink'].'\' alt=\'첨부된 이미지파일\' />';
                     }
@@ -1945,10 +1769,11 @@ class Board_view extends \Controller\Make_Controller {
                     $files[$i] = null;
                 }
             }
+
             return $files;
         }
 
-        //첨부파일명 및 용량(Byte) 출력
+        // 첨부파일명 및 용량(Byte) 출력
         function print_file_name($arr)
         {
             $files = array();
@@ -1967,68 +1792,54 @@ class Board_view extends \Controller\Make_Controller {
                     $files[$i] = null;
                 }
             }
+
             return $files;
         }
 
-        //회원 이름
+        // 회원 이름
         function print_writer($arr)
         {
-            if ($arr['mb_idx'] != 0) {
-                return '<a href="'.PH_MANAGE_DIR.'/member/modify?idx='.$arr['mb_idx'].'" target="_blank">'.$arr['writer'].'</a>';
-
-            } else {
-                return $arr['writer'];
-            }
+            return ($arr['mb_idx'] != 0) ? '<a href="'.PH_MANAGE_DIR.'/member/modify?idx='.$arr['mb_idx'].'" target="_blank">'.$arr['writer'].'</a>' : $arr['writer'];
         }
     }
 
     public function make()
     {
-        global $manage, $board_id, $MB, $board_id;
+        global $MB, $manage, $board_id, $board_id;
 
         $manage = new ManageFunc();
         $sql = new Pdosql();
         $sess = new Session();
         $boardlib = new Board_Library();
 
-        $req = Method::request('get','id, mode, wrmode, read, page, where, keyword, category');
+        $req = Method::request('get', 'id, mode, wrmode, read, page, where, keyword, category');
 
         $board_id = $req['id'];
 
-        //add stylesheet & javascript
+        // add stylesheet & javascript
         Func::add_stylesheet(PH_MANAGE_DIR.'/css/content_view.css');
 
-        //load config
+        // load config
         Board_view::$boardconf = $boardlib->load_conf($board_id);
 
-        //원본 글 불러옴
+        // 원본 글 불러옴
         $sql->query(
             "
-            SELECT member.mb_profileimg,
-            (
-                SELECT COUNT(*)
-                FROM {$sql->table("mod:board_like")}
-                WHERE id='$board_id' AND data_idx=:col1 AND likes>0
-            ) likes_cnt,
-            (
-                SELECT COUNT(*)
-                FROM {$sql->table("mod:board_like")}
-                WHERE id='$board_id' AND data_idx=:col1 AND unlikes>0
-            ) unlikes_cnt,
+            select member.mb_profileimg,
+            ( select count(*) from {$sql->table("mod:board_like")} where id='$board_id' and data_idx=:col1 and likes>0 ) likes_cnt,
+            ( select count(*) from {$sql->table("mod:board_like")} where id='$board_id' and data_idx=:col1 and unlikes>0 ) unlikes_cnt,
             board.*
-            FROM {$sql->table("mod:board_data_".$board_id)} board
-            LEFT OUTER JOIN {$sql->table("member")} member
-            ON board.mb_idx=member.mb_idx
-            WHERE board.idx=:col1
+            from {$sql->table("mod:board_data_".$board_id)} board
+            left outer join {$sql->table("member")} member
+            on board.mb_idx=member.mb_idx
+            where board.idx=:col1
             ",
             array(
                 $req['read']
             )
         );
 
-        if ($sql->getcount() < 1) {
-            Func::err_back('해당 글이 존재하지 않습니다.');
-        }
+        if ($sql->getcount() < 1) Func::err_back('해당 글이 존재하지 않습니다.');
 
         $arr = $sql->fetchs();
 
@@ -2037,15 +1848,15 @@ class Board_view extends \Controller\Make_Controller {
 
         $arr['article'] = $sql->fetch('article');
 
-        //게시물이 답글이며 회원에 대한 답글인 경우 부모글의 회원 idx 가져옴
+        // 게시물이 답글이며 회원에 대한 답글인 경우 부모글의 회원 idx 가져옴
         if ($arr['rn'] > 0 && $arr['pwd'] == '') {
             $sql->query(
                 "
-                SELECT *
-                FROM {$sql->table("mod:board_data_".$board_id)}
-                WHERE ln>:col1 AND rn=:col2
-                ORDER BY ln ASC
-                LIMIT 1
+                select *
+                from {$sql->table("mod:board_data_".$board_id)}
+                where ln>:col1 and rn=:col2
+                order by ln asc
+                limit 1
                 ",
                 array(
                     $arr['ln'],
@@ -2055,7 +1866,7 @@ class Board_view extends \Controller\Make_Controller {
             $prt_mb_idx = $sql->fetch('mb_idx');
         }
 
-        //view 노출
+        // view 노출
         if ($arr['dregdate']) {
             $is_dropbox_show = true;
             $is_article_show = false;
@@ -2068,60 +1879,27 @@ class Board_view extends \Controller\Make_Controller {
         $is_file_show = array();
 
         for ($i = 1; $i <= 2; $i++) {
-            if ($arr['file'.$i]) {
-                $is_file_show[$i] = true;
-
-            } else {
-                $is_file_show[$i] = false;
-            }
+            $is_file_show[$i] = ($arr['file'.$i]) ? true : false;
         }
 
         $is_img_show = array();
 
         for ($i = 1; $i <= 2; $i++){
-            if (print_imgfile($arr)[$i] != '') {
-                $is_img_show[$i] = true;
-            } else {
-                $is_img_show[$i] = false;
-            }
+            $is_img_show[$i] = (print_imgfile($arr)[$i] != '') ? true : false;
         }
 
-        if (Board_view::$boardconf['use_category'] == 'Y' && $arr['category'] && $arr['use_notice'] == 'N') {
-            $is_category_show = true;
-
-        } else {
-            $is_category_show = false;
-        }
-
-        if (Board_view::$boardconf['use_comment'] == 'Y') {
-            $is_comment_show = true;
-        } else {
-            $is_comment_show = false;
-        }
-
-        if (Board_view::$boardconf['use_likes'] == 'Y' && !$arr['dregdate']) {
-            $is_likes_show = true;
-        } else {
-            $is_likes_show = false;
-        }
-
-        if (Board_view::$boardconf['use_list'] == 'Y') {
-            $is_ftlist_show = true;
-        } else {
-            $is_ftlist_show = false;
-        }
-
-        if (Board_view::$boardconf['use_seek'] == 'Y') {
-            $is_seeklist_show = true;
-        } else {
-            $is_seeklist_show = false;
-        }
+        $is_category_show = (Board_view::$boardconf['use_category'] == 'Y' && $arr['category'] && $arr['use_notice'] == 'N') ? true : false;
+        $is_comment_show = (Board_view::$boardconf['use_comment'] == 'Y') ? true : false;
+        $is_likes_show = (Board_view::$boardconf['use_likes'] == 'Y' && !$arr['dregdate']) ? true : false;
+        $is_ftlist_show = (Board_view::$boardconf['use_list'] == 'Y') ? true : false;
+        $is_seeklist_show = (Board_view::$boardconf['use_seek'] == 'Y') ? true : false;
 
         $arr['view'] = Func::number($arr['view']);
         $arr['date'] = Func::date($arr['regdate']);
         $arr['datetime'] = Func::datetime($arr['regdate']);
         $arr['likes_cnt'] = Func::number($arr['likes_cnt']);
         $arr['unlikes_cnt'] = Func::number($arr['unlikes_cnt']);
+        if (!$arr['subject']) $arr['subject'] = '제목이 설정되지 않은 게시글입니다.';
 
         $view = array();
 
@@ -2129,6 +1907,7 @@ class Board_view extends \Controller\Make_Controller {
             foreach ($arr as $key => $value) {
                 $view[$key] = $value;
             }
+
         } else {
             $view = null;
         }

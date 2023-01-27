@@ -1,6 +1,6 @@
-///
+//
 // slideMenu for mobile
-///
+//
 mo_slide = {
     'init' : function() {
         this.action();
@@ -12,7 +12,7 @@ mo_slide = {
             'slide' : $('#slide-menu'),
             'bg' : $('#slide-bg'),
             'btn' : $('#slide-btn'),
-            'close' : $('#slide-close')
+            'close' : $('#slide-close, #slide-menu-close')
         }
         //open & close
         $ele.btn.on({
@@ -31,17 +31,26 @@ mo_slide = {
                     $ele.bg.removeClass('on');
                 }
             }
-        })
+        });
+        $ele.close.on({
+            'click' : function(e) {
+                e.preventDefault();
+
+                $ele.btn.removeClass('on');
+                $ele.slide.removeClass('on');
+                $ele.bg.removeClass('on');
+            }
+        });
     }
 }
 $(function() {
     mo_slide.init();
-})
+});
 
 
-///
+//
 // gnb for mobile
-///
+//
 mo_gnb = {
     'init' : function() {
         this.action();
@@ -58,7 +67,7 @@ mo_gnb = {
             if (len > 0) {
                 $(this).addClass('have-children');
             }
-        })
+        });
         //open & close
         $ele.menu.on({
             'click' : function(e) {
@@ -74,17 +83,17 @@ mo_gnb = {
                     $li_sib.removeClass('on');
                 }
             }
-        })
+        });
     }
 }
 $(function() {
     mo_gnb.init();
-})
+});
 
 
-///
+//
 // gnb active
-///
+//
 gnbActive = {
     'init' : function() {
         this.action();
@@ -98,4 +107,4 @@ gnbActive = {
 }
 $(function() {
     gnbActive.init();
-})
+});

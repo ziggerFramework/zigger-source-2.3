@@ -33,7 +33,7 @@ class Mail extends \Make\Database\Pdosql {
         $this->mailBoundary = md5(uniqid(microtime()));
     }
 
-    //headers
+    // headers
     protected function getBoundary()
     {
         return $this->mailBoundary;
@@ -50,9 +50,9 @@ class Mail extends \Make\Database\Pdosql {
         $this->addHeader('Reply-to', $this->mailFromArray['email']);
         $this->addHeader('Return-Path', $this->mailFromArray['email']);
 
-        if(count($this->mailAttachArray) > 0) {
+        if (count($this->mailAttachArray) > 0) {
             $this->addHeader('MIME-Version', '1.0');
-            $this->addHeader('Content-Type', 'multipart/mixed; boundary = "' . $this->getBoundary() . '"');
+            $this->addHeader('Content-Type', 'multipart/mixed; boundary = "'.$this->getBoundary().'"');
 
         } else {
             $this->addHeader('Content-Type', 'text/html; charset=UTF-8');
@@ -69,20 +69,15 @@ class Mail extends \Make\Database\Pdosql {
     {
         $header = '';
         foreach ($this->mailHeaderArray as $key => $value) {
-            $header .= $key . ": " . $value . "\n";
+            $header .= $key.": ".$value."\n";
         }
-        return $header . "\r\n";
+        return $header."\r\n";
     }
 
-    //body
+    // body
     protected function setSubject()
     {
-        $return = '';
-        if ($this->subject) {
-            $return = $this->base64Contents($this->subject);
-
-        }
-        return $return;
+        return ($this->subject) ? $return = $this->base64Contents($this->subject) : '';
     }
 
     protected function base64Contents($contets)
@@ -99,20 +94,17 @@ class Mail extends \Make\Database\Pdosql {
     {
         global $CONF;
 
-        if (!$this->st_tit) {
-            $this->st_tit = $CONF['title'];
-        }
+        if (!$this->st_tit) $this->st_tit = $CONF['title'];
 
         $html = '';
         $body = '';
 
         if ($this->tpl != '') {
-
             $this->query(
                 "
-                SELECT *
-                FROM {$this->table("mailtpl")}
-                WHERE type=:col1
+                select *
+                from {$this->table("mailtpl")}
+                where type=:col1
                 ",
                 array(
                     $this->tpl
@@ -134,11 +126,11 @@ class Mail extends \Make\Database\Pdosql {
         }
 
         if (count($this->mailAttachArray) > 0) {
-            $body .= "--" . $this->getBoundary() . "\r\n";
+            $body .= "--".$this->getBoundary()."\r\n";
             $body .= "Content-Type: text/html; charset=UTF-8\r\n";
             $body .= "Content-Transfer-Encoding: base64\r\n\r\n";
-            $body .= $this->encodingContents($html) . "\r\n\r\n";
-            $body .= "\r\n" . $this->makeAttach();
+            $body .= $this->encodingContents($html)."\r\n\r\n";
+            $body .= "\r\n".$this->makeAttach();
 
         } else {
             $body = $html;
@@ -147,11 +139,12 @@ class Mail extends \Make\Database\Pdosql {
         return $body;
     }
 
-    //attach
+    // attach
     public function setAttach()
     {
         foreach ($this->attach as $attach) {
             $fp = fopen($attach['path'], 'r');
+
             if ($fp) {
                 $fBody = fread($fp, filesize($attach['path']));
                 @fclose($fp);
@@ -165,13 +158,13 @@ class Mail extends \Make\Database\Pdosql {
     {
         $arrRet = array();
 
-        if(count($this->mailAttachArray) > 0) {
-            foreach($this->mailAttachArray as $name => $fBody) {
-                $tmpAttach = "--" . $this->getBoundary() . "\r\n";
+        if (count($this->mailAttachArray) > 0) {
+            foreach ($this->mailAttachArray as $name => $fBody) {
+                $tmpAttach = "--".$this->getBoundary()."\r\n";
                 $tmpAttach .= "Content-Type: application/octet-stream\r\n";
                 $tmpAttach .= "Content-Transfer-Encoding: base64\r\n";
-                $tmpAttach .= "Content-Disposition: attachment; filename=\"" . $name . "\"\r\n\r\n";
-                $tmpAttach .= $this->encodingContents($fBody) . "\r\n\r\n";
+                $tmpAttach .= "Content-Disposition: attachment; filename=\"".$name."\"\r\n\r\n";
+                $tmpAttach .= $this->encodingContents($fBody)."\r\n\r\n";
                 $arrRet[] = $tmpAttach;
             }
         }
@@ -179,19 +172,21 @@ class Mail extends \Make\Database\Pdosql {
         return implode('', $arrRet);
     }
 
-    //mail from
+    // mail from
     public function setFrom()
     {
         global $CONF;
 
         if (!isset($this->from['name'])) {
             $this->mailFromArray['name'] = $CONF['title'];
+
         } else {
             $this->mailFromArray['name'] = $this->from['name'];
         }
 
         if (!isset($this->from['email'])) {
             $this->mailFromArray['email'] = $CONF['email'];
+
         } else {
             $this->mailFromArray['email'] = $this->from['email'];
         }
@@ -199,30 +194,24 @@ class Mail extends \Make\Database\Pdosql {
 
     protected function getFrom()
     {
-        return $this->base64Contents($this->mailFromArray['name']) . ' <' . $this->mailFromArray['email'] . '>';
+        return $this->base64Contents($this->mailFromArray['name']).' <'.$this->mailFromArray['email'].'>';
     }
 
-    //mail to
+    // mail to
     public function setTo()
     {
         foreach ($this->to as $to) {
-            if (!isset($to['name'])) {
-                $to['name'] = '';
-            }
+            if (!isset($to['name'])) $to['name'] = '';
             $this->mailToArray[$to['email']] = $to['name'];
         }
     }
 
-    //use SMTP Server
+    // use SMTP Server
     protected function useSmtpServer()
     {
         global $CONF;
 
-        $return = false;
-        if ($CONF['use_smtp'] == 'Y') {
-            $return = true;
-        }
-        return $return;
+        return ($CONF['use_smtp'] == 'Y') ? true : false;
     }
 
     protected function getSmtpServerInfo()
@@ -237,11 +226,11 @@ class Mail extends \Make\Database\Pdosql {
 
     protected function putSocket($val)
     {
-        @fputs($this->smtp_sock, $val . "\r\n");
+        @fputs($this->smtp_sock, $val."\r\n");
         return @fgets($this->smtp_sock, 512);
     }
 
-    //send
+    // send
     public function send()
     {
         $this->setFrom();
@@ -269,17 +258,11 @@ class Mail extends \Make\Database\Pdosql {
 
             $html = $this->makeHtmlBody($email);
 
-            $to = '';
-
-            if ($name) {
-                $to = $this->base64Contents($name) . ' <' . $email . '>';
-            } else {
-                $to = $email;
-            }
+            $to = ($name) ? $this->base64Contents($name).' <'.$email.'>' : $email;
 
             $this->addHeader('To', $to);
 
-            $contents = $this->makeHeaders() . "\r\n" . $html;
+            $contents = $this->makeHeaders()."\r\n".$html;
 
             if (strstr($this->smtp_server, 'ssl://') || strstr($this->smtp_server, 'tls://')) {
                 $context = stream_context_create();
@@ -292,7 +275,7 @@ class Mail extends \Make\Database\Pdosql {
             }
 
             if ($this->smtp_sock) {
-                $this->putSocket('HELO ' . $this->smtp_server);
+                $this->putSocket('HELO '.$this->smtp_server);
 
                 if ($this->smtp_id) {
                     $this->putSocket('AUTH LOGIN');
@@ -300,14 +283,14 @@ class Mail extends \Make\Database\Pdosql {
                     $this->putSocket($this->smtp_pwd);
                 }
 
-                $this->putSocket('MAIL From:' . $this->mailFromArray['email']);
-                $this->putSocket('RCPT To:' . $email);
+                $this->putSocket('MAIL From:'.$this->mailFromArray['email']);
+                $this->putSocket('RCPT To:'.$email);
                 $this->putSocket('DATA');
                 $this->putSocket($contents);
                 $result = $this->putSocket('.');
-                if (strpos($result, 'Message accepted for delivery') !== false) {
-                    $successCount++;
-                }
+
+                if (strpos($result, 'Message accepted for delivery') !== false) $successCount++;
+
                 $this->putSocket('QUIT');
             }
         }
@@ -323,19 +306,11 @@ class Mail extends \Make\Database\Pdosql {
 
             $html = $this->makeHtmlBody($email);
 
-            $to = '';
-
-            if ($name) {
-                $to = $this->base64Contents($name) . ' <' . $email . '>';
-            } else {
-                $to = $email;
-            }
+            $to = ($name) ? $this->base64Contents($name).' <'.$email.'>' : $email;
 
             $header = $this->makeHeaders();
 
-            if (mail($to, $this->setSubject(), $html, $header)) {
-                $successCount++;
-            }
+            if (mail($to, $this->setSubject(), $html, $header)) $successCount++;
         }
 
         return $successCount;

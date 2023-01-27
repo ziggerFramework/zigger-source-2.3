@@ -1,7 +1,9 @@
 <?php
-/***
-Term Of Service
-***/
+
+//
+// Controller for display
+// https://{domain}/doc/terms-of-service
+//
 class Terms_of_service extends \Controller\Make_Controller {
 
     public function init()
@@ -18,9 +20,10 @@ class Terms_of_service extends \Controller\Make_Controller {
 
 }
 
-/***
-Privacy Policy
-***/
+//
+// Controller for display
+// https://{domain}/doc/privacy-policy
+//
 class Privacy_policy extends \Controller\Make_Controller {
 
     public function init()

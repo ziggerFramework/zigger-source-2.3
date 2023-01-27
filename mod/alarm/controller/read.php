@@ -6,14 +6,15 @@ use Corelib\Method;
 use Make\Database\Pdosql;
 use Module\Alarm\Library as Alarm_Library;
 
-/***
-Read
-***/
+//
+// Module Controller
+// ( Read )
+//
 class Read extends \Controller\Make_Controller {
 
     public function init()
     {
-        $this->layout()->view('');
+        $this->layout()->view();
     }
 
     public function make()
@@ -24,14 +25,14 @@ class Read extends \Controller\Make_Controller {
 
         Func::getlogin(SET_NOAUTH_MSG);
 
-        //전체 읽음 처리
+        // 전체 읽음 처리
         if ($req['allcheck'] == 1) {
             $sql->query(
                 "
-                UPDATE
-                {$sql->table("mod:alarm")} SET
+                update
+                {$sql->table("mod:alarm")} set
                 chked='Y'
-                WHERE to_mb_idx=:col1
+                where to_mb_idx=:col1
                 ",
                 array(
                     MB_IDX
@@ -41,22 +42,20 @@ class Read extends \Controller\Make_Controller {
             Func::location('?page='.$req['page']);
         }
 
-        //단일 읽음 처리
+        // 단일 읽음 처리
         else {
             $sql->query(
                 "
-                SELECT *
-                FROM {$sql->table("mod:alarm")}
-                WHERE to_mb_idx=:col1 AND idx=:col2
+                select *
+                from {$sql->table("mod:alarm")}
+                where to_mb_idx=:col1 and idx=:col2
                 ",
                 array(
                     MB_IDX, $req['alarm']
                 )
             );
 
-            if ($sql->getcount() < 1) {
-                Func::err_back('알림이 존재하지 않습니다.');
-            }
+            if ($sql->getcount() < 1) Func::err_back('알림이 존재하지 않습니다.');
 
             $arr = $sql->fetchs();
 
@@ -65,10 +64,10 @@ class Read extends \Controller\Make_Controller {
 
             $sql->query(
                 "
-                UPDATE
-                {$sql->table("mod:alarm")} SET
+                update
+                {$sql->table("mod:alarm")} set
                 chked='Y'
-                WHERE to_mb_idx=:col1 AND idx=:col2
+                where to_mb_idx=:col1 and idx=:col2
                 ",
                 array(
                     MB_IDX, $req['alarm']

@@ -152,7 +152,7 @@ class Valid {
         exit;
     }
 
-    //error 출력 후 스크립트 실행 멈춤
+    // error 출력 후 스크립트 실행 멈춤
     static public function error($inp, $msg)
     {
         self::set(
@@ -165,126 +165,93 @@ class Valid {
         self::turn();
     }
 
-    //글자 수 검사
+    // 글자 수 검사
     static public function chklen($minLen, $maxLen, $val)
     {
         ob_start();
         mb_internal_encoding('UTF-8');
 
-        if (mb_strlen($val) < $minLen || mb_strlen($val) > $maxLen) {
-            return false;
-        } else {
-            return true;
-        }
+        return (mb_strlen($val) < $minLen || mb_strlen($val) > $maxLen) ? false : true;
     }
 
-    //정규식 검사
+    // 정규식 검사
     static public function match($exp, $val)
     {
-        if (preg_match($exp, $val)) {
-            return true;
-        } else {
-            return false;
-        }
+        return (preg_match($exp, $val)) ? true : false;
     }
 
-    //검사 수행
+    // 검사 수행
     static public function get($arr)
     {
-        //변수 초기화
-        if (!isset($arr['input'])) {
-            $arr['input'] = '';
-        }
-        if (!isset($arr['value'])) {
-            $arr['value'] = '';
-        }
-        if (!isset($arr['msg'])) {
-            $arr['msg'] = '';
-        }
-        if (!isset($arr['check']['null'])) {
-            $arr['check']['null'] = false;
-        }
-        if (!isset($arr['check']['selected'])) {
-            $arr['check']['selected'] = false;
-        }
-        if (!isset($arr['check']['checked'])) {
-            $arr['check']['checked'] = false;
-        }
-        if (!isset($arr['check']['chkhtml'])) {
-            $arr['check']['chkhtml'] = false;
-        }
+        // 변수 초기화
+        if (!isset($arr['input'])) $arr['input'] = '';
+        if (!isset($arr['value'])) $arr['value'] = '';
+        if (!isset($arr['msg'])) $arr['msg'] = '';
+        if (!isset($arr['check']['null'])) $arr['check']['null'] = false;
+        if (!isset($arr['check']['selected']))$arr['check']['selected'] = false;
+        if (!isset($arr['check']['checked'])) $arr['check']['checked'] = false;
+        if (!isset($arr['check']['chkhtml'])) $arr['check']['chkhtml'] = false;
 
         foreach ($arr['check'] as $key => $value) {
             switch ($key) {
 
-                //값이 null 인 경우 error
-                //default : false
+                // 값이 null 인 경우 error (default : false)
                 case 'null' :
 
-                    if ($value === false) {
-                        if (self::trim_val($arr['value']) == '') {
-                            if (self::trim_val($arr['msg']) == '') {
-                                self::$err_code = 'ERR_NULL';
-                            } else {
-                                self::$err_code = '';
-                            }
-                            self::error($arr['input'], $arr['msg']);
-                        }
+                    if ($value === false && self::trim_val($arr['value']) == '') {
+                        self::$err_code = (self::trim_val($arr['msg']) == '') ? 'ERR_NULL' : '';
+                        self::error($arr['input'], $arr['msg']);
                     }
+
                     break;
 
-                //minlen 보다 글자 수 적은 경우 error
+                // minlen 보다 글자 수 적은 경우 error
                 case 'minlen' :
 
                     ob_start();
                     mb_internal_encoding('UTF-8');
 
                     if (self::trim_val($arr['value']) != '' && mb_strlen(self::trim_val($arr['value'])) < $value) {
-                        if (self::trim_val($arr['msg']) == '') {
-                            $arr['msg'] = '가능한 최소 글자수는 '.$value.'자 입니다.';
-                        }
+                        if (self::trim_val($arr['msg']) == '') $arr['msg'] = '가능한 최소 글자수는 '.$value.'자 입니다.';
                         self::error($arr['input'], $arr['msg']);
                     }
+
                     break;
 
-                //mxnlen 보다 글자 수 많은 경우 error
+                // mxnlen 보다 글자 수 많은 경우 error
                 case 'maxlen' :
 
                     ob_start();
                     mb_internal_encoding('UTF-8');
 
                     if (mb_strlen(self::trim_val($arr['value'])) > $value) {
-                        if (self::trim_val($arr['msg']) == '') {
-                            $arr['msg'] = '가능한 최대 글자수는 '.$value.'자 입니다.';
-                        }
+                        if (self::trim_val($arr['msg']) == '') $arr['msg'] = '가능한 최대 글자수는 '.$value.'자 입니다.';
                         self::error($arr['input'], $arr['msg']);
                     }
+
                     break;
 
-                //minint 보다 숫자 작은 경우 error
+                // minint 보다 숫자 작은 경우 error
                 case 'minint' :
 
                     if (self::trim_val($arr['value']) != '' && (int)$arr['value'] < $value) {
-                        if (self::trim_val($arr['msg']) == '') {
-                            $arr['msg'] = '가능한 최소 값은 '.$value.' 입니다.';
-                        }
+                        if (self::trim_val($arr['msg']) == '') $arr['msg'] = '가능한 최소 값은 '.$value.' 입니다.';
                         self::error($arr['input'], $arr['msg']);
                     }
+
                     break;
 
-                //maxint 보다 숫자 큰 경우 error
+                // maxint 보다 숫자 큰 경우 error
                 case 'maxint' :
 
                     if ((int)$arr['value'] > $value) {
-                        if (self::trim_val($arr['msg']) == '') {
-                            $arr['msg'] = '가능한 최대 값은 '.$value.' 입니다.';
-                        }
+                        if (self::trim_val($arr['msg']) == '') $arr['msg'] = '가능한 최대 값은 '.$value.' 입니다.';
                         self::error($arr['input'], $arr['msg']);
                     }
+
                     break;
 
-                //미리 정의된 정규식에 부합하지 않은 경우 error
-                //id, password, phone, email, nickname
+                // 미리 정의된 정규식에 부합하지 않은 경우 error (id, password, phone, email, nickname)
                 case 'defined' :
 
                     $exp_arr = array(
@@ -304,20 +271,15 @@ class Valid {
                     );
 
                     if (self::trim_val($arr['value']) != '' && isset($exp_arr[$value])) {
-                        if (!self::match($exp_arr[$value], $arr['value'])) {
-                            self::error($arr['input'], $arr['msg']);
-                        }
+                        if (!self::match($exp_arr[$value], $arr['value'])) self::error($arr['input'], $arr['msg']);
                     }
                     if (self::trim_val($arr['value']) != '' && isset($len_arr[$value])) {
-                        if (!self::chklen($len_arr[$value][0], $len_arr[$value][1], $arr['value'])) {
-                            self::error($arr['input'], $arr['msg']);
-                        }
+                        if (!self::chklen($len_arr[$value][0], $len_arr[$value][1], $arr['value'])) self::error($arr['input'], $arr['msg']);
                     }
 
                     break;
 
-                //character 유형이 일치하지 않는 경우 error
-                //number, neganumber, korean, english
+                //character 유형이 일치하지 않는 경우 error (number, neganumber, korean, english)
                 case 'charset' :
 
                     $exp_arr = array(
@@ -327,16 +289,11 @@ class Valid {
                         'english' => REGEXP_ENG
                     );
 
-                    if (isset($exp_arr[$value])) {
-                        if (!self::match($exp_arr[$value], $arr['value'])) {
-                            self::error($arr['input'], $arr['msg']);
-                        }
-                    }
+                    if (isset($exp_arr[$value]) && !self::match($exp_arr[$value], $arr['value'])) self::error($arr['input'], $arr['msg']);
 
                     break;
 
-                //사용 금지 HTML TAG 포함된 경우 error
-                //default : false
+                // 사용 금지 HTML TAG 포함된 경우 error (default : false)
                 case 'chkhtml' :
 
                     if ($value === true) {
@@ -345,59 +302,46 @@ class Valid {
 
                         for ($i = 0; $i < count($not_tags_ex); $i++) {
                             if (stristr($arr['value'], '<'.$not_tags_ex[$i]) || stristr($arr['value'], '</'.$not_tags_ex[$i])) {
-                                if (self::trim_val($arr['msg']) == '') {
-                                    $arr['msg'] = ERR_MSG_2;
-                                }
+                                if (self::trim_val($arr['msg']) == '') $arr['msg'] = ERR_MSG_2;
                                 self::error($arr['input'], $arr['msg']);
+
                                 return;
                             }
                         }
                     }
+
                     break;
 
-                //selected 선택 안된 경우 error
-                //default : false
+                // selected 선택 안된 경우 error (default : false)
                 case 'selected' :
 
-                    if ($value === true) {
-                        if ($arr['value'] == 'none' || $arr['value'] == '') {
-                            self::error($arr['input'], $arr['msg']);
-                        }
-                    }
+                    if ($value === true && ($arr['value'] == 'none' || $arr['value'] == '')) self::error($arr['input'], $arr['msg']);
+
                     break;
 
-                //checked 선택 안된 경우 error
+                // checked 선택 안된 경우 error
                 case 'checked' :
 
-                    if ($value === true) {
-                        if ($arr['value'] != 'checked') {
-                            self::error($arr['input'], $arr['msg']);
-                        }
-                    }
+                    if ($value === true && $arr['value'] != 'checked') self::error($arr['input'], $arr['msg']);
+
                     break;
 
-                //사용자 정의 정규식에 부합하지 않는 경우 error
+                // 사용자 정의 정규식에 부합하지 않는 경우 error
                 case 'regexp' :
 
                     $bool = true;
 
-                    if ($value[0] === true) {
-                        if (!self::match($value[1], $arr['value'])) {
-                            $bool = false;
-                        }
+                    if ($value[0] === true && !self::match($value[1], $arr['value'])) {
+                        $bool = false;
                     }
-                    else if ($value[0] === false) {
-                        if (self::match($value[1], $arr['value'])) {
-                            $bool = false;
-                        }
+                    else if ($value[0] === false && self::match($value[1], $arr['value'])) {
+                        $bool = false;
                     }
-                    if ($bool === false) {
-                        self::error($arr['input'], $arr['msg']);
-                    }
+
+                    if ($bool === false) self::error($arr['input'], $arr['msg']);
+
                     break;
             }
-
         }
     }
-
 }

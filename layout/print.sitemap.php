@@ -5,14 +5,15 @@ $stsql = new Pdosql();
 
 $stsql->query(
     "
-    SELECT *
-    FROM {$stsql->table("sitemap")}
-    WHERE CHAR_LENGTH(caidx)=4 AND visible='Y'
-    ORDER BY caidx ASC
+    select *
+    from {$stsql->table("sitemap")}
+    where char_length(caidx)=4 and visible='Y'
+    order by caidx asc
     ", ''
 );
 $list_cnt = $stsql->getcount();
 
+// make GNB
 $SITEMAP = array();
 $link_dir = PH_DIR.'/';
 
@@ -30,10 +31,10 @@ if ($list_cnt > 0) {
 
             $stsql2->query(
                 "
-                SELECT *
-                FROM {$stsql->table("sitemap")}
-                WHERE SUBSTR(caidx,1,4)=:col1 AND CHAR_LENGTH(caidx)=8 AND visible='Y'
-                ORDER BY caidx ASC
+                select *
+                from {$stsql->table("sitemap")}
+                where substr(caidx,1,4)=:col1 and char_length(caidx)=8 and visible='Y'
+                order by caidx asc
                 ",
                 array(
                     $arr['caidx']
@@ -54,10 +55,10 @@ if ($list_cnt > 0) {
 
                         $stsql3->query(
                             "
-                            SELECT *
-                            FROM {$stsql->table("sitemap")}
-                            WHERE SUBSTR(caidx,1,8)=:col1 AND CHAR_LENGTH(caidx)=12 AND visible='Y'
-                            ORDER BY caidx ASC
+                            select *
+                            from {$stsql->table("sitemap")}
+                            where substr(caidx,1,8)=:col1 and char_length(caidx)=12 and visible='Y'
+                            order by caidx asc
                             ",
                             array(
                                 $arr2['caidx']
@@ -90,17 +91,15 @@ if ($list_cnt > 0) {
     } while ($stsql->nextRec());
 }
 
-//LNB
+// make LNB
 $LNB_SITEMAP = array();
 
 $sitemap_idx = null;
+
 for ($i = 0;$i < count($SITEMAP);$i++) {
     foreach ($SITEMAP[$i] as $key => $value) {
-        if ($key == 'idx' && isset($NAVIGATOR[0]['idx']) && $value == $NAVIGATOR[0]['idx']) {
-            $sitemap_idx = $i;
-        }
+        if ($key == 'idx' && isset($NAVIGATOR[0]['idx']) && $value == $NAVIGATOR[0]['idx']) $sitemap_idx = $i;
     }
 }
-if (isset($sitemap_idx)) {
-    $LNB_SITEMAP = $SITEMAP[$sitemap_idx];
-}
+
+if (isset($sitemap_idx)) $LNB_SITEMAP = $SITEMAP[$sitemap_idx];

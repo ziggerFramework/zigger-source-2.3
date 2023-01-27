@@ -12,6 +12,10 @@ use Make\Database\Pdosql;
 use Module\Board\Library as Board_Library;
 use Module\Alarm\Library as Alarm_Library;
 
+//
+// Module Controller
+// ( Write )
+//
 class Write extends \Controller\Make_Controller {
 
     static private $show_pwdform = 0;
@@ -19,41 +23,32 @@ class Write extends \Controller\Make_Controller {
 
     public function init()
     {
-        $this->layout()->view('');
-
-        if (self::$show_pwdform == 0) {
-            $this->layout()->view(MOD_BOARD_THEME_PATH.'/board/'.Write::$boardconf['theme'].'/write.tpl.php', false);
-
-        } else {
-            $this->layout()->view(MOD_BOARD_THEME_PATH.'/board/'.Write::$boardconf['theme'].'/password.tpl.php', false);
-        }
+        $this->layout()->view();
+        $tpl = (Write::$show_pwdform == 0) ? MOD_BOARD_THEME_PATH.'/board/'.Write::$boardconf['theme'].'/write.tpl.php' : MOD_BOARD_THEME_PATH.'/board/'.Write::$boardconf['theme'].'/password.tpl.php';
+        $this->layout()->view($tpl, false);
     }
 
     public function func()
     {
-        //category
+        // category
         function category_option($arr, $category)
         {
             $cat = explode('|', Write::$boardconf['category']);
             $opt = '';
 
-            for ($i = 0; $i < sizeOf($cat); $i++) {
+            for ($i = 0; $i < count($cat); $i++) {
                 $slted = '';
 
-                if (isset($arr['category']) && urldecode($cat[$i]) == $arr['category']) {
-                    $slted = 'selected';
-                }
-                if (urldecode($cat[$i]) == $category) {
-                    $slted = 'selected';
-
-                }
+                if (isset($arr['category']) && urldecode($cat[$i]) == $arr['category']) $slted = 'selected';
+                if (urldecode($cat[$i]) == $category) $slted = 'selected';
 
                 $opt .= '<option value="'.$cat[$i].'" '.$slted.'>'.$cat[$i].'</option>';
             }
+
             return $opt;
         }
 
-        //파일명
+        // 파일명
         function uploaded_file($arr, $wrmode)
         {
             if ($wrmode != 'reply') {
@@ -73,7 +68,7 @@ class Write extends \Controller\Make_Controller {
             }
         }
 
-        //공지글 옵션
+        // 공지글 옵션
         function opt_notice($arr, $wrmode)
         {
             global $MB;
@@ -85,7 +80,7 @@ class Write extends \Controller\Make_Controller {
                     $notice_opt = '<label><input type="checkbox" name="use_notice" id="use_notice" value="checked" checked="checked" alt="공지글 작성" />공지글 작성</label>';
 
                 } else if ((isset($arr['rn']) && $arr['rn'] > 0) || $wrmode == 'reply') {
-                    $notice_opt =  '';
+                    $notice_opt = '';
                 }
 
             } else {
@@ -95,7 +90,7 @@ class Write extends \Controller\Make_Controller {
             return $notice_opt;
         }
 
-        //비밀글 옵션
+        // 비밀글 옵션
         function opt_secret($arr)
         {
             $secret_opt = '';
@@ -113,7 +108,7 @@ class Write extends \Controller\Make_Controller {
             return $secret_opt;
         }
 
-        //이메일 답변 옵션
+        // 이메일 답변 옵션
         function opt_return_email($arr)
         {
             $email_opt = '';
@@ -127,50 +122,53 @@ class Write extends \Controller\Make_Controller {
             return $email_opt;
         }
 
-        //취소 버튼
+        // 취소 버튼
         function cancel_btn($page, $category, $where, $keyword)
         {
-            return '<a href="?page='.$page.'&category='.$category.'&where='.$where.'&keyword='.urlencode($keyword).'" class="btn2">취소</a>';
+            return '<a href="'.Func::thisuri().Func::get_param_combine('page='.$page.'&category='.$category.'&where='.$where.'&keyword='.urlencode($keyword), '?').'" class="btn2">취소</a>';
         }
 
-        //글쓰기 타이틀
+        // 글쓰기 타이틀
         function write_title($wrmode)
         {
-            if ($wrmode == 'modify') {
-                return '글 수정';
+            switch ($wrmode) {
+                case 'modify' :
+                    return '글 수정';
+                    break;
 
-            } else if ($wrmode == 'reply') {
-                return '답글 작성';
+                case 'reply' :
+                    return '답글 작성';
+                    break;
 
-            } else {
-                return '새로운 글 작성';
+                default :
+                    return '새로운 글 작성';
             }
         }
 
-        //첨부 가능한 파일 사이즈
+        // 첨부 가능한 파일 사이즈
         function print_filesize()
         {
             global $func;
 
-            return Func::getbyte(Write::$boardconf['file_limit'], 'M').'M';
+            return Func::getbyte(Write::$boardconf['file_limit'], 'm').'M';
         }
     }
 
     public function make()
     {
-        global $MB, $MOD_CONF, $board_id;
+        global $MB, $MOD_CONF;
 
         $sql = new Pdosql();
         $boardlib = new Board_Library();
+        Write::$boardconf = $boardlib->load_conf($MOD_CONF['id']);
 
         $req = Method::request('get','mode, wrmode, read, page, where, keyword, category');
 
         $board_id = $MOD_CONF['id'];
 
-        //패스워드가 submit 된 경우
+        // 패스워드가 post로 submit 된 경우
         if (isset($_POST['s_password'])) {
-
-            $s_req = Method::request('post','s_mode,s_wrmode,s_read,s_page,s_category,s_where,s_keyword,s_password');
+            $s_req = Method::request('post', 's_mode, s_wrmode, s_read, s_page, s_category, s_where, s_keyword, s_password');
             $req['mode'] = $s_req['s_mode'];
             $req['wrmode'] = $s_req['s_wrmode'];
             $req['read'] = $s_req['s_read'];
@@ -178,31 +176,23 @@ class Write extends \Controller\Make_Controller {
             $req['category'] = $s_req['s_category'];
             $req['where'] = $s_req['s_where'];
             $req['keyword'] = $s_req['s_keyword'];
-
         }
-
-        //load config
-        Write::$boardconf = $boardlib->load_conf($board_id);
 
         //add title
         Func::add_title(Write::$boardconf['title'].' - 글 작성');
 
-        //add stylesheet & javascript
+        // add stylesheet & javascript
         $boardlib->print_headsrc(Write::$boardconf['theme']);
         Write::$boardconf = $boardlib->load_conf($board_id);
 
-        //수정 or 답글인 경우 원본 글 불러옴
+        // 수정 or 답글인 경우 원본 글 불러옴
         if ($req['wrmode'] == 'modify' || $req['wrmode'] == 'reply') {
             $sql->query(
                 "
-                SELECT board.*,ceil(board.ln) ceil_ln,
-                (
-                    SELECT COUNT(*)
-                    FROM {$sql->table("mod:board_data_".$board_id)}
-                    WHERE ln<=((ceil_ln/1000)*1000) AND ln>((ceil_ln/1000)*1000)-1000 AND rn>0
-                ) reply_cnt
-                FROM {$sql->table("mod:board_data_".$board_id)} board
-                WHERE board.idx=:col1
+                select board.*,ceil(board.ln) ceil_ln,
+                ( select count(*) from {$sql->table("mod:board_data_".$board_id)} where ln<=((ceil_ln/1000)*1000) and ln>((ceil_ln/1000)*1000)-1000 and rn>0 ) reply_cnt
+                from {$sql->table("mod:board_data_".$board_id)} board
+                where board.idx=:col1
                 ",
                 array(
                     $req['read']
@@ -213,9 +203,7 @@ class Write extends \Controller\Make_Controller {
             $sql->nl2br = 0;
             $arr['article'] = $sql->fetch('article');
 
-            if ($sql->getcount() < 1) {
-                Func::err_back('해당 글이 존재하지 않습니다.');
-            }
+            if ($sql->getcount() < 1) Func::err_back('해당 글이 존재하지 않습니다.');
 
             if ($req['wrmode'] == 'reply') {
                 if ($arr['use_html'] == 'Y') {
@@ -224,42 +212,32 @@ class Write extends \Controller\Make_Controller {
                 } else {
                     $arr['article'] = '\n\n\nOrg: '.$arr['subject'].'\n'.$arr['article'];
                 }
+
                 $arr['subject'] = 'Re: '.$arr['subject'];
             }
+
         } else {
             $arr = null;
         }
 
-        //check
-        if (!$board_id) {
-            Func::err_back('게시판이 지정되지 않았습니다.');
-        }
-        if ($MB['level'] > Write::$boardconf['write_level'] && $MB['level'] > Write::$boardconf['ctr_level']) {
-            Func::err_back('글 작성 권한이 없습니다.');
-        }
+        // check
+        if (!$board_id) Func::err_back('게시판이 지정되지 않았습니다.');
+        if ($MB['level'] > Write::$boardconf['write_level'] && $MB['level'] > Write::$boardconf['ctr_level']) Func::err_back('글 작성 권한이 없습니다.');
+
         if (!$req['wrmode'] || $req['wrmode'] == 'reply') {
             if (Write::$boardconf['write_point'] < 0) {
-                if (!IS_MEMBER) {
-                    Func::err_back('포인트 설정으로 인해 비회원은 글을 작성할 수 없습니다.');
-                }
-                if ($MB['point'] < (0 - Write::$boardconf['write_point'])) {
-                    Func::err_back('포인트가 부족하여 글을 작성할 수 없습니다.');
-                }
+                if (!IS_MEMBER) Func::err_back('포인트 설정으로 인해 비회원은 글을 작성할 수 없습니다.');
+                if ($MB['point'] < (0 - Write::$boardconf['write_point'])) Func::err_back('포인트가 부족하여 글을 작성할 수 없습니다.');
             }
         }
-        if ($req['wrmode'] == 'reply' && Write::$boardconf['use_reply'] == 'N') {
-            Func::err_back('답변글을 등록할 수 없습니다.');
-        }
+        if ($req['wrmode'] == 'reply' && Write::$boardconf['use_reply'] == 'N') Func::err_back('답변글을 등록할 수 없습니다.');
 
-        //삭제된 게시글인지 검사
-        if ($req['wrmode'] == 'modify' || $req['wrmode'] == 'reply') {
-            if ($arr['dregdate']) {
-                Func::err_back('삭제된 게시물입니다.');
-            }
-        }
+        // 삭제된 게시글인지 검사
+        if (($req['wrmode'] == 'modify' || $req['wrmode'] == 'reply') && $arr['dregdate']) Func::err_back('삭제된 게시물입니다.');
 
-        //수정모드인 경우 권한 검사
+        // 수정모드인 경우 권한 검사
         if ($req['wrmode'] == 'modify') {
+
             if ($MB['level'] <= Write::$boardconf['ctr_level']) {
                 $wr_level = 1;
 
@@ -274,22 +252,17 @@ class Write extends \Controller\Make_Controller {
                     $wr_level = 0;
                 }
             }
-            if ($wr_level == 0) {
-                Func::err_back('수정 권한이 없습니다.');
-            }
+
+            if ($wr_level == 0) Func::err_back('수정 권한이 없습니다.');
         }
 
-        //답글 모드인 경우 권한 검사
+        // 답글 모드인 경우 권한 검사
         if ($req['wrmode'] == 'reply') {
-            if (($MB['level'] > Write::$boardconf['write_level'] && $MB['level'] > Write::$boardconf['ctr_level']) || $MB['level'] > Write::$boardconf['reply_level']) {
-                Func::err_back('답글 작성 권한이 없습니다.');
-            }
-            if ($arr['use_notice'] == 'Y') {
-                Func::err_back('공지글에는 답글을 달 수 없습니다.');
-            }
+            if (($MB['level'] > Write::$boardconf['write_level'] && $MB['level'] > Write::$boardconf['ctr_level']) || $MB['level'] > Write::$boardconf['reply_level']) Func::err_back('답글 작성 권한이 없습니다.');
+            if ($arr['use_notice'] == 'Y') Func::err_back('공지글에는 답글을 달 수 없습니다.');
         }
 
-        //패스워드가 submit된 경우 검사
+        // 패스워드가 submit된 경우 검사
         if (isset($s_req['s_password'])) {
             if ($arr['pwd'] == $s_req['s_password']) {
                 $wr_level = 1;
@@ -299,16 +272,13 @@ class Write extends \Controller\Make_Controller {
             }
         }
 
-        //패스워드 입력 폼 노출
+        // 패스워드 입력 폼 노출
         if ($req['wrmode'] == 'modify' && !IS_MEMBER && $wr_level != 1) {
-
             self::$show_pwdform = 1;
-
         }
 
-        //작성 폼 노출
+        // 작성 폼 노출
         else {
-
             self::$show_pwdform = 0;
 
             if (!IS_MEMBER || ($req['wrmode'] == 'modify' && $arr['mb_idx'] == '0')) {
@@ -322,30 +292,17 @@ class Write extends \Controller\Make_Controller {
                 $is_email_show = false;
             }
 
-            if (!IS_MEMBER) {
-                $is_captcha_show = true;
-
-            } else {
-                $is_captcha_show = false;
-            }
+            $is_captcha_show = (!IS_MEMBER) ? true : false;
 
             $is_file_show = array();
 
             for ($i = 1; $i <= 2; $i++) {
-                if (Write::$boardconf['use_file'.$i] == 'Y') {
-                    $is_file_show[$i] = true;
 
-                } else {
-                    $is_file_show[$i] = false;
-
-                }
-
+                $is_file_show[$i] = (Write::$boardconf['use_file'.$i] == 'Y') ? true : false;
                 $is_filename_show[$i] = false;
 
                 if ($req['wrmode'] == 'modify') {
-                    if ($arr['file'.$i] != '') {
-                        $is_filename_show[$i] = true;
-                    }
+                    if ($arr['file'.$i] != '') $is_filename_show[$i] = true;
 
                 } else {
                     $is_filename_show[$i] = false;
@@ -371,13 +328,7 @@ class Write extends \Controller\Make_Controller {
                 }
 
             } else {
-                $write = array(
-                    'subject' => '',
-                    'article' => '',
-                    'writer' => '',
-                    'pwd' => '',
-                    'email' => ''
-                );
+                $write = array('subject' => '', 'article' => '', 'writer' => '', 'pwd' => '', 'email' => '');
 
                 for ($i = 1; $i <= 10; $i++) {
                     $write['data_'.$i] = '';
@@ -437,13 +388,14 @@ class Write extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit
-***/
+//
+// Controller for submit
+// ( Write )
+//
 class Write_submit{
 
     public function init(){
-        global $CONF, $MB, $req, $ufile, $wr_opt, $org_arr, $board_id;
+        global $CONF, $MB, $board_id, $req, $ufile, $wr_opt, $org_arr;
 
         $boardlib = new Board_Library();
         $uploader = new Uploader();
@@ -457,21 +409,17 @@ class Write_submit{
 
         $board_id = $req['board_id'];
 
-        //load config
+        // load config
         Write::$boardconf = $boardlib->load_conf($board_id);
 
-        //수정 or 답글인 경우 원본 글 가져옴
+        // 수정 or 답글인 경우 원본 글 가져옴
         if ($req['wrmode'] == 'modify' || $req['wrmode'] == 'reply') {
             $sql->query(
                 "
-                SELECT board.*,ceil(board.ln) ceil_ln,
-                (
-                    SELECT COUNT(*)
-                    FROM {$sql->table("mod:board_data_".$board_id)}
-                    WHERE ln<=((ceil_ln/1000)*1000) AND ln>((ceil_ln/1000)*1000)-1000 AND rn>0
-                ) reply_cnt
-                FROM {$sql->table("mod:board_data_".$board_id)} board
-                WHERE board.idx=:col1
+                select board.*,ceil(board.ln) ceil_ln,
+                ( select count(*) from {$sql->table("mod:board_data_".$board_id)} where ln<=((ceil_ln/1000)*1000) and ln>((ceil_ln/1000)*1000)-1000 and rn>0 ) reply_cnt
+                from {$sql->table("mod:board_data_".$board_id)} board
+                where board.idx=:col1
                 ",
                 array(
                     $req['read']
@@ -480,14 +428,10 @@ class Write_submit{
             $org_arr = $sql->fetchs();
         }
 
-        //수정 or 답글인 경우 삭제된 게시글인지 검사
-        if ($req['wrmode'] == 'modify' || $req['wrmode'] == 'reply') {
-            if ($org_arr['dregdate']) {
-                Func::err_back('삭제된 게시글입니다.');
-            }
-        }
+        // 수정 or 답글인 경우 삭제된 게시글인지 검사
+        if (($req['wrmode'] == 'modify' || $req['wrmode'] == 'reply') && $org_arr['dregdate']) Func::err_back('삭제된 게시글입니다.');
 
-        //옵션값 처리
+        // 옵션값 처리
         $wr_opt = array();
         if ($req['use_notice'] == 'checked') {
             $wr_opt['notice'] = 'Y';
@@ -498,11 +442,7 @@ class Write_submit{
         }
 
         if (Write::$boardconf['use_secret'] == 'Y') {
-            if ($req['use_secret'] == 'checked') {
-                $wr_opt['secret'] = 'Y';
-            } else {
-                $wr_opt['secret'] = 'N';
-            }
+            $wr_opt['secret'] = ($req['use_secret'] == 'checked') ? 'Y' : 'N';
 
         } else if(!$req['wrmode'] || $req['wrmode'] == 'write') {
             $wr_opt['secret'] = 'N';
@@ -511,26 +451,17 @@ class Write_submit{
             $wr_opt['secret'] = $org_arr['use_secret'];
         }
 
-        if ($req['use_email'] == 'checked') {
-            $wr_opt['email'] = 'Y';
+        $wr_opt['email'] = ($req['use_email'] == 'checked') ? 'Y' : 'N';
 
-        } else {
-            $wr_opt['email'] = 'N';
-        }
-
-        //수정모드인 경우 여분필드 처리
+        // 수정모드인 경우 여분필드 처리
         if ($req['wrmode'] == 'modify') {
             for ($i = 1 ;$i <= 10; $i++) {
-                if (!$req['data_'.$i]) {
-                    $req['data_'.$i] = $org_arr['data_'.$i];
-                }
+                if (!isset($req['data_'.$i])) $req['data_'.$i] = $org_arr['data_'.$i];
             }
         }
 
-        //check
-        if ($MB['level'] > Write::$boardconf['write_level'] && $MB['level'] > Write::$boardconf['ctr_level']) {
-            Valid::error('','글 작성 권한이 없습니다.');
-        }
+        // check
+        if ($MB['level'] > Write::$boardconf['write_level'] && $MB['level'] > Write::$boardconf['ctr_level']) Valid::error('','글 작성 권한이 없습니다.');
 
         Valid::get(
             array(
@@ -597,6 +528,7 @@ class Write_submit{
                     )
                 );
             }
+
             if (!Func::chk_captcha($req['captcha'])) {
                 Valid::set(
                     array(
@@ -609,11 +541,9 @@ class Write_submit{
             }
         }
 
-        if (isset($f_req['file1']) && isset($f_req['file2']) && $f_req['file1']['name'] == $f_req['file2']['name']) {
-            Valid::error('', '동일한 파일을 업로드 할 수 없습니다.');
-        }
+        if (isset($f_req['file1']) && isset($f_req['file2']) && $f_req['file1']['name'] == $f_req['file2']['name']) Valid::error('', '동일한 파일을 업로드 할 수 없습니다.');
 
-        //수정모드인 경우 검사
+        // 수정모드인 경우 검사
         if ($req['wrmode'] == 'modify' && IS_MEMBER && $org_arr['mb_idx'] == 0) {
 
             Valid::get(
@@ -648,32 +578,26 @@ class Write_submit{
             }
         }
 
-        //글 작성인 경우, 이미 같은 내용의 글이 존재하는지 검사
+        // 글 작성인 경우, 이미 같은 내용의 글이 존재하는지 검사
         if (!$req['wrmode'] || $req['wrmode'] == 'reply') {
             $sql->query(
                 "
-                SELECT *
-                FROM {$sql->table("mod:board_data_".$board_id)}
-                WHERE article=:col1
+                select *
+                from {$sql->table("mod:board_data_".$board_id)}
+                where article=:col1
                 ",
                 array(
                     $req['article']
                 )
             );
-            if ($sql->getcount() > 0) {
-                Valid::error('article', '이미 같은 내용의 글이 존재합니다.');
-            }
+            if ($sql->getcount() > 0) Valid::error('article', '이미 같은 내용의 글이 존재합니다.');
         }
 
-        //글 작성 포인트 조정
+        // 글 작성 포인트 조정
         if (!$req['wrmode'] || $req['wrmode'] == 'reply') {
             if (Write::$boardconf['write_point'] < 0) {
-                if (!IS_MEMBER) {
-                    Valid::error('', '포인트 설정으로 인해 비회원은 글을 작성할 수 없습니다.');
-                }
-                if ($MB['point'] < (0 - Write::$boardconf['write_point'])) {
-                    Valid::error('', '포인트가 부족하여 글을 작성할 수 없습니다.');
-                }
+                if (!IS_MEMBER) Valid::error('', '포인트 설정으로 인해 비회원은 글을 작성할 수 없습니다.');
+                if ($MB['point'] < (0 - Write::$boardconf['write_point'])) Valid::error('', '포인트가 부족하여 글을 작성할 수 없습니다.');
 
                 $point = 0 - Write::$boardconf['write_point'];
                 Func::set_mbpoint(
@@ -686,7 +610,7 @@ class Write_submit{
                     )
                 );
 
-            } else if(Write::$boardconf['write_point'] > 0) {
+            } else if (Write::$boardconf['write_point'] > 0) {
                 Func::set_mbpoint(
                     array(
                         'mb_idx' => $MB['idx'],
@@ -698,7 +622,7 @@ class Write_submit{
             }
         }
 
-        //첨부파일 저장
+        // 첨부파일 저장
         $uploader->path = MOD_BOARD_DATA_PATH.'/'.$board_id;
         $uploader->chkpath();
 
@@ -713,14 +637,8 @@ class Write_submit{
             if (isset($ufile[$i]) && Write::$boardconf['use_file'.$i]) {
                 $uploader->file = $ufile[$i];
 
-                if ($uploader->chkfile('match') === true) {
-                    Valid::error('file'.$i, ERR_MSG_8);
-                }
-
-                if ($uploader->chkbyte(Write::$boardconf['file_limit']) === false) {
-                    Valid::error('file'.$i, '허용 파일 용량을 초과합니다.');
-                }
-
+                if ($uploader->chkfile('match') === true) Valid::error('file'.$i, ERR_MSG_8);
+                if ($uploader->chkbyte(Write::$boardconf['file_limit']) === false) Valid::error('file'.$i, '허용 파일 용량을 초과합니다.');
             }
         }
 
@@ -731,13 +649,11 @@ class Write_submit{
                 $ufile[$i]['ufile_name'] = $uploader->replace_filename($ufile[$i]['name']);
                 array_push($ufile_name, $ufile[$i]['ufile_name']);
 
-                if (!$uploader->upload($ufile[$i]['ufile_name'])) {
-                    Valid::error('file'.$i, '첨부파일'.$i.' 업로드 실패');
-                }
+                if (!$uploader->upload($ufile[$i]['ufile_name'])) Valid::error('file'.$i, '첨부파일'.$i.' 업로드 실패');
             }
         }
 
-        //썸네일 생성
+        // 썸네일 생성
         if ($CONF['use_s3'] == 'N') {
             $uploader->path = MOD_BOARD_DATA_PATH.'/'.$board_id.'/thumb';
             $uploader->chkpath();
@@ -761,24 +677,24 @@ class Write_submit{
             }
         }
 
-        //수정모드인 경우 기존 파일 & 썸네일 삭제
+        // 수정모드인 경우 기존 파일 & 썸네일 삭제
         if ($req['wrmode'] == 'modify') {
             for ($i = 1; $i <= 2; $i++) {
 
-                //기존 파일을 삭제할 때
+                // 기존 파일을 삭제할 때
                 if ($req['file'.$i.'_del'] == 'checked' || (isset($ufile[$i]) && $org_arr['file'.$i] && $req['file'.$i.'_del'] != 'checked')) {
                     $uploader->path = MOD_BOARD_DATA_PATH.'/'.$board_id.'/thumb';
                     $uploader->drop($org_arr['file'.$i]);
                 }
 
-                //아무것도 하지 않았을 때
+                // 아무것도 하지 않았을 때
                 if ($org_arr['file'.$i] != '' && !isset($ufile[$i]) && $req['file'.$i.'_del'] != 'checked') {
                     $ufile[$i]['ufile_name'] = $org_arr['file'.$i];
                 }
             }
         }
 
-        //wrmode 별 처리
+        // wrmode 별 처리
         switch ($req['wrmode']) {
 
             case 'reply' :
@@ -795,88 +711,89 @@ class Write_submit{
         }
     }
 
-    ///
+    //
     // 새로운 글 작성
-    ///
+    //
     private function get_write()
     {
         global $MODULE_BOARD_CONF, $MB, $req, $ufile, $wr_opt, $board_id;
 
         $sql = new Pdosql();
 
-        //ln값 처리
+        // ln값 처리
         $sql->query(
             "
-            SELECT MAX(ln)+1000 AS ln_max
-            FROM {$sql->table("mod:board_data_".$board_id)}
+            select max(ln)+1000 as ln_max
+            from {$sql->table("mod:board_data_".$board_id)}
             ", []
         );
 
         $ln_arr = array();
         $ln_arr['ln_max'] = $sql->fetch('ln_max');
 
-        if (!$ln_arr['ln_max']) {
-            $ln_arr['ln_max'] = 1000;
-        }
+        if (!$ln_arr['ln_max']) $ln_arr['ln_max'] = 1000;
 
         $ln_arr['ln_max'] = ceil($ln_arr['ln_max'] / 1000) * 1000;
 
-        //회원인 경우 회원 정보를 필드에 입력
+        // 회원인 경우 회원 정보를 필드에 입력
         if (IS_MEMBER) {
             $req['email'] = $MB['email'];
             $req['writer'] = $MB['name'];
         }
 
-        //Manager 에서 등록한 경우 날짜 설정
+        // Manager 에서 등록한 경우 날짜 설정
         $wdate = date('Y-m-d H:i:s');
         if (isset($req['request']) && $req['request'] == 'manage') {
-            if ($req['wdate_date']) {
-                $wdate = $req['wdate_date'].' '.$req['wdate_h'].':'.$req['wdate_i'].':'.$req['wdate_s'];
-            }
+            if ($req['wdate_date']) $wdate = $req['wdate_date'].' '.$req['wdate_h'].':'.$req['wdate_i'].':'.$req['wdate_s'];
         }
 
-        //insert
+        // insert
         $sql->query(
             "
-            INSERT INTO {$sql->table("mod:board_data_".$board_id)}
-            (category,mb_idx,mb_id,writer,pwd,email,article,subject,file1,file2,use_secret,use_notice,use_html,use_email,ip,ln,rn,data_1,data_2,data_3,data_4,data_5,data_6,data_7,data_8,data_9,data_10,regdate)
-            VALUES
-            (:col1,:col2,:col3,:col4,:col5,:col6,:col7,:col8,:col9,:col10,:col11,:col12,'Y',:col13,'{$_SERVER['REMOTE_ADDR']}',:col14,:col15,:col16,:col17,:col18,:col19,:col20,:col21,:col22,:col23,:col24,:col25,:col26)
+            insert into {$sql->table("mod:board_data_".$board_id)}
+            (category, mb_idx, mb_id, writer, pwd, email, article, subject, file1, file2, use_secret, use_notice, use_html, use_email, ip, ln, rn, data_1, data_2, data_3, data_4, data_5, data_6, data_7, data_8, data_9, data_10, regdate)
+            values
+            (:col1, :col2, :col3, :col4, :col5, :col6, :col7, :col8, :col9, :col10, :col11, :col12, 'Y', :col13, '{$_SERVER['REMOTE_ADDR']}', :col14, :col15, :col16, :col17, :col18, :col19, :col20, :col21, :col22, :col23, :col24, :col25, :col26)
             ",
             array(
-                $req['category'], $MB['idx'], $MB['id'], $req['writer'], $req['password'], $req['email'], $req['article'], $req['subject'], (isset($ufile[1])) ? $ufile[1]['ufile_name'] : '', (isset($ufile[2])) ? $ufile[2]['ufile_name'] : '', $wr_opt['secret'], $wr_opt['notice'], $wr_opt['email'], $ln_arr['ln_max'], 0, $req['data_1'], $req['data_2'], $req['data_3'], $req['data_4'], $req['data_5'], $req['data_6'], $req['data_7'], $req['data_8'], $req['data_9'], $req['data_10'], $wdate
+                $req['category'], $MB['idx'], $MB['id'], $req['writer'], $req['password'], $req['email'], $req['article'], $req['subject'], (isset($ufile[1])) ? $ufile[1]['ufile_name'] : '',
+                (isset($ufile[2])) ? $ufile[2]['ufile_name'] : '', $wr_opt['secret'], $wr_opt['notice'], $wr_opt['email'], $ln_arr['ln_max'], 0,
+                $req['data_1'], $req['data_2'], $req['data_3'], $req['data_4'], $req['data_5'], $req['data_6'], $req['data_7'], $req['data_8'], $req['data_9'], $req['data_10'], $wdate
             )
         );
 
-        //작성된 글의 idx
+        // 작성된 글의 idx를 다시 가져옴
         $sql->query(
             "
-            SELECT idx
-            FROM {$sql->table("mod:board_data_".$board_id)}
-            WHERE writer=:col1 AND subject=:col2 AND article=:col3
+            select idx
+            from {$sql->table("mod:board_data_".$board_id)}
+            where writer=:col1 and subject=:col2 and article=:col3
             ",
             array(
                 $req['writer'], $req['subject'], $req['article']
             )
         );
 
-        //관리자 Dashboard 소식 등록
+        // 관리자 Dashboard 소식 등록
         if (Write::$boardconf['use_mng_feed'] == 'Y') {
             Func::add_mng_feed(
                 array(
                     'from' => $MODULE_BOARD_CONF['title'],
                     'msg' => '<strong>'.$req['writer'].'</strong>님이 <strong>'.Write::$boardconf['title'].'</strong> 게시판에 새로운 글을 등록했습니다.',
-                    'link' => $req['thisuri'].'?mode=view&read='.$sql->fetch('idx')
+                    'link' => $req['thisuri'].'/'.$sql->fetch('idx')
                 )
             );
         }
 
-        //return
-        $return_url = $req['thisuri'].'/'.$sql->fetch('idx').Func::get_param_combine('?category='.urlencode($req['category']), '?');
+        // return
+        if ($sql->getcount() > 0) {
+            $return_url = $req['thisuri'].'/'.$sql->fetch('idx').Func::get_param_combine('?category='.urlencode($req['category']), '?');
 
-        if (isset($req['request']) && $req['request'] == 'manage') {
-            $return_url = './board?id='.$board_id.'&category='.urlencode($req['category']);
+        } else {
+            $return_url = $req['thisuri'].Func::get_param_combine('?category='.urlencode($req['category']), '?');
         }
+
+        if (isset($req['request']) && $req['request'] == 'manage') $return_url = './board?id='.$board_id.'&category='.urlencode($req['category']);
 
         Valid::set(
             array(
@@ -887,90 +804,76 @@ class Write_submit{
         Valid::turn();
     }
 
-    ///
+    //
     // 글 수정
-    ///
+    //
     private function get_modify()
     {
         global $MB, $req, $org_arr, $ufile, $wr_opt, $board_id;
 
         $sql = new Pdosql();
 
-        //공지사항 옵션 체크한 경우 답글이 있는지
+        // 공지사항 옵션 체크한 경우 답글이 있는지
         if ($req['use_notice'] == 'checked') {
 
-            //최소/최대 ln값 구함
+            // 최소/최대 ln값 구함
             $ln_min = (int)(ceil($org_arr['ln'] / 1000) * 1000) - 1000;
             $ln_max = (int)(ceil($org_arr['ln'] / 1000) * 1000);
 
             $sql->query(
                 "
-                SELECT *
-                FROM {$sql->table("mod:board_data_".$board_id)}
-                WHERE ln>:col1 AND ln<=:col2
+                select *
+                from {$sql->table("mod:board_data_".$board_id)}
+                where ln>:col1 and ln<=:col2
                 ",
                 array(
                     $ln_min, $ln_max
                 )
             );
 
-            if ($sql->getCount() > 1) {
-                Valid::error('', '답글이 있는 게시글은 공지사항 옵션을 사용할 수 없습니다.');
-            }
+            if ($sql->getCount() > 1) Valid::error('', '답글이 있는 게시글은 공지사항 옵션을 사용할 수 없습니다.');
         }
 
-        //Category 처리
-        if ($org_arr['reply_cnt'] > 0) {
-            $category = $org_arr['category'];
+        // Category 처리
+        $category = ($org_arr['reply_cnt'] > 0) ? $org_arr['category'] : $req['category'];
 
-        } else {
-            $category = $req['category'];
-        }
+        // writer 처리
+        $req['writer'] = ($org_arr['mb_idx'] == $MB['idx'] && IS_MEMBER) ? $MB['name'] : $org_arr['writer'];
 
-        //writer 처리
-        if ($org_arr['mb_idx'] == $MB['idx'] && IS_MEMBER) {
-            $req['writer'] = $MB['name'];
-
-        } else if ($org_arr['mb_idx'] != 0 && IS_MEMBER) {
-            $req['writer'] = $org_arr['writer'];
-        }
-
-        //email & password 처리
+        // email & password 처리
         if (IS_MEMBER && $org_arr['mb_idx'] != 0) {
             $req['email'] = $org_arr['email'];
             $req['password'] = $org_arr['pwd'];
         }
 
-        //Manager 에서 등록한 경우 날짜 설정
+        // manager에서 등록한 경우 날짜 설정
         $wdate = $org_arr['regdate'];
-        if (isset($req['request']) && $req['request'] == 'manage') {
-            if ($req['wdate_date']) {
-                $wdate = $req['wdate_date'].' '.$req['wdate_h'].':'.$req['wdate_i'].':'.$req['wdate_s'];
-            }
+        if (isset($req['request']) && $req['request'] == 'manage' && $req['wdate_date']) {
+            $wdate = $req['wdate_date'].' '.$req['wdate_h'].':'.$req['wdate_i'].':'.$req['wdate_s'];
         }
 
-        //update
+        // update
         $sql->query(
             "
-            UPDATE {$sql->table("mod:board_data_".$board_id)}
-            SET category=:col1,writer=:col2,pwd=:col3,email=:col4,article=:col5,subject=:col6,file1=:col7,file2=:col8,use_secret=:col9,use_notice=:col10,use_html='Y',use_email=:col11,ip='{$_SERVER['REMOTE_ADDR']}',regdate=:col12,data_1=:col13,data_2=:col14,data_3=:col15,data_4=:col16,data_5=:col17,data_6=:col18,data_7=:col19,data_8=:col20,data_9=:col21,data_10=:col22
-            WHERE idx=:col23
+            update {$sql->table("mod:board_data_".$board_id)}
+            set category=:col2, writer=:col3, pwd=:col4, email=:col5, article=:col6, subject=:col7, file1=:col8, file2=:col9, use_secret=:col10, use_notice=:col11,
+            use_html='Y', use_email=:col12, ip='{$_SERVER['REMOTE_ADDR']}', regdate=:col13, data_1=:col14, data_2=:col15, data_3=:col16, data_4=:col17, data_5=:col18, data_6=:col19, data_7=:col20, data_8=:col21, data_9=:col22, data_10=:col23
+            where idx=:col1
             ",
             array(
-                $category, $req['writer'], $req['password'], $req['email'], $req['article'], $req['subject'], (isset($ufile[1])) ? $ufile[1]['ufile_name'] : '', (isset($ufile[2])) ? $ufile[2]['ufile_name'] : '', $wr_opt['secret'], $wr_opt['notice'], $wr_opt['email'], $wdate, $req['data_1'], $req['data_2'], $req['data_3'], $req['data_4'], $req['data_5'], $req['data_6'], $req['data_7'], $req['data_8'], $req['data_9'], $req['data_10'],
-                $req['read']
+                $req['read'], $category, $req['writer'], $req['password'], $req['email'], $req['article'], $req['subject'],
+                (isset($ufile[1])) ? $ufile[1]['ufile_name'] : '', (isset($ufile[2])) ? $ufile[2]['ufile_name'] : '',
+                $wr_opt['secret'], $wr_opt['notice'], $wr_opt['email'], $wdate, $req['data_1'], $req['data_2'], $req['data_3'], $req['data_4'], $req['data_5'],
+                $req['data_6'], $req['data_7'], $req['data_8'], $req['data_9'], $req['data_10']
             )
         );
 
-        //조회수 session
+        // 조회수 session
         Session::set_sess('BOARD_VIEW_'.$req['read'], $req['read']);
 
-        //return
+        // return
         $return_url = $req['thisuri'].'/'.$req['read'].Func::get_param_combine('page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category_ed']), '?');
-
-        if (isset($req['request']) && $req['request'] == 'manage') {
-            $return_url = './board-view?id='.$board_id.'&read='.$req['read'].'&page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category_ed']);
-        }
+        if (isset($req['request']) && $req['request'] == 'manage') $return_url = './board-view?id='.$board_id.'&read='.$req['read'].'&page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category_ed']);
 
         Valid::set(
             array(
@@ -981,9 +884,9 @@ class Write_submit{
         Valid::turn();
     }
 
-    ///
+    //
     // 답글 작성
-    ///
+    //
     private function get_reply()
     {
         global $MODULE_BOARD_CONF, $MB, $req, $org_arr, $ufile, $wr_opt, $board_id;
@@ -992,28 +895,28 @@ class Write_submit{
         $mail = new Mail();
         $Alarm_Library = new Alarm_Library();
 
-        //ln값 처리
+        // ln값 처리
         $ln_max = (int)$org_arr['ln'];
         $ln_min = (int)(ceil($org_arr['ln'] / 1000) * 1000) - 1000;
         $ln_me = (int)$org_arr['ln'] - 1;
 
         $sql->query(
             "
-            UPDATE {$sql->table("mod:board_data_".$board_id)}
-            SET ln=ln-1
-            WHERE ln<:col1 AND ln>:col2 AND rn>0
+            update {$sql->table("mod:board_data_".$board_id)}
+            set ln=ln-1
+            where ln<:col1 and ln>:col2 and rn>0
             ",
             array(
                 $ln_max, $ln_min
             )
         );
 
-        //rn값 처리
+        // rn값 처리
         $sql->query(
             "
-            SELECT rn+1 AS rn_max
-            FROM {$sql->table("mod:board_data_".$board_id)}
-            WHERE idx=:col1
+            select rn+1 as rn_max
+            from {$sql->table("mod:board_data_".$board_id)}
+            where idx=:col1
             ",
             array(
                 $req['read']
@@ -1023,43 +926,43 @@ class Write_submit{
         $rn_arr = array();
         $rn_arr['rn_max'] = $sql->fetch('rn_max');
 
-        //회원인 경우 정보를 필드에 기록
+        // 회원인 경우 정보를 필드에 기록
         if (IS_MEMBER) {
             $req['email'] = $MB['email'];
             $req['writer'] = $MB['name'];
         }
 
-        //비회원의 비밀글에 대한 답글인 경우 원본글의 비밀번호를 기록
-        if ($org_arr['use_secret'] == 'Y' && $org_arr['mb_idx'] == 0) {
-            $req['password'] = $org_arr['pwd'];
-        }
+        // 비회원의 비밀글에 대한 답글인 경우 원본글의 비밀번호를 기록
+        if ($org_arr['use_secret'] == 'Y' && $org_arr['mb_idx'] == 0) $req['password'] = $org_arr['pwd'];
 
-        //insert
+        // insert
         $sql->query(
             "
-            INSERT INTO {$sql->table("mod:board_data_".$board_id)}
-            (category,mb_idx,mb_id,writer,pwd,email,article,subject,file1,file2,use_secret,use_notice,use_html,use_email,ip,regdate,ln,rn,data_1,data_2,data_3,data_4,data_5,data_6,data_7,data_8,data_9,data_10)
-            VALUES
-            (:col1,:col2,:col3,:col4,:col5,:col6,:col7,:col8,:col9,:col10,:col11,:col12,'Y',:col13,'{$_SERVER['REMOTE_ADDR']}',now(),:col14,:col15,:col16,:col17,:col18,:col19,:col20,:col21,:col22,:col23,:col24,:col25)
+            insert into {$sql->table("mod:board_data_".$board_id)}
+            (category, mb_idx, mb_id, writer, pwd, email, article, subject, file1, file2, use_secret, use_notice, use_html, use_email, ip, regdate, ln, rn, data_1, data_2, data_3, data_4, data_5, data_6, data_7, data_8, data_9, data_10)
+            values
+            (:col1, :col2, :col3, :col4, :col5, :col6, :col7, :col8, :col9, :col10, :col11, :col12, 'Y', :col13, '{$_SERVER['REMOTE_ADDR']}', now(), :col14, :col15, :col16, :col17, :col18, :col19, :col20, :col21, :col22, :col23, :col24, :col25)
             ",
             array(
-                $org_arr['category'], $MB['idx'], $MB['id'], $req['writer'], $req['password'], $req['email'], $req['article'], $req['subject'], (isset($ufile[1])) ? $ufile[1]['ufile_name'] : '', (isset($ufile[2])) ? $ufile[2]['ufile_name'] : '', $wr_opt['secret'], $wr_opt['notice'], $wr_opt['email'], $ln_me, $rn_arr['rn_max'], $req['data_1'], $req['data_2'], $req['data_3'], $req['data_4'], $req['data_5'], $req['data_6'], $req['data_7'], $req['data_8'], $req['data_9'], $req['data_10']
+                $org_arr['category'], $MB['idx'], $MB['id'], $req['writer'], $req['password'], $req['email'], $req['article'], $req['subject'], (isset($ufile[1])) ? $ufile[1]['ufile_name'] : '',
+                (isset($ufile[2])) ? $ufile[2]['ufile_name'] : '', $wr_opt['secret'], $wr_opt['notice'], $wr_opt['email'], $ln_me, $rn_arr['rn_max'],
+                $req['data_1'], $req['data_2'], $req['data_3'], $req['data_4'], $req['data_5'], $req['data_6'], $req['data_7'], $req['data_8'], $req['data_9'], $req['data_10']
             )
         );
 
-        //작성된 글의 idx
+        // 작성된 글의 idx를 다시 가져옴
         $sql->query(
             "
-            SELECT idx
-            FROM {$sql->table("mod:board_data_".$board_id)}
-            WHERE writer=:col1 AND subject=:col2 AND article=:col3
+            select idx
+            from {$sql->table("mod:board_data_".$board_id)}
+            where writer=:col1 and subject=:col2 and article=:col3
             ",
             array(
                 $req['writer'], $req['subject'], $req['article']
             )
         );
 
-        //원본글이 답글 이메일 수신 옵션이 켜져 있는 경우 원본글 작성자에게 메일 발송
+        // 원본글이 답글 이메일 수신 옵션이 켜져 있는 경우 원본글 작성자에게 메일 발송
         if ($org_arr['use_email'] == 'Y') {
             $memo = '
                 <strong>'.Write::$boardconf['title'].'</strong>에 게시한<br /><br />
@@ -1082,21 +985,21 @@ class Write_submit{
             $mail->send();
         }
 
-        //조회수 session
+        // 조회수 session
         Session::set_sess('BOARD_VIEW_'.$sql->fetch('idx'), $sql->fetch('idx'));
 
-        //관리자 최근 피드에 등록
+        // 관리자 최근 피드에 등록
         if (Write::$boardconf['use_mng_feed'] == 'Y') {
             Func::add_mng_feed(
                 array(
                     'from' => $MODULE_BOARD_CONF['title'],
                     'msg' => '<strong>'.$req['writer'].'</strong>님이 <strong>'.Write::$boardconf['title'].'</strong> 게시판에 새로운 답글을 등록했습니다.',
-                    'link' => $req['thisuri'].'?mode=view&read='.$sql->fetch('idx')
+                    'link' => $req['thisuri'].'/'.$sql->fetch('idx')
                 )
             );
         }
 
-        //원글 작성자에게 알림 발송
+        // 원글 작성자에게 알림 발송
         if ($req['wrmode'] == 'reply' && $org_arr['mb_idx'] > 0 && $org_arr['mb_idx'] != $MB['idx']) {
             $Alarm_Library->get_add_alarm(
                 array(
@@ -1109,12 +1012,15 @@ class Write_submit{
             );
         }
 
-        //return
-        $return_url = $req['thisuri'].'/'.$sql->fetch('idx').Func::get_param_combine('page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category_ed']), '?');
+        // return
+        if ($sql->getcount() > 0) {
+            $return_url = $req['thisuri'].'/'.$sql->fetch('idx').Func::get_param_combine('page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category_ed']), '?');
 
-        if (isset($req['request']) && $req['request'] == 'manage') {
-            $return_url = './board?id='.$board_id.'&category='.urlencode($req['category_ed']).'&page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category_ed']);
+        } else {
+            $return_url = $req['thisuri'].Func::get_param_combine('?category='.urlencode($req['category']), '?');
         }
+
+        if (isset($req['request']) && $req['request'] == 'manage') $return_url = './board?id='.$board_id.'&category='.urlencode($req['category_ed']).'&page='.$req['page'].'&where='.$req['where'].'&keyword='.$req['keyword'].'&category='.urlencode($req['category_ed']);
 
         Valid::set(
             array(

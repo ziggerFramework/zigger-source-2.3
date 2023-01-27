@@ -1,5 +1,5 @@
 <div id="sub-tit">
-    <h2>새로운 게시글 작성</h2>
+    <h2>게시글 작성</h2>
     <em><i class="fa fa-exclamation-circle"></i>현재 게시판에 새로운 게시글 작성</em>
 </div>
 
@@ -21,7 +21,7 @@
         <table class="table1">
             <thead>
                 <tr>
-                    <th colspan="2" class="tal">새로운 게시글 작성</th>
+                    <th colspan="2" class="tal"><?php echo $write_title; ?></th>
                 </tr>
             </thead>
             <tbody>

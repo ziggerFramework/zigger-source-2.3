@@ -15,8 +15,7 @@ class Imgresize {
 
     public function set($arr)
     {
-        foreach ($arr as $key => $value)
-        {
+        foreach ($arr as $key => $value) {
             $this->{$key} = $value;
         }
     }
@@ -45,6 +44,7 @@ class Imgresize {
 
         if ($org_width > $this->width) {
             $height = $this->width * ($org_height / $org_width);
+
         } else {
             $this->width = $org_width;
             $height = $org_height;

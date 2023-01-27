@@ -5,9 +5,10 @@ use Corelib\Valid;
 use Make\Database\Pdosql;
 use Manage\ManageFunc;
 
-/***
-Result
-***/
+//
+// Controller for display
+// https://{domain}/manage/mod/contents/result/result
+//
 class Result extends \Controller\Make_Controller {
 
     public function init()
@@ -43,9 +44,10 @@ class Result extends \Controller\Make_Controller {
 
 }
 
-/***
-Search List
-***/
+//
+// Module Controller
+// ( SearchList )
+//
 class SearchList extends \Controller\Make_Controller {
 
     public function init()
@@ -56,15 +58,13 @@ class SearchList extends \Controller\Make_Controller {
     public function make()
     {
         $sql = new Pdosql();
-        $sql2 = new Pdosql();
-        $sql3 = new Pdosql();
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("mod:search")}
-            WHERE CHAR_LENGTH(caidx)=4
-            ORDER BY caidx ASC
+            select *
+            from {$sql->table("mod:search")}
+            where char_length(caidx)=4
+            order by caidx asc
             ", []
         );
         $list_cnt = $sql->getcount();
@@ -86,9 +86,10 @@ class SearchList extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for Search List
-***/
+//
+// Controller for submit
+// ( SearchList )
+//
 class SearchList_submit{
 
     public function init()
@@ -110,9 +111,9 @@ class SearchList_submit{
         }
     }
 
-    ///
+    //
     // add
-    ///
+    //
     public function get_add()
     {
         global $req;
@@ -121,35 +122,27 @@ class SearchList_submit{
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("mod:search")}
-            ORDER BY idx DESC
-            LIMIT 1
+            select *
+            from {$sql->table("mod:search")}
+            order by idx DESC
+            limit 1
             ", []
         );
 
         $recent_idx = $sql->fetch('idx');
 
-        if ($recent_idx) {
-            $recent_idx++;
-
-        } else {
-            $recent_idx = 1;
-        }
+        ($recent_idx) ? $recent_idx++ : $recent_idx = 1;
 
         $sql->query(
             "
-            INSERT INTO
+            insert into
             {$sql->table("mod:search")}
-            (idx,caidx,title,children)
-            VALUES
-            (:col1,:col2,:col3,:col4)
+            (idx, caidx, title, children)
+            values
+            (:col1, :col2, :col3, :col4)
             ",
             array(
-                $recent_idx,
-                $req['new_caidx'],
-                '새로운 통합검색 콘텐츠',
-                0
+                $recent_idx, $req['new_caidx'], '새로운 통합검색 콘텐츠', 0
             )
         );
 
@@ -162,9 +155,9 @@ class SearchList_submit{
         Valid::turn();
     }
 
-    ///
+    //
     // modify
-    ///
+    //
     public function get_modify()
     {
         global $req, $where;
@@ -178,20 +171,15 @@ class SearchList_submit{
 
         } else {
             for ($i = 0; $i < count($req['idx']); $i++) {
-                if ($i == 0) {
-                    $where .= 'idx!=\''.$req['idx'][$i].'\'';
-
-                } else {
-                    $where .= ' AND idx!=\''.$req['idx'][$i].'\'';
-                }
+                $where .= ($i == 0) ? 'idx!=\''.$req['idx'][$i].'\'' : ' and idx!=\''.$req['idx'][$i].'\'';
             }
         }
 
         $sql->query(
             "
-            DELETE
-            FROM {$sql->table("mod:search")}
-            WHERE $where
+            delete
+            from {$sql->table("mod:search")}
+            where $where
             ", []
         );
 
@@ -200,9 +188,9 @@ class SearchList_submit{
         for ($i = 0; $i < count($req['idx']); $i++) {
             $sql->query(
                 "
-                SELECT COUNT(*) count
-                FROM {$sql->table("mod:search")}
-                WHERE caidx LIKE :col1
+                select COUNT(*) count
+                from {$sql->table("mod:search")}
+                where caidx like :col1
                 ",
                 array(
                     $req['org_caidx'][$i].'%'
@@ -214,15 +202,13 @@ class SearchList_submit{
         for ($i = 0; $i < count($req['idx']); $i++) {
             $sql->query(
                 "
-                UPDATE {$sql->table("mod:search")}
-                SET
-                caidx=:col1,children=:col2
-                WHERE idx=:col3
+                update {$sql->table("mod:search")}
+                set
+                caidx=:col1, children=:col2
+                where idx=:col3
                 ",
                 array(
-                    $req['caidx'][$i],
-                    $children_count[$i],
-                    $req['idx'][$i]
+                    $req['caidx'][$i], $children_count[$i], $req['idx'][$i]
                 )
             );
         }
@@ -237,9 +223,10 @@ class SearchList_submit{
     }
 }
 
-/***
-Search Modify
-***/
+//
+// Module Controller
+// ( SearchModify )
+//
 class SearchModify extends \Controller\Make_Controller {
 
     public function init(){
@@ -253,15 +240,15 @@ class SearchModify extends \Controller\Make_Controller {
             $sql = new Pdosql();
             $sltarr = array();
 
-            //baord
+            // baord
             $sql->query(
                 "
-                SELECT board.cfg_value as board_id, board_title.cfg_value as board_title
-                FROM {$sql->table("config")} board
-                LEFT OUTER JOIN {$sql->table("config")} board_title
-                ON board.cfg_type=board_title.cfg_type AND board_title.cfg_key='title'
-                WHERE board.cfg_type like 'mod:board:config:%' AND board.cfg_key='id'
-                ORDER BY board.cfg_value ASC;
+                select board.cfg_value as board_id, board_title.cfg_value as board_title
+                from {$sql->table("config")} board
+                left outer join {$sql->table("config")} board_title
+                on board.cfg_type=board_title.cfg_type and board_title.cfg_key='title'
+                where board.cfg_type like 'mod:board:config:%' and board.cfg_key='id'
+                order by board.cfg_value asc;
                 ", []
             );
 
@@ -276,12 +263,12 @@ class SearchModify extends \Controller\Make_Controller {
 
             } while($sql->nextRec());
 
-            //contents
+            // contents
             $sql->query(
                 "
-                SELECT *
-                FROM {$sql->table("mod:contents")}
-                ORDER BY data_key ASC
+                select *
+                from {$sql->table("mod:contents")}
+                order by data_key asc
                 ", []
             );
 
@@ -308,9 +295,9 @@ class SearchModify extends \Controller\Make_Controller {
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("mod:search")}
-            WHERE idx=:col1
+            select *
+            from {$sql->table("mod:search")}
+            where idx=:col1
             ",
             array(
                 $req['idx']
@@ -343,9 +330,10 @@ class SearchModify extends \Controller\Make_Controller {
     }
 }
 
-/***
-Submit for Search Modify
-***/
+//
+// Controller for submit
+// ( SearchModify )
+//
 class SearchModify_submit{
 
     public function init()
@@ -381,16 +369,13 @@ class SearchModify_submit{
 
         $sql->query(
             "
-            UPDATE {$sql->table("mod:search")}
-            SET
-            title=:col1,href=:col2,opt=:col3
-            WHERE idx=:col4
+            update {$sql->table("mod:search")}
+            set
+            title=:col1, href=:col2, opt=:col3
+            where idx=:col4
             ",
             array(
-                $req['title'],
-                $req['href'],
-                $req['module'].'|'.$req['limit'],
-                $req['idx']
+                $req['title'], $req['href'], $req['module'].'|'.$req['limit'], $req['idx']
             )
         );
 

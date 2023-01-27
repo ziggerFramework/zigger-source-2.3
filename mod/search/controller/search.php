@@ -5,6 +5,10 @@ use Corelib\Func;
 use Corelib\Method;
 use Make\Database\Pdosql;
 
+//
+// Module Controller
+// ( Search )
+//
 class Search extends \Controller\Make_Controller {
 
     public function init()
@@ -32,23 +36,21 @@ class Search extends \Controller\Make_Controller {
 
             $where = '';
 
-            foreach (exp_keywords($keyword) as $key => $value) {
-                $or = '';
-                if ($key > 0) {
-                    $or = ' OR ';
-                }
+            foreach (exp_keywords($keyword) as $key => $value)
+            {
+                $or = ($key > 0) ? ' or ' : '';
                 $where .= $or.'html like \'%'.$value.'%\'';
             }
 
             $sql->query(
                 "
-                SELECT *
-                FROM {$sql->table("mod:contents")}
-                WHERE ({$where})
+                select *
+                from {$sql->table("mod:contents")}
+                where ({$where})
                 ", []
             );
 
-            $return = NULL;
+            $return = ($sql->getcount() > 0) ? array() : null;
 
             if ($sql->getcount() > 0) {
                 $arr = array();
@@ -71,37 +73,28 @@ class Search extends \Controller\Make_Controller {
         {
             $sql = new Pdosql();
 
-            $where = array(
-                0 => null,
-                1 => null,
-                2 => null
-            );
-
-            if (!$sql->table_exists('mod:board_data_'.$board)) {
-                return null;
-            }
+            if (!$sql->table_exists('mod:board_data_'.$board)) return null;
 
             foreach (exp_keywords($keyword) as $key => $value) {
-                $or = '';
-                if ($key > 0) {
-                    $or = ' OR ';
-                }
-                $where[0] .= $or.' subject like \'%'.$value.'%\'';
-                $where[1] .= $or.' article like \'%'.$value.'%\'';
-                $where[2] .= $or.' writer like \'%'.$value.'%\'';
+                $or = ($key > 0) ? ' or ' : '';
+                $where = array(
+                    $or.' subject like \'%'.$value.'%\'',
+                    $or.' article like \'%'.$value.'%\'',
+                    $or.' writer like \'%'.$value.'%\''
+                );
             }
 
             $sql->query(
                 "
-                SELECT *
-                FROM {$sql->table("mod:board_data_{$board}")}
-                WHERE ({$where[0]}) OR ({$where[1]}) OR ({$where[2]}) AND dregdate IS NULL
-                ORDER BY regdate DESC
-                LIMIT 0, {$limit}
+                select *
+                from {$sql->table("mod:board_data_{$board}")}
+                where ({$where[0]}) or ({$where[1]}) or ({$where[2]}) and dregdate is null
+                order by regdate desc
+                limit 0, {$limit}
                 ", []
             );
 
-            $return = NULL;
+            $return = ($sql->getcount() > 0) ? array() : null;
 
             if ($sql->getcount() > 0) {
                 do {
@@ -133,10 +126,10 @@ class Search extends \Controller\Make_Controller {
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("mod:search")}
-            WHERE opt IS NOT NULL AND href IS NOT NULL
-            ORDER BY caidx ASC
+            select *
+            from {$sql->table("mod:search")}
+            where opt is not null and href is not null
+            order by caidx asc
             ", []
         );
 
@@ -149,19 +142,17 @@ class Search extends \Controller\Make_Controller {
                 $mod_arr = array();
                 $opt_exp = explode('|', $arr['opt']);
 
-                //module type
+                // module type
                 $mod_arr['modue'] = $opt_exp[0];
                 $mod_arr['title'] = $arr['title'];
 
-                //더보기 링크 생성
+                // 더보기 링크 생성
                 $mod_arr['href'] = PH_DOMAIN.'/'.$arr['href'];
                 $mod_arr[0]['href'] = PH_DOMAIN.'/'.$arr['href'];
 
-                if ($opt_exp[0] == 'board') {
-                    $mod_arr[0]['href'] = $mod_arr['href'].'?keyword='.urlencode($req['keyword']);
-                }
+                if ($opt_exp[0] == 'board') $mod_arr[0]['href'] = $mod_arr['href'].'?keyword='.urlencode($req['keyword']);
 
-                //모듈별 Database 처리
+                // 모듈별 Database 처리
                 switch ($opt_exp[0]) {
                     case 'contents' :
                         $mod_arr['data'] = get_module_contents($req['keyword']);
@@ -174,7 +165,7 @@ class Search extends \Controller\Make_Controller {
 
                 $print_arr[] = $mod_arr;
 
-            } while($sql->nextRec());
+            } while ($sql->nextRec());
 
         }
 

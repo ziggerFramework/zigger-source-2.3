@@ -7,9 +7,10 @@ use Make\Database\Pdosql;
 use Make\Library\Paging;
 use Module\Alarm\Library as Alarm_Library;
 
-/***
-Received
-***/
+//
+// Module Controller
+// ( Received )
+//
 class Received extends \Controller\Make_Controller {
 
     public function init()
@@ -27,15 +28,13 @@ class Received extends \Controller\Make_Controller {
 
         Func::getlogin(SET_NOAUTH_MSG);
 
-        $paging->setlimit(SET_LIST_LIMIT);
-
         $sql->query(
             $paging->query(
                 "
-                SELECT *
-                FROM {$sql->table("mod:alarm")}
-                WHERE to_mb_idx=:col1
-                ORDER BY regdate DESC
+                select *
+                from {$sql->table("mod:alarm")}
+                where to_mb_idx=:col1
+                order by regdate DESC
                 ",
                 array(
                     MB_IDX
@@ -48,7 +47,7 @@ class Received extends \Controller\Make_Controller {
             do {
                 $sql->nl2br = 1;
                 $sql->specialchars = 1;
-                
+
                 $arr = $sql->fetchs();
 
                 $sql->nl2br = 0;
@@ -61,7 +60,7 @@ class Received extends \Controller\Make_Controller {
 
                 $print_arr[] = $arr;
 
-            } while($sql->nextRec());
+            } while ($sql->nextRec());
 
         }
 

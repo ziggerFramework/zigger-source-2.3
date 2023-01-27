@@ -6,18 +6,21 @@ use Make\Database\Pdosql;
 use Make\Library\Paging;
 use Manage\ManageFunc;
 
-/***
-Result
-***/
+//
+// Controller for display
+// https://{domain}/manage/popup/result
+//
 class Result extends \Controller\Make_Controller {
 
-    public function init(){
+    public function init()
+    {
         $this->layout()->mng_head();
         $this->layout()->view(PH_MANAGE_PATH.'/html/popup/result.tpl.php');
         $this->layout()->mng_foot();
     }
 
-    public function func(){
+    public function func()
+    {
         function pop_total($arr)
         {
             return Func::number($arr['pop_total']);
@@ -57,26 +60,26 @@ class Result extends \Controller\Make_Controller {
         $paging = new Paging();
         $manage = new ManageFunc();
 
-        //sortby
+        // sortby
         $sortby = '';
         $sort_arr = array();
 
         $sql->query(
             "
-            SELECT
+            select
             (
-                SELECT COUNT(*)
-                FROM {$sql->table("popup")}
+                select count(*)
+                from {$sql->table("popup")}
             ) pop_total,
             (
-                SELECT COUNT(*)
-                FROM {$sql->table("popup")}
-                WHERE show_from<now() AND show_to>now()
+                select count(*)
+                from {$sql->table("popup")}
+                where show_from<now() and show_to>now()
             ) use_pop,
             (
-                SELECT COUNT(*)
-                FROM {$sql->table("popup")}
-                WHERE (show_from>now() OR show_to<now())
+                select count(*)
+                from {$sql->table("popup")}
+                where (show_from>now() or show_to<now())
             ) notuse_pop
             ", []
         );
@@ -86,33 +89,29 @@ class Result extends \Controller\Make_Controller {
 
         switch ($PARAM['sort']) {
             case 'usepop' :
-                $sortby = 'AND show_from<now() AND show_to>now()';
+                $sortby = 'and show_from<now() and show_to>now()';
                 break;
 
             case 'nousepop' :
-                $sortby = 'AND (show_from>now() OR show_to<now())';
+                $sortby = 'and (show_from>now() or show_to<now())';
                 break;
         }
 
-        //orderby
-        if (!$PARAM['ordtg']) {
-            $PARAM['ordtg'] = 'regdate';
-        }
-        if (!$PARAM['ordsc']) {
-            $PARAM['ordsc'] = 'desc';
-        }
+        // orderby
+        if (!$PARAM['ordtg']) $PARAM['ordtg'] = 'regdate';
+        if (!$PARAM['ordsc']) $PARAM['ordsc'] = 'desc';
         $orderby = $PARAM['ordtg'].' '.$PARAM['ordsc'];
 
-        //list
+        // list
         $sql->query(
             $paging->query(
                 "
-                SELECT *
-                FROM {$sql->table("popup")}
-                WHERE 1 $sortby $searchby
+                select *
+                from {$sql->table("popup")}
+                where 1 $sortby $searchby
                 ORDER BY $orderby
                 ", []
-            ),''
+            )
         );
         $list_cnt = $sql->getcount();
         $total_cnt = Func::number($paging->totalCount);
@@ -140,14 +139,14 @@ class Result extends \Controller\Make_Controller {
         $this->set('notuse_pop', notuse_pop($sort_arr));
         $this->set('pagingprint', $paging->pagingprint($manage->pag_def_param()));
         $this->set('print_arr', $print_arr);
-
     }
 
 }
 
-/***
-Regist
-***/
+//
+// Controller for display
+// https://{domain}/manage/popup/regist
+//
 class Regist extends \Controller\Make_Controller {
 
     public function init()
@@ -175,12 +174,14 @@ class Regist extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for Regist
-***/
+//
+// Controller for submit
+// ( Regist )
+//
 class Regist_submit{
 
-    public function init(){
+    public function init()
+    {
         $sql = new Pdosql();
         $manage = new ManageFunc();
 
@@ -271,40 +272,39 @@ class Regist_submit{
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("popup")}
-            WHERE id=:col1
-            LIMIT 1
+            select *
+            from {$sql->table("popup")}
+            where id=:col1
+            limit 1
             ",
             array(
                 $req['id']
             )
         );
 
-        if ($sql->getcount() > 0) {
-            Valid::error('id', '이미 존재하는 팝업 id 입니다.');
-        }
+        if ($sql->getcount() > 0) Valid::error('id', '이미 존재하는 팝업 id 입니다.');
 
         $req['show_to'] = $req['show_to'].' 23:59:59';
 
         $sql->query(
             "
-            INSERT INTO {$sql->table("popup")}
-            (id,title,link,link_target,width,height,pos_left,pos_top,level_from,level_to,show_from,show_to,html,mo_html,regdate)
-            VALUES
-            (:col1,:col2,:col3,:col4,:col5,:col6,:col7,:col8,:col9,:col10,:col11,:col12,:col13,:col14,now())
+            insert into {$sql->table("popup")}
+            (id, title, link, link_target, width, height, pos_left, pos_top, level_from, level_to, show_from, show_to, html, mo_html, regdate)
+            values
+            (:col1, :col2, :col3, :col4, :col5, :col6, :col7, :col8, :col9, :col10, :col11, :col12, :col13, :col14, now())
             ",
             array(
-                $req['id'], $req['title'], $req['link'], $req['link_target'], $req['width'], $req['height'], $req['pos_left'],$req['pos_top'], $req['level_from'], $req['level_to'], $req['show_from'], $req['show_to'], $req['html'], $req['mo_html']
+                $req['id'], $req['title'], $req['link'], $req['link_target'], $req['width'], $req['height'], $req['pos_left'],$req['pos_top'],
+                $req['level_from'], $req['level_to'], $req['show_from'], $req['show_to'], $req['html'], $req['mo_html']
             )
         );
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("popup")}
-            WHERE id=:col1
-            LIMIT 1
+            select *
+            from {$sql->table("popup")}
+            where id=:col1
+            limit 1
             ",
             array(
                 $req['id']
@@ -324,18 +324,21 @@ class Regist_submit{
 
 }
 
-/***
-Modify
-***/
+//
+// Controller for display
+// https://{domain}/manage/popup/modify
+//
 class Modify extends \Controller\Make_Controller {
 
-    public function init(){
+    public function init()
+    {
         $this->layout()->mng_head();
         $this->layout()->view(PH_MANAGE_PATH.'/html/popup/modify.tpl.php');
         $this->layout()->mng_foot();
     }
 
-    public function make(){
+    public function make()
+    {
         $sql = new Pdosql();
         $manage = new ManageFunc();
 
@@ -343,19 +346,17 @@ class Modify extends \Controller\Make_Controller {
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("popup")}
-            WHERE idx=:col1
-            LIMIT 1
+            select *
+            from {$sql->table("popup")}
+            where idx=:col1
+            limit 1
             ",
             array(
                 $req['idx']
             )
         );
 
-        if ($sql->getcount() < 1) {
-            Func::err_back('팝업이 존재하지 않습니다.');
-        }
+        if ($sql->getcount() < 1) Func::err_back('팝업이 존재하지 않습니다.');
 
         $arr = $sql->fetchs();
 
@@ -368,6 +369,7 @@ class Modify extends \Controller\Make_Controller {
         $arr['show_to'] = substr($arr['show_to'], 0, 10);
 
         $write = array();
+
         if (isset($arr)) {
             foreach ($arr as $key => $value) {
                 $write[$key] = $value;
@@ -392,9 +394,10 @@ class Modify extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for Modify
-***/
+//
+// Controller for submit
+// ( Modify )
+//
 class Modify_submit{
 
     public function init()
@@ -419,9 +422,9 @@ class Modify_submit{
         }
     }
 
-    ///
+    //
     // modify
-    ///
+    //
     public function get_modify()
     {
         global $req;
@@ -491,24 +494,20 @@ class Modify_submit{
             )
         );
 
-        if ($req['level_from'] > $req['level_to']) {
-            Valid::error('level_to', '노출 종료 level 보다 시작 level 클 수 없습니다.');
-        }
-
-        if ($req['show_from'] > $req['show_to']) {
-            Valid::error('show_to', '노출 일자가 올바르지 않습니다.');
-        }
+        if ($req['level_from'] > $req['level_to']) Valid::error('level_to', '노출 종료 level 보다 시작 level 클 수 없습니다.');
+        if ($req['show_from'] > $req['show_to']) Valid::error('show_to', '노출 일자가 올바르지 않습니다.');
 
         $req['show_to'] = $req['show_to'].' 23:59:59';
 
         $sql->query(
             "
-            UPDATE {$sql->table("popup")}
-            SET title=:col1,link=:col2,link_target=:col3,width=:col4,height=:col5,pos_top=:col6,pos_left=:col7,level_from=:col8,level_to=:col9,show_from=:col10,show_to=:col11,html=:col12,mo_html=:col13
-            WHERE idx=:col14
+            update {$sql->table("popup")}
+            SET title=:col2, link=:col3, link_target=:col4, width=:col5, height=:col6, pos_top=:col7, pos_left=:col8, level_from=:col9, level_to=:col10, show_from=:col11, show_to=:col12, html=:col13, mo_html=:col14
+            where idx=:col1
             ",
             array(
-                $req['title'], $req['link'], $req['link_target'], $req['width'], $req['height'], $req['pos_top'], $req['pos_left'], $req['level_from'], $req['level_to'], $req['show_from'], $req['show_to'], $req['html'], $req['mo_html'], $req['idx']
+                $req['idx'], $req['title'], $req['link'], $req['link_target'], $req['width'], $req['height'],
+                $req['pos_top'], $req['pos_left'], $req['level_from'], $req['level_to'], $req['show_from'], $req['show_to'], $req['html'], $req['mo_html']
             )
         );
 
@@ -521,9 +520,9 @@ class Modify_submit{
         Valid::turn();
     }
 
-    ///
+    //
     // delete
-    ///
+    //
     public function get_delete()
     {
         global $req;
@@ -533,9 +532,9 @@ class Modify_submit{
 
         $sql->query(
             "
-            DELETE
-            FROM {$sql->table("popup")}
-            WHERE idx=:col1
+            delete
+            from {$sql->table("popup")}
+            where idx=:col1
             ",
             array(
                 $req['idx']
@@ -548,9 +547,9 @@ class Modify_submit{
 
         $sql->query(
             "
-            DELETE
-            FROM {$sql->table("popup")}
-            WHERE idx=:col1
+            delete
+            from {$sql->table("popup")}
+            where idx=:col1
             ",
             array(
                 $req['idx']

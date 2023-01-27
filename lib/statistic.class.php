@@ -19,9 +19,9 @@ class Statistic {
 
             $sql->query(
                 "
-                SELECT COUNT(*) AS visit_count
-                FROM {$sql->table("visitcount")}
-                WHERE ip=:col1 AND regdate>=DATE_SUB(now(),interval 1 hour)
+                select count(*) as visit_count
+                from {$sql->table("visitcount")}
+                where ip=:col1 and regdate>=date_sub(now(),interval 1 hour)
                 ",
                 array(
                     $_SERVER['REMOTE_ADDR']
@@ -31,10 +31,10 @@ class Statistic {
             if ($sql->fetch('visit_count') < 1) {
                 $sql->query(
                     "
-                    INSERT into {$sql->table("visitcount")}
-                    (mb_idx,mb_id,ip,device,browser,regdate)
-                    VALUES
-                    (:col1,:col2,:col3,:col4,:col5,now())
+                    insert into {$sql->table("visitcount")}
+                    (mb_idx, mb_id, ip, device, browser, regdate)
+                    values
+                    (:col1, :col2, :col3, :col4, :col5, now())
                     ",
                     array(
                         $MB['idx'],
@@ -45,15 +45,17 @@ class Statistic {
                     ), false
                 );
 
-            } else if ($MB['idx'] != $sql->fetch('mb_idx') && $sql->fetch('mb_idx') != '') {
+            }
+
+            else if ($MB['idx'] != $sql->fetch('mb_idx') && $sql->fetch('mb_idx') != '') {
 
                 $sql->query(
                     "
-                    UPDATE {$sql->table("visitcount")}
-                    SET mb_idx=:col2,mb_id=:col3,device=:col4,browser=:col5
-                    WHERE ip=:col1
-                    ORDER BY regdate DESC
-                    LIMIT 1
+                    update {$sql->table("visitcount")}
+                    set mb_idx=:col2, mb_id=:col3, device=:col4, browser=:col5
+                    where ip=:col1
+                    order by regdate desc
+                    limit 1
                     ",
                     array(
                         $_SERVER['REMOTE_ADDR'],

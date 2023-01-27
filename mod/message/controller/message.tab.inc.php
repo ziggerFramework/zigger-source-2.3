@@ -3,9 +3,10 @@ namespace Module\Message;
 
 use Corelib\Method;
 
-/***
-Messsage_tab_inc
-***/
+//
+// Module Controller
+// ( Message_tab_inc )
+//
 class Message_tab_inc extends \Controller\Make_Controller {
 
     public function init()
@@ -20,12 +21,7 @@ class Message_tab_inc extends \Controller\Make_Controller {
         $tab_active = '';
 
         if ($req['mode'] != 'view') {
-            if ($req['mode']) {
-                $tab_active = $req['mode'];
-            } else {
-                $tab_active = 'received';
-            }
-
+            $tab_active = ($req['mode']) ? $req['mode'] : 'received';
 
         } else {
             $tab_active = $req['refmode'];

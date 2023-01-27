@@ -1,6 +1,6 @@
-///
+//
 // 새로운 메시지 발송
-///
+//
 $(function() {
 
     var $form = '';
@@ -14,8 +14,8 @@ $(function() {
         var to_mb_id = $(this).data('message-send');
         var reply_parent_idx = $(this).data('message-send-reply');
 
-        $('<div id="message-send-bg"></div>').appendTo('body');
-        $('<div id="message-send"></div>').appendTo('body');
+        $('<div id="message-send-bg" data-no-tab-index></div>').appendTo('body');
+        $('<div id="message-send" data-no-tab-index></div>').appendTo('body');
         $mbpop = $('#message-send');
         $mbpopBG = $('#message-send-bg');
 
@@ -43,7 +43,7 @@ $(function() {
         e.preventDefault();
 
         //접근성 위해 layer띄운 요소로 focus 이동.
-        $('*[data-tab-index='+NOW_TABINDEX+']').focus();
+        $('*[data-tab-index='+PH_NOW_TABINDEX+']').focus();
 
         $mbpop.remove();
         $mbpopBG.remove();

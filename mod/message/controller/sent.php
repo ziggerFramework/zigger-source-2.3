@@ -6,9 +6,10 @@ use Corelib\Method;
 use Make\Database\Pdosql;
 use Make\Library\Paging;
 
-/***
-Sent
-***/
+//
+// Module Controller
+// ( Sent )
+//
 class Sent extends \Controller\Make_Controller {
 
     public function init()
@@ -25,18 +26,16 @@ class Sent extends \Controller\Make_Controller {
 
         Func::getlogin(SET_NOAUTH_MSG);
 
-        $paging->setlimit(SET_LIST_LIMIT);
-
         $sql->query(
             $paging->query(
                 "
-                SELECT message.*,member.mb_name,member.mb_id
-                FROM {$sql->table("mod:message")} AS message
-                LEFT OUTER JOIN
-                {$sql->table("member")} AS member
-                ON message.to_mb_idx=member.mb_idx
-                WHERE message.from_mb_idx=:col1
-                ORDER BY message.regdate DESC
+                select message.*,member.mb_name,member.mb_id
+                from {$sql->table("mod:message")} as message
+                left outer join
+                {$sql->table("member")} as member
+                on message.to_mb_idx=member.mb_idx
+                where message.from_mb_idx=:col1
+                order by message.regdate DESC
                 ",
                 array(
                     MB_IDX
@@ -59,7 +58,7 @@ class Sent extends \Controller\Make_Controller {
                 $arr['article'] = Func::strcut($arr['article'], 0, 50);
                 $arr['regdate'] = Func::date($arr['regdate']);
                 $arr['chked'] = Func::date($arr['chked']);
-                $arr[0]['view-link'] = '?mode=view&refmode=sent&idx='.$arr['idx'].'&page='.$req['page'];
+                $arr[0]['view-link'] = Func::get_param_combine('mode=view&refmode=sent&idx='.$arr['idx'].'&page='.$req['page'], '?');
 
                 $print_arr[] = $arr;
 

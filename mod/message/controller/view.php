@@ -5,9 +5,10 @@ use Corelib\Func;
 use Corelib\Method;
 use Make\Database\Pdosql;
 
-/***
-View
-***/
+//
+// Module Controller
+// ( View )
+//
 class View extends \Controller\Make_Controller {
 
     public function init()
@@ -23,49 +24,46 @@ class View extends \Controller\Make_Controller {
 
         Func::getlogin(SET_NOAUTH_MSG);
 
-        //메시지 본문
+        // 메시지 본문
         $sql->query(
             "
-            SELECT message.*,
-            fmember.mb_name AS f_mb_name,fmember.mb_id AS f_mb_id,
-            tmember.mb_name AS t_mb_name,tmember.mb_id AS t_mb_id
-            FROM {$sql->table("mod:message")} AS message
-            LEFT OUTER JOIN
-            {$sql->table("member")} AS fmember
-            ON message.from_mb_idx=fmember.mb_idx
-            LEFT OUTER JOIN
-            {$sql->table("member")} AS tmember
-            ON message.to_mb_idx=tmember.mb_idx
-            WHERE message.idx=:col1 AND (message.to_mb_idx=:col2 OR message.from_mb_idx=:col2)
-            ORDER BY message.regdate DESC
+            select message.*,
+            fmember.mb_name as f_mb_name, fmember.mb_id as f_mb_id,
+            tmember.mb_name as t_mb_name, tmember.mb_id as t_mb_id
+            from {$sql->table("mod:message")} as message
+            left outer join
+            {$sql->table("member")} as fmember
+            on message.from_mb_idx=fmember.mb_idx
+            left outer join
+            {$sql->table("member")} as tmember
+            on message.to_mb_idx=tmember.mb_idx
+            where message.idx=:col1 and (message.to_mb_idx=:col2 OR message.from_mb_idx=:col2)
+            order by message.regdate desc
             ",
             array(
                 $req['idx'], MB_IDX
             )
         );
 
-        if ($sql->getcount() < 1) {
-            Func::err_back('메시지가 존재하지 않습니다.');
-        }
+        if ($sql->getcount() < 1) Func::err_back('메시지가 존재하지 않습니다.');
 
         $arr = $sql->fetchs();
 
         $arr['regdate'] = Func::datetime($arr['regdate']);
-        $arr[0]['list-link'] = '?mode='.$req['refmode'].'&page='.$req['page'];
-        $arr[0]['reply-link'] = '?mode=send&reply='.$req['idx'];
+        $arr[0]['list-link'] = Func::get_param_combine('mode='.$req['refmode'].'&page='.$req['page'], '?');
 
-        //메시지 읽음 처리
+        // 메시지 읽음 처리
         $chked_date = date('Y.m.d H:i:s');
 
         if (!$arr['chked'] && $arr['to_mb_idx'] == MB_IDX) {
             $sql->query(
                 "
-                UPDATE {$sql->table("mod:message")}
-                SET chked=:col3
-                WHERE idx=:col1 AND to_mb_idx=:col2
+                update {$sql->table("mod:message")}
+                set chked=:col1
+                where idx=:col2 and to_mb_idx=:col3
                 ",
                 array(
-                    $req['idx'], MB_IDX, $chked_date
+                    $chked_date, $req['idx'], MB_IDX
                 )
             );
             $arr['chked'] = $chked_date;
@@ -75,16 +73,16 @@ class View extends \Controller\Make_Controller {
 
         }
 
-        //메시지 history
+        // 메시지 history
         $sql->query(
             "
-            SELECT message.*,member.mb_name,member.mb_id
-            FROM {$sql->table("mod:message")} AS message
-            LEFT OUTER JOIN
-            {$sql->table("member")} AS member
-            ON message.from_mb_idx=member.mb_idx
-            WHERE message.parent_idx=:col1 AND message.regdate < :col2 AND message.idx!=:col3
-            ORDER BY message.regdate DESC
+            select message.*, member.mb_name, member.mb_id
+            from {$sql->table("mod:message")} as message
+            left outer join
+            {$sql->table("member")} as member
+            on message.from_mb_idx=member.mb_idx
+            where message.parent_idx=:col1 and message.regdate<:col2 and message.idx!=:col3
+            order by message.regdate desc
             ",
             array(
                 $arr['parent_idx'], $arr['regdate'], $arr['idx']

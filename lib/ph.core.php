@@ -9,9 +9,7 @@ if(!file_exists(REAL_PATH.'/data/dbconn.set.php')){
     exit;
 }
 
-///
-// Ph-Core libraries
-///
+// zigger libraries
 require_once REAL_PATH.'/data/path.set.php';
 require_once REAL_PATH.'/data/dbconn.set.php';
 require_once REAL_PATH.'/lib/config.set.php';
@@ -34,31 +32,19 @@ require_once PH_PATH.'/lib/blocked.class.php';
 require_once PH_MANAGE_PATH.'/lib/functions.class.php';
 require_once PH_PLUGIN_PATH.'/aws/aws-autoloader.php';
 
-//모듈별 기본 설정 파일
+// 모듈별 기본 설정 파일
 foreach ($MODULE as $key => $val) {
 
     $file = PH_MOD_PATH.'/'.$val.'/lib/config.set.php';
-
-    if (file_exists($file)) {
-        require_once $file;
-    }
+    if (file_exists($file)) require_once $file;
 
     $file = PH_MOD_PATH.'/'.$val.'/lib/lib.inc.php';
-
-    if (file_exists($file)) {
-        require_once $file;
-    }
+    if (file_exists($file)) require_once $file;
 
     $file = PH_MOD_PATH.'/'.$val.'/lib/controller.class.php';
-
-    if (file_exists($file)) {
-        require_once $file;
-    }
+    if (file_exists($file)) require_once $file;
 
     $file = PH_MOD_PATH.'/'.$val.'/lib/functions.class.php';
-
-    if (file_exists($file)) {
-        require_once $file;
-    }
+    if (file_exists($file)) require_once $file;
 
 }

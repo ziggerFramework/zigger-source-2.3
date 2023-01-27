@@ -1,8 +1,9 @@
 <?php
 
-/***
-Contents
-***/
+//
+// Controller for display
+// https://{domain}/sub/view/contents
+//
 class Contents extends \controller\Make_Controller {
 
     public function init()
@@ -27,16 +28,17 @@ class Contents extends \controller\Make_Controller {
 
 }
 
-/***
-Manager
-***/
+//
+// Controller for display
+// https://{domain}/sub/view/manager
+//
 class Manager extends \controller\Make_Controller {
 
     public function init()
     {
         $this->layout()->category_key(3);
         $this->layout()->head();
-        $this->layout()->view(PH_THEME_PATH.'/html/sub/manager.tpl.php');
+        $this->layout()->view(PH_THEME_PATH.'/html/sub/manager.tpl.php', false);
         $this->layout()->foot();
     }
 
@@ -47,10 +49,10 @@ class Manager extends \controller\Make_Controller {
 
 }
 
-
-/***
-Contactus
-***/
+//
+// Controller for display
+// https://{domain}/sub/view/contactus
+//
 class Contactus extends \controller\Make_Controller {
 
     public function init()

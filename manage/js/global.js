@@ -1,6 +1,6 @@
-///
+//
 // Navigator
-///
+//
 $(function() {
     $('#side .tab a').on({
         'click' : function(e) {
@@ -23,7 +23,7 @@ $(function() {
     });
 });
 
-///
+//
 // Navigator active
 //
 $(function() {
@@ -59,14 +59,14 @@ $(function() {
                 }
             }
 
-        })
+        });
     }
 
 });
 
-///
+//
 // label active
-///
+//
 function label_active() {
     $('label.__label').each(function() {
         $this = $(this);
@@ -92,7 +92,7 @@ function label_custom() {
 }
 $(function() {
     label_custom();
-})
+});
 setInterval(label_custom, 100);
 
 $(window).on({
@@ -106,9 +106,9 @@ $(function() {
     });
 });
 
-///
+//
 // Orderby
-///
+//
 function get_query() {
     var url = document.location.href;
     var qs = url.substring(url.indexOf('?') + 1).split('&');
@@ -148,9 +148,9 @@ $(function(){
     });
 });
 
-///
+//
 // UI: datepicker
-///
+//
 $(function() {
     $('input[datepicker]').datepicker();
     $.datepicker.setDefaults({
@@ -182,9 +182,9 @@ $(function() {
     });
 });
 
-///
+//
 // main.tpl.php
-///
+//
 $(function() {
     $('#dashboard .news-wrap a.view-feed-link').on({
         'click' : function(e) {
@@ -198,9 +198,9 @@ $(function() {
     });
 });
 
-///
+//
 // siteinfo/theme.tpl.php
-///
+//
 $(function() {
     $('#themeForm input[name=theme_slt]').on({
         'change' : function(e) {
@@ -210,9 +210,9 @@ $(function() {
     });
 });
 
-///
+//
 // siteinfo/sitemap.tpl.php
-///
+//
 var sitemap_list = {
     'init' : function() {
         this.action();
@@ -305,7 +305,7 @@ var sitemap_list = {
                 } else {
                     $(this).removeClass('sitemap_new_added_ele');
                 }
-            })
+            });
 
             $('#sitemapListForm input[name=new_caidx]').val($('.sitemap_new_added_ele').eq(0).next('input[name="caidx[]"]').val());
             request_sbm();
@@ -397,9 +397,9 @@ $(function() {
     sitemap_list.init();
 });
 
-///
+//
 // mailler/send.tpl.php
-///
+//
 $(function(){
     $('#sendmailForm input[name=type]').on({
         'click' : function(e){
@@ -409,9 +409,9 @@ $(function(){
     });
 });
 
-///
+//
 // sms/tomember.tpl.php
-///
+//
 $(function(){
 
     //내용 byte수 체크
@@ -472,6 +472,6 @@ $(function(){
                 get_sms_resv('hide');
             }
         }
-    })
+    });
     get_sms_resv('hide');
-})
+});

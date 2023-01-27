@@ -5,8 +5,7 @@ use Corelib\Func;
 use Corelib\Method;
 use Make\Database\Pdosql;
 
-class Paging
-{
+class Paging {
 
     public $page = 1;
     public $total = 0;
@@ -25,19 +24,11 @@ class Paging
     public function request()
     {
         $method = new Method();
-        $req = $method->request('GET', 'page');
-        if (!$req['page']) {
-            $page = 1;
-
-        } else {
-            $page = $req['page'];
-        }
-
+        $req = $method->request('get', 'page');
+        $page = (!$req['page']) ? 1 : $req['page'];
         $this->page = $req['page'];
 
-        if (!$this->page) {
-            $this->page = 1;
-        }
+        if (!$this->page) $this->page = 1;
     }
 
     public function gettotal($total)
@@ -85,12 +76,7 @@ class Paging
 
     public function setparam($addParam)
     {
-        if (is_string($addParam)) {
-            $this->addParam = Func::get_param_combine($addParam, '&');
-
-        } else {
-            $this->addParam = basename($_SERVER['REQUEST_URI']);
-        }
+        $this->addParam = (is_string($addParam)) ? Func::get_param_combine($addParam, '&') : basename($_SERVER['REQUEST_URI']);
     }
 
     public function setmax($printPerList)
@@ -98,71 +84,43 @@ class Paging
         $this->printPerList = $printPerList;
     }
 
-    //페이지 범위 계산
+    // 페이지 범위 계산
     private function setnav()
     {
         $this->totalPage = ceil($this->total / $this->listPerPage);
         $this->startPage = (floor(($this->page - 1) / $this->printPerList) * $this->printPerList) + 1;
         $this->endPage = $this->startPage + $this->printPerList - 1;
 
-        if ($this->endPage > $this->totalPage) {
-            $this->endPage = $this->totalPage;
-        }
+        if ($this->endPage > $this->totalPage) $this->endPage = $this->totalPage;
 
         $this->prePage = $this->startPage - 1;
         $this->nextPage = $this->endPage + 1;
     }
 
-    //페이징 출력
+    // 페이징 출력
     public function pagingprint($addParam = '')
     {
-        if (isset($addParam)) {
-            $this->setparam($addParam);
+        if (isset($addParam)) $this->setparam($addParam);
+        if ($this->total < 1) return false;
+
+        $thispage = ($this->thispage) ? $this->thispage : Func::thisuri();
+
+        $this->setnav();
+        $prn = array();
+        $prn[] = "<ul class=\"paging\">";
+
+        if ($this->startPage != 1) $prn[] = "<li class=\"first\"><a href=\"{$thispage}?page=1{$this->addParam}\"><i class=\"fa fa-angle-double-left\"></i></a></li>";
+        if ($this->startPage != 1) $prn[] = "<li class=\"prev\"><a href=\"{$thispage}?page={$this->prePage}{$this->addParam}\"><i class=\"fa fa-angle-left\"></i></a></li>";
+
+        for ($i = $this->startPage; $i <= $this->endPage; $i++) {
+            $prn[] = ($i == $this->page) ? "<li class=\"active\"><a>{$i}</a></li>" : "<li><a href=\"{$thispage}?page={$i}{$this->addParam}\">{$i}</a></li>";
         }
 
-        if ($this->thispage) {
-            $thispage = $this->thispage;
+        if ($this->endPage < $this->totalPage) $prn[] = "<li class=\"next\"><a href=\"{$thispage}?page={$this->nextPage}{$this->addParam}\"><i class=\"fa fa-angle-right\"></i></a></li>";
+        if ($this->endPage < $this->totalPage)$prn[] = "<li class=\"last\"><a href=\"{$thispage}?page={$this->totalPage}{$this->addParam}\"><i class=\"fa fa-angle-double-right\"></i></a></li>";
 
-        } else {
-            $thispage = Func::thisuri();
-        }
+        $prn[] = "</ul>";
 
-        if ($this->total > 0) {
-            $this->setnav();
-            $prn = array();
-            $prn[] = "<ul class=\"paging\">";
-
-            if ($this->startPage != 1) {
-                $prn[] = "<li class=\"first\"><a href=\"{$thispage}?page=1{$this->addParam}\"><i class=\"fa fa-angle-double-left\"></i></a></li>";
-            }
-
-            if ($this->startPage != 1) {
-                $prn[] = "<li class=\"prev\"><a href=\"{$thispage}?page={$this->prePage}{$this->addParam}\"><i class=\"fa fa-angle-left\"></i></a></li>";
-            }
-
-            for ($i=$this->startPage; $i <= $this->endPage; $i++) {
-                if ($i == $this->page) {
-                    $prn[] = "<li class=\"active\"><a>{$i}</a></li>";
-
-                } else {
-                    $prn[] = "<li><a href=\"{$thispage}?page={$i}{$this->addParam}\">{$i}</a></li>";
-                }
-            }
-
-            if ($this->endPage < $this->totalPage) {
-                $prn[] = "<li class=\"next\"><a href=\"{$thispage}?page={$this->nextPage}{$this->addParam}\"><i class=\"fa fa-angle-right\"></i></a></li>";
-            }
-
-            if ($this->endPage < $this->totalPage) {
-                $prn[] = "<li class=\"last\"><a href=\"{$thispage}?page={$this->totalPage}{$this->addParam}\"><i class=\"fa fa-angle-double-right\"></i></a></li>";
-            }
-
-            $prn[] = "</ul>";
-
-            return join(" ",$prn);
-
-        } else {
-            return false;
-        }
+        return implode(' ',$prn);
     }
 }

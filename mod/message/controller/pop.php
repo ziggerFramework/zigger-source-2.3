@@ -6,12 +6,14 @@ use Corelib\Valid;
 use Corelib\Func;
 use Make\Database\Pdosql;
 
-/***
-Message send
-***/
+//
+// Module Controller
+// ( Message_send )
+//
 class Message_send extends \Controller\Make_Controller {
 
-    public function init(){
+    public function init()
+    {
         $this->layout()->view(MOD_MESSAGE_THEME_PATH.'/message-send.tpl.php');
     }
 
@@ -23,9 +25,7 @@ class Message_send extends \Controller\Make_Controller {
 
         $is_mbinfo_show = true;
 
-        if (!IS_MEMBER) {
-            $is_mbinfo_show = false;
-        }
+        if (!IS_MEMBER) $is_mbinfo_show = false;
 
         $this->set('to_mb_id', $req['to_mb_id']);
         $this->set('reply_parent_idx', $req['reply_parent_idx']);
@@ -43,9 +43,10 @@ class Message_send extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for Message send
-***/
+//
+// Controller for submit
+// ( Message_send )
+//
 class Message_send_submit {
 
     public function init()
@@ -58,12 +59,10 @@ class Message_send_submit {
         Method::security('request_post');
         $req = Method::request('post', 'to_mb_id, article, reply_parent_idx');
 
-        //관리 권한 검사
-        if (!IS_MEMBER) {
-            Valid::error('', '메시지를 발송할 권한이 없습니다.');
-        }
+        // 관리 권한 검사
+        if (!IS_MEMBER) Valid::error('', '메시지를 발송할 권한이 없습니다.');
 
-        //회원 아이디 검증
+        // 회원 아이디 검증
         Valid::get(
             array(
                 'input' => 'to_mb_id',
@@ -77,21 +76,19 @@ class Message_send_submit {
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("member")}
-            WHERE mb_id=:col1 AND mb_dregdate IS NULL
+            select *
+            from {$sql->table("member")}
+            where mb_id=:col1 and mb_dregdate is null
             ",
             array(
                 $req['to_mb_id']
             )
         );
-        if ($sql->getcount() < 1) {
-            Valid::error('', '존재하지 않는 회원 아이디 입니다.');
-        }
+        if ($sql->getcount() < 1) Valid::error('', '존재하지 않는 회원 아이디 입니다.');
 
         $to_mb_idx = $sql->fetch('mb_idx');
 
-        //내용 검증
+        // 내용 검증
         Valid::get(
             array(
                 'input' => 'article',
@@ -104,19 +101,16 @@ class Message_send_submit {
             )
         );
 
-        //parent_idx 처리
+        // parent_idx 처리
         $reply_parent_idx = null;
-
-        if ($req['reply_parent_idx']) {
-            $reply_parent_idx = $req['reply_parent_idx'];
-        }
+        if ($req['reply_parent_idx']) $reply_parent_idx = $req['reply_parent_idx'];
 
         //메시지 발송
         $sql->query(
             "
-            INSERT INTO {$sql->table("mod:message")}
+            insert into {$sql->table("mod:message")}
             (from_mb_idx, to_mb_idx, parent_idx, article, regdate)
-            VALUES
+            values
             (:col1, :col2, :col3, :col4, now())
             ",
             array(
@@ -124,16 +118,16 @@ class Message_send_submit {
             )
         );
 
-        //message함 parent_idx 정렬
+        // message함 parent_idx 정렬
         $sql->query(
             "
-            UPDATE {$sql->table("mod:message")}
-            SET parent_idx=idx
-            WHERE parent_idx=0 OR parent_idx IS NULL
+            update {$sql->table("mod:message")}
+            set parent_idx=idx
+            where parent_idx=0 or parent_idx is null
             ", []
         );
 
-        //return
+        // return
         Valid::set(
             array(
                 'return' => 'alert->reload',

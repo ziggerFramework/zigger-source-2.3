@@ -7,9 +7,10 @@ use Make\Library\Paging;
 use Make\Library\Mail;
 use Manage\ManageFunc;
 
-/***
-Result
-***/
+//
+// Controller for display
+// https://{domain}/manage/mod/contents/result/result
+//
 class Result extends \Controller\Make_Controller {
 
     public function init()
@@ -35,38 +36,34 @@ class Result extends \Controller\Make_Controller {
         $paging = new Paging();
         $manage = new ManageFunc();
 
-        //sortby
+        // sortby
         $sortby = '';
         $sort_arr = array();
 
         $sql->query(
             "
-            SELECT
+            select
             (
-                SELECT COUNT(*)
-                FROM {$sql->table("mod:contents")}
+                select count(*)
+                from {$sql->table("mod:contents")}
             ) contents_total
             ", []
         );
         $sort_arr['contents_total'] = $sql->fetch('contents_total');
 
-        //orderby
-        if (!$PARAM['ordtg']) {
-            $PARAM['ordtg'] = 'regdate';
-        }
-        if (!$PARAM['ordsc']) {
-            $PARAM['ordsc'] = 'desc';
-        }
+        // orderby
+        if (!$PARAM['ordtg']) $PARAM['ordtg'] = 'regdate';
+        if (!$PARAM['ordsc']) $PARAM['ordsc'] = 'desc';
         $orderby = $PARAM['ordtg'].' '.$PARAM['ordsc'];
 
-        //list
+        // list
         $sql->query(
             $paging->query(
                 "
-                SELECT *
-                FROM {$sql->table("mod:contents")}
-                WHERE 1 $sortby $searchby
-                ORDER BY $orderby
+                select *
+                from {$sql->table("mod:contents")}
+                where 1 $sortby $searchby
+                order by $orderby
                 ", []
             )
         );
@@ -97,9 +94,10 @@ class Result extends \Controller\Make_Controller {
 
 }
 
-/***
-Regist
-***/
+//
+// Controller for display
+// https://{domain}/manage/mod/contactform/result/regist
+//
 class Regist extends \Controller\Make_Controller {
 
     public function init()
@@ -127,9 +125,10 @@ class Regist extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for Regist
-***/
+//
+// Controller for submit
+// ( Regist )
+//
 class Regist_submit {
 
     public function init()
@@ -162,33 +161,26 @@ class Regist_submit {
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("mod:contents")}
-            WHERE data_key=:col1
-            ORDER BY regdate DESC
+            select *
+            from {$sql->table("mod:contents")}
+            where data_key=:col1
+            order by regdate desc
             ",
             array(
                 $req['data_key']
             )
         );
 
-        if ($sql->getcount() > 0) {
-            Valid::error('key', '이미 존재하는 콘텐츠 key 입니다.');
-        }
+        if ($sql->getcount() > 0) Valid::error('key', '이미 존재하는 콘텐츠 key 입니다.');
 
-        if ($req['use_mo_html'] == 'checked') {
-            $req['use_mo_html'] = 'Y';
-
-        } else {
-            $req['use_mo_html'] = 'N';
-        }
+        $req['use_mo_html'] = ($req['use_mo_html'] == 'checked') ? 'Y' : 'N';
 
         $sql->query(
             "
-            INSERT INTO {$sql->table("mod:contents")}
+            insert into {$sql->table("mod:contents")}
             (data_key,title,html,mo_html,use_mo_html,regdate)
-            VALUES
-            (:col1,:col2,:col3,:col4,:col5,now())
+            values
+            (:col1, :col2, :col3, :col4, :col5, now())
             ",
             array(
                 $req['data_key'], $req['title'], $req['html'], $req['mo_html'], $req['use_mo_html']
@@ -197,10 +189,10 @@ class Regist_submit {
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("mod:contents")}
-            WHERE data_key=:col1
-            ORDER BY regdate DESC
+            select *
+            from {$sql->table("mod:contents")}
+            where data_key=:col1
+            order by regdate desc
             ",
             array(
                 $req['data_key']
@@ -220,9 +212,10 @@ class Regist_submit {
 
 }
 
-/***
-Modify
-***/
+//
+// Controller for display
+// https://{domain}/manage/mod/contactform/result/modify
+//
 class Modify extends \Controller\Make_Controller {
 
     public function init()
@@ -236,14 +229,9 @@ class Modify extends \Controller\Make_Controller {
     {
         function set_chked($arr, $val)
         {
-            $setarr = array(
-                'Y' => '',
-                'N' => ''
-            );
+            $setarr = array('Y' => '', 'N' => '');
             foreach($setarr as $key => $value){
-                if($key==$arr[$val]){
-                    $setarr[$key] = 'checked';
-                }
+                if ($key==$arr[$val]) $setarr[$key] = 'checked';
             }
             return $setarr;
         }
@@ -258,18 +246,16 @@ class Modify extends \Controller\Make_Controller {
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("mod:contents")}
-            WHERE idx=:col1
+            select *
+            from {$sql->table("mod:contents")}
+            where idx=:col1
             ",
             array(
                 $req['idx']
             )
         );
 
-        if ($sql->getcount() < 1) {
-            Func::err_back('콘텐츠가 존재하지 않습니다.');
-        }
+        if ($sql->getcount() < 1) Func::err_back('콘텐츠가 존재하지 않습니다.');
 
         $arr = $sql->fetchs();
 
@@ -305,9 +291,10 @@ class Modify extends \Controller\Make_Controller {
 
 }
 
-/***
-Submit for Modify
-***/
+//
+// Controller for submit
+// ( Modify )
+//
 class Modify_submit{
 
     public function init()
@@ -332,9 +319,9 @@ class Modify_submit{
         }
     }
 
-    ///
+    //
     // modify
-    ///
+    //
     public function get_modify()
     {
         global $req;
@@ -348,21 +335,16 @@ class Modify_submit{
             )
         );
 
-        if ($req['use_mo_html'] == 'checked') {
-            $req['use_mo_html'] = 'Y';
-
-        } else {
-            $req['use_mo_html'] = 'N';
-        }
+        $req['use_mo_html'] = ($req['use_mo_html'] == 'checked') ? 'Y' : 'N';
 
         $sql->query(
             "
-            UPDATE {$sql->table("mod:contents")}
-            SET title=:col1,html=:col2,mo_html=:col3,use_mo_html=:col4
-            WHERE idx=:col5
+            update {$sql->table("mod:contents")}
+            SET title=:col2, html=:col3, mo_html=:col4, use_mo_html=:col5
+            where idx=:col1
             ",
             array(
-                $req['title'], $req['html'], $req['mo_html'], $req['use_mo_html'], $req['idx']
+                $req['idx'], $req['title'], $req['html'], $req['mo_html'], $req['use_mo_html']
             )
         );
 
@@ -375,9 +357,9 @@ class Modify_submit{
         Valid::turn();
     }
 
-    ///
+    //
     // delete
-    ///
+    //
     public function get_delete()
     {
         global $req;
@@ -387,24 +369,22 @@ class Modify_submit{
 
         $sql->query(
             "
-            SELECT *
-            FROM {$sql->table("mod:contents")}
-            WHERE idx=:col1
+            select *
+            from {$sql->table("mod:contents")}
+            where idx=:col1
             ",
             array(
                 $req['idx']
             )
         );
 
-        if ($sql->getcount() < 1) {
-            Valid::error('', '콘텐츠가 존재하지 않습니다.');
-        }
+        if ($sql->getcount() < 1) Valid::error('', '콘텐츠가 존재하지 않습니다.');
 
         $sql->query(
             "
-            DELETE
-            FROM {$sql->table("mod:contents")}
-            WHERE idx=:col1
+            delete
+            from {$sql->table("mod:contents")}
+            where idx=:col1
             ",
             array(
                 $req['idx']

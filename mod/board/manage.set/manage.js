@@ -1,6 +1,6 @@
 //
 // 관리 checkbox 전체 선택
-///
+//
 $(function() {
     $(document).on('click', '.cnum_allchk', function() {
         var chked = $(this).is(':checked');
@@ -14,9 +14,9 @@ $(function() {
     });
 });
 
-///
+//
 // 관리팝업
-///
+//
 $(function() {
     var $form = '';
     var $ctrpop = '';
@@ -87,9 +87,9 @@ $(function() {
     });
 });
 
-///
+//
 // 공지사항 옵션 체크시 답변알림 옵션 & 카테고리 숨김
-///
+//
 var use_notice_opt = function($this) {
     var chked = $this.is(':checked');
     if (chked) {
@@ -111,9 +111,9 @@ $(function() {
     use_notice_opt($opt);
 });
 
-///
+//
 // 글 삭제
-///
+//
 $(function() {
     $(document).on('click', '#del-btn', function(e) {
         e.preventDefault();
@@ -128,9 +128,9 @@ $(function() {
 });
 
 
-///
+//
 // Comment 로드
-///
+//
 cmt_stat_mdf = false;
 
 function view_cmt_load() {
@@ -159,9 +159,9 @@ $(function() {
     view_cmt_load();
 });
 
-///
+//
 // Comment 작성
-///
+//
 $(function() {
     $(document).on('click', '#commentForm .sbm', function(e) {
         e.preventDefault();
@@ -171,9 +171,9 @@ $(function() {
     });
 });
 
-///
+//
 // Comment 삭제
-///
+//
 $(function() {
     $(document).on('click', '#cmt-delete',function(e) {
         e.preventDefault();
@@ -186,9 +186,9 @@ $(function() {
     });
 });
 
-///
+//
 // Comment 답글 작성
-///
+//
 $(function() {
     var comm_re_form_idx = 0;
     var $comm_re_form;
@@ -226,9 +226,9 @@ $(function() {
     });
 });
 
-///
+//
 // Comment 수정
-///
+//
 $(function() {
     $(document).on('click', '#cmt-modify', function(e) {
         e.preventDefault();
@@ -261,9 +261,9 @@ $(function() {
     });
 });
 
-///
+//
 // Comment 답글 & 수정 Submit
-///
+//
 $(document).on('click', '#comm-re-form .re_sbm, #commentForm .re_sbm', function(e) {
     e.preventDefault();
     $('#commentForm input[name=mode]').val(cmt_stat_val);

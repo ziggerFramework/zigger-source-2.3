@@ -1,13 +1,11 @@
 <?php
 use Corelib\Session;
-use Corelib\SessionHandler;
 use Corelib\Func;
-use Corelib\Blocked;
 use Make\Database\Pdosql;
 
 $varsql = new Pdosql();
 
-//Modules
+// modules
 $mpath = PH_MOD_PATH;
 $mopen = opendir($mpath);
 $midx = 0;
@@ -18,10 +16,9 @@ while ($dir = readdir($mopen)) {
         $midx++;
     }
 }
-
 sort($MODULE);
 
-//Themes
+// themes
 $tpath = PH_PATH.'/theme/';
 $topen = opendir($tpath);
 $tidx = 0;
@@ -33,16 +30,17 @@ while ($dir = readdir($topen)) {
     }
 }
 
-//Default information
+// default information
 $CONF = array();
 
 $varsql->query(
     "
-    SELECT *
-    FROM {$varsql->table("config")}
-    WHERE cfg_type='engine'
+    select *
+    from {$varsql->table("config")}
+    where cfg_type='engine'
     ", []
 );
+
 if ($varsql->getcount() > 0) {
     do {
         $cfg = $varsql->fetchs();
@@ -58,13 +56,15 @@ if ($varsql->getcount() > 0) {
     } while($varsql->nextRec());
 }
 
-//default Icons
+// default images & icons
 $icons = array(
     'favicon', 'logo', 'og_image'
 );
+
 foreach ($icons as $key => $value) {
     if ($CONF[$value]) {
         $icon = Func::get_fileinfo($CONF[$value], false);
+
         if ($icon['storage'] == 'Y') {
             $CONF[$value] = $CONF['s3_key1'].'/'.$CONF['s3_key2'].'/manage/'.$icon['repfile'];
 
@@ -74,29 +74,23 @@ foreach ($icons as $key => $value) {
     }
 }
 
-//Theme constants
-define('PH_THEME', $CONF['theme']); //Theme 경로
-define('PH_THEME_DIR', PH_DIR.'/theme/'.$CONF['theme']); //Theme 경로
-define('PH_THEME_PATH', PH_PATH.'/theme/'.$CONF['theme']); //Theme PHP 경로
+// theme constants
+define('PH_THEME', $CONF['theme']); // theme 경로
+define('PH_THEME_DIR', PH_DIR.'/theme/'.$CONF['theme']); // theme 경로
+define('PH_THEME_PATH', PH_PATH.'/theme/'.$CONF['theme']); // theme PHP 경로
 
-//회원이라면, 회원의 기본 정보 가져옴
+// 회원이라면, 회원의 기본 정보 가져옴
 define('IS_MEMBER', Session::is_sess('MB_IDX'));
-
-if (IS_MEMBER) {
-    define('MB_IDX',Session::sess('MB_IDX'));
-
-} else {
-    define('MB_IDX',NULL);
-}
+define('MB_IDX', (IS_MEMBER) ? Session::sess('MB_IDX') : null);
 
 $MB = array();
 
 if (IS_MEMBER) {
     $varsql->query(
         "
-        SELECT *
-        FROM {$varsql->table("member")}
-        WHERE mb_idx=:col1
+        select *
+        from {$varsql->table("member")}
+        where mb_idx=:col1
         ",
         array(
             MB_IDX
@@ -110,7 +104,7 @@ if (IS_MEMBER) {
         $MB[$key] = $value;
     }
 
-    for ($i=1; $i <= 10; $i++) {
+    for ($i = 1; $i <= 10; $i++) {
         $MB['mb_'.$i] = $MB[$i];
         unset($MB[$i]);
     }
@@ -129,14 +123,15 @@ if (IS_MEMBER) {
     );
 }
 
-//회원 레벨별 명칭 배열화
+// 회원 레벨별 명칭 배열화
 $MB['type'] = array();
 $vars = explode('|', $CONF['mb_division']);
-for ($i=1; $i <= 10; $i++) {
+
+for ($i = 1; $i <= 10; $i++) {
     $MB['type'][$i] = $vars[$i - 1];
 }
 
-//회원 정보 필수값 확인
+// 회원 정보 필수값 확인
 if (IS_MEMBER && $MB['level'] > 1 && !strstr(Func::thisuri(), '/member/') && !strstr(Func::thisuri(), '/sign/') && !strstr(Func::thisuri(), '/manage/')) {
     if ($CONF['use_mb_phone'] == 'Y' && !$MB['phone']) $field = '휴대전화번호';
     if ($CONF['use_mb_telephone'] == 'Y' && !$MB['telephone']) $field = '전화번호';
@@ -144,7 +139,7 @@ if (IS_MEMBER && $MB['level'] > 1 && !strstr(Func::thisuri(), '/member/') && !st
     if (isset($field)) Func::err_location('회원정보에 필수 정보('.$field.')가 누락되어 회원관리 페이지로 이동합니다.\n정보 등록후 이용해주세요.', PH_DOMAIN.'/member/info');
 }
 
-//업데이트 초기화 확인
+// 업데이트 초기화 확인
 Func::chk_update_config_field(
     array(
         'use_sms', 'use_feedsms', 'sms_toadm', 'sms_from', 'sms_key1', 'sms_key2', 'sms_key3', 'sms_key4', //ver 2.2.1
