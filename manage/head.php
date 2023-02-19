@@ -19,7 +19,7 @@ foreach ($MODULE as $key => $value) {
         $gnb_arr[$key]['name'] = $mod_xml[0]->name;
     }
 
-    // nacigator json file
+    // navigator json file
     $json_file = PH_MOD_PATH.'/'.$value.'/manage.set/navigator.json';
 
     if (file_exists($json_file)) {

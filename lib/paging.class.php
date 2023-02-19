@@ -88,11 +88,8 @@ class Paging {
     private function setnav()
     {
         $this->totalPage = ceil($this->total / $this->listPerPage);
-        $this->startPage = (floor(($this->page - 1) / $this->printPerList) * $this->printPerList) + 1;
-        $this->endPage = $this->startPage + $this->printPerList - 1;
-
-        if ($this->endPage > $this->totalPage) $this->endPage = $this->totalPage;
-
+        $this->startPage = floor(($this->page - 1) / $this->printPerList) * $this->printPerList + 1;
+        $this->endPage = min($this->startPage + $this->printPerList - 1, $this->totalPage);
         $this->prePage = $this->startPage - 1;
         $this->nextPage = $this->endPage + 1;
     }
@@ -103,7 +100,7 @@ class Paging {
         if (isset($addParam)) $this->setparam($addParam);
         if ($this->total < 1) return false;
 
-        $thispage = ($this->thispage) ? $this->thispage : Func::thisuri();
+        $thispage = $this->thispage ? $this->thispage : Func::thisuri();
 
         $this->setnav();
         $prn = array();
@@ -117,7 +114,7 @@ class Paging {
         }
 
         if ($this->endPage < $this->totalPage) $prn[] = "<li class=\"next\"><a href=\"{$thispage}?page={$this->nextPage}{$this->addParam}\"><i class=\"fa fa-angle-right\"></i></a></li>";
-        if ($this->endPage < $this->totalPage)$prn[] = "<li class=\"last\"><a href=\"{$thispage}?page={$this->totalPage}{$this->addParam}\"><i class=\"fa fa-angle-double-right\"></i></a></li>";
+        if ($this->endPage < $this->totalPage) $prn[] = "<li class=\"last\"><a href=\"{$thispage}?page={$this->totalPage}{$this->addParam}\"><i class=\"fa fa-angle-double-right\"></i></a></li>";
 
         $prn[] = "</ul>";
 

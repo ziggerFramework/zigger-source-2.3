@@ -1,11 +1,33 @@
-//
-// slideMenu for mobile
-//
-mo_slide = {
+ph_theme_layout = {
+
+    //
+    // init
+    //
     'init' : function() {
-        this.action();
+
+        this.gnb_auto_active(); // gnb auto active
+        this.mo_slide(); // slideMenu for mobile
+        this.mo_gnb(); // gnb for mobile
+        
     },
-    'action' : function() {
+
+    //
+    // gnb auto active
+    //
+    'gnb_auto_active' : function() {
+
+        if (typeof PH_CATEGORY_KEY !== 'undefined') {
+            $('#gnb a[data-category-key=' + PH_CATEGORY_KEY + '], #mo-gnb a[data-category-key=' + PH_CATEGORY_KEY + ']').parents('li').addClass('on');
+            $('#lnb a[data-category-key=' + PH_CATEGORY_KEY + '], #mo-gnb a[data-category-key=' + PH_CATEGORY_KEY + ']').parents('li').addClass('on');
+        }
+        
+    },
+
+    //
+    // slideMenu for mobile
+    //
+    'mo_slide' : function() {
+
         var $ele = {
             'win' : $(window),
             'doc' : $(document),
@@ -14,6 +36,7 @@ mo_slide = {
             'btn' : $('#slide-btn'),
             'close' : $('#slide-close, #slide-menu-close')
         }
+
         //open & close
         $ele.btn.on({
             'click' : function(e) {
@@ -32,6 +55,7 @@ mo_slide = {
                 }
             }
         });
+        
         $ele.close.on({
             'click' : function(e) {
                 e.preventDefault();
@@ -41,26 +65,20 @@ mo_slide = {
                 $ele.bg.removeClass('on');
             }
         });
-    }
-}
-$(function() {
-    mo_slide.init();
-});
 
-
-//
-// gnb for mobile
-//
-mo_gnb = {
-    'init' : function() {
-        this.action();
     },
-    'action' : function() {
+
+    //
+    // gnb for mobile
+    //
+    'mo_gnb' : function() {
+
         var $ele = {
             'win' : $(window),
             'doc' : $(document),
             'menu' : $('#mo-gnb a')
         }
+
         $ele.menu.each(function() {
             var $ul = $(this).parent('li').children('ul');
             var len = $ul.length;
@@ -68,6 +86,7 @@ mo_gnb = {
                 $(this).addClass('have-children');
             }
         });
+
         //open & close
         $ele.menu.on({
             'click' : function(e) {
@@ -84,27 +103,11 @@ mo_gnb = {
                 }
             }
         });
-    }
-}
-$(function() {
-    mo_gnb.init();
-});
 
-
-//
-// gnb active
-//
-gnbActive = {
-    'init' : function() {
-        this.action();
-    },
-    'action' : function() {
-        if (typeof PH_CATEGORY_KEY !== 'undefined') {
-            $('#gnb a[data-category-key=' + PH_CATEGORY_KEY + '], #mo-gnb a[data-category-key=' + PH_CATEGORY_KEY + ']').parents('li').addClass('on');
-            $('#lnb a[data-category-key=' + PH_CATEGORY_KEY + '], #mo-gnb a[data-category-key=' + PH_CATEGORY_KEY + ']').parents('li').addClass('on');
-        }
     }
+
 }
+
 $(function() {
-    gnbActive.init();
+    ph_theme_layout.init();
 });

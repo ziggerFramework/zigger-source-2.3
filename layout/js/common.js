@@ -2,9 +2,11 @@
 // Ajax Validator
 //
 ajax_valid = {
+
 	'init' : function() {
 		this.action();
 	},
+
 	'action' : function() {
 		var $ele = $('*[data-validt-event]');
 
@@ -17,7 +19,7 @@ ajax_valid = {
 				var $validt = $('.validt[data-validt-group='+group+']');
 
 				$validt.hide();
-				$(document).on(evt, 'input[name='+group+']', function(e){
+				$(document).on(evt, 'input[name="'+group+'"]', function(e){
 					var chk_var = true;
 					if ($(this).val() === '') {
 						chk_var = false;
@@ -29,7 +31,7 @@ ajax_valid = {
 							'type' : 'POST',
 							'url' : PH_DIR + action,
 							'cache' : false,
-							'data' : $('input[name=' + group+']').serialize(),
+							'data' : $('input[name="' + group+'"]').serialize(),
 							'dataType' : 'html',
 							'success' : function(data){
 								if(data.indexOf('"success" :') === -1){
@@ -59,6 +61,7 @@ ajax_valid = {
 			});
 		}
 	}
+
 }
 $(function(){
 	ajax_valid.init();
@@ -68,10 +71,11 @@ $(function(){
 // Ajax Form Validator
 //
 valid = {
+
 	'error' : function($form, opt) {
 
 		if (opt.input) {
-			var $inp = $('*[name=' + opt.input + ']', $form);
+			var $inp = $('*[name="' + opt.input + '"]', $form);
 			var inp_tit = $inp.attr('title');
 		}
 
@@ -147,12 +151,14 @@ valid = {
 				break;
 		}
 	}
+
 }
 
 //
 // Return Ajax Submit
 //
 returnAjaxSubmit = function($form, data) {
+
     var trim_data = data.replace(/(<([^>]+)>)/ig, '');
 
 	if (data.indexOf('"success" :') === -1) {
@@ -196,20 +202,24 @@ returnAjaxSubmit = function($form, data) {
 // Plugin : CKEditor
 //
 function ckeEditor_action() {
+
 	$('textarea[ckeditor]').each(function() {
 		var t_id = $(this).attr('id');
 		var t_cont = CKEDITOR.instances[t_id].getData();
 		$(this).val(t_cont);
 	});
+
 }
 
 //
 // Ajax Submit
 //
 ajaxSubmit = {
+
 	'init' : function($form) {
 		this.action($form);
 	},
+
 	'action' : function($form) {
         ckeEditor_action();
 
@@ -231,15 +241,18 @@ ajaxSubmit = {
             }
         });
 	}
+
 }
 
 //
 // Ajax Submit With File
 //
 ajaxFileSubmit = {
+
 	'init' : function($form) {
 		this.action($form);
 	},
+
     'action' : function($form) {
         ckeEditor_action();
 
@@ -284,15 +297,18 @@ ajaxFileSubmit = {
             }
         });
     }
+
 }
 
 //
 // Ajax Form을 본문에서 찾아 Form setting
 //
 setAjaxForm = {
+
 	'init' : function() {
 		this.action();
 	},
+
 	'action' : function() {
 		var $ele = {
 			'doc' : $(document)
@@ -314,7 +330,9 @@ setAjaxForm = {
 			}
 		});
 	}
+
 }
+
 $(function() {
 	setAjaxForm.init();
 });
@@ -323,6 +341,7 @@ $(function() {
 // Cookie
 //
 function setCookie(name, value, expiredays) {
+
 	var todayDate = new Date();
 	if (expiredays === null) {
 		expiredays = 30;
@@ -330,8 +349,11 @@ function setCookie(name, value, expiredays) {
 	// Cookie 저장 시간 (1Day = 1)
 	todayDate.setDate(todayDate.getDate() + expiredays);
 	document.cookie = name + '=' + escape( value ) + '; path=/; expires=' + todayDate.toGMTString() + ';'
+
 }
+
 function getCookie(name) {
+
     var nameOfCookie = name + '=';
     var x = 0;
 
@@ -349,15 +371,18 @@ function getCookie(name) {
         }
     }
     return '';
+
 }
 
 //
 // Before confirm
 //
 formBeforeConfirm = {
+
     'init' : function() {
         this.action();
     },
+
     'action' : function() {
         $(document).on('click', '*[data-form-before-confirm]', function(e) {
             e.preventDefault();
@@ -382,8 +407,8 @@ formBeforeConfirm = {
                 var org_val = new Array;
 
                 for (var i = 1; i < val_exp.length; i++) {
-                    $inp[i] = $('input[name=' + val_exp[i].split(':')[0] + ']' ,$form);
-                    org_val[i] = $('input[name=' + val_exp[i].split(':')[0] + ']').val();
+                    $inp[i] = $('input[name="' + val_exp[i].split(':')[0] + '"]' ,$form);
+                    org_val[i] = $('input[name="' + val_exp[i].split(':')[0] + '"]').val();
                     $inp[i].val(val_exp[i].split(':')[1])
                 }
 
@@ -395,7 +420,9 @@ formBeforeConfirm = {
             }
         });
     }
+
 }
+
 $(function(){
     formBeforeConfirm.init();
 });
@@ -404,6 +431,7 @@ $(function(){
 // Setting Tabindex
 //
 set_elements_tabindex = function() {
+
     $('button, input, a, *[tabindex]').each(function(i) {
         if ($(this).closest('*[data-no-tab-index]').length > 0) {
             return;
@@ -411,6 +439,7 @@ set_elements_tabindex = function() {
 
         $(this).attr('data-tab-index', i);
     });
+
 }
 make_elements_tabindex = {
     'init' : function() {
@@ -428,6 +457,7 @@ make_elements_tabindex = {
         });
     }
 }
+
 $(function() {
     make_elements_tabindex.init();
     setInterval(set_elements_tabindex, 100);
@@ -459,4 +489,5 @@ zigalert = function(msg) {
             $(this).remove();
         }
     });
+	
 }

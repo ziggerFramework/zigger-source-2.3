@@ -37,9 +37,7 @@ class Blocked {
 
         $localhosts = array('127.0.0.1', '::1', 'localhost', '255.255.255.0');
 
-        if (in_array($_SERVER['REMOTE_ADDR'], $localhosts)) {
-            return false;
-        }
+        if (in_array($_SERVER['REMOTE_ADDR'], $localhosts)) return false;
 
         $sql = new Pdosql();
 

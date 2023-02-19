@@ -13,6 +13,8 @@ php_value error_log ./data/php-error-logs.log
 
 RewriteEngine On
 
+RewriteRule ^\.well-known/.+ - [END]
+
 RewriteRule ^install($|/.*) - [L]
 
 RewriteRule ^manage$ manage/index.php [L]

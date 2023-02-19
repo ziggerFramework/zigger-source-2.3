@@ -404,6 +404,15 @@ class Regist_submit {
         );
         Valid::get(
             array(
+                'input' => 'article_min_len',
+                'value' => $req['article_min_len'],
+                'check' => array(
+                    'charset' => 'number'
+                )
+            )
+        );
+        Valid::get(
+            array(
                 'input' => 'ico_new_case',
                 'value' => $req['ico_new_case'],
                 'check' => array(
@@ -804,6 +813,15 @@ class Modify_submit {
                 'check' => array(
                     'charset' => 'number',
                     'maxlen' => 50
+                )
+            )
+        );
+        Valid::get(
+            array(
+                'input' => 'article_min_len',
+                'value' => $req['article_min_len'],
+                'check' => array(
+                    'charset' => 'number'
                 )
             )
         );

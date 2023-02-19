@@ -149,7 +149,7 @@ class SearchList_submit{
         Valid::set(
             array(
                 'return' => 'callback',
-                'function' => 'mod_searchResult.action(\'list_reload\');'
+                'function' => 'ph_mod_search_manage.search_result(\'list_reload\');'
             )
         );
         Valid::turn();
@@ -216,7 +216,7 @@ class SearchList_submit{
         Valid::set(
             array(
                 'return' => 'callback',
-                'function' => 'mod_searchResult.action(\'list_reload\');'
+                'function' => 'ph_mod_search_manage.search_result(\'list_reload\');'
             )
         );
         Valid::turn();
@@ -382,7 +382,7 @@ class SearchModify_submit{
         Valid::set(
             array(
                 'return' => 'callback',
-                'function' => 'mod_searchResult.action(\'secc_modify\');'
+                'function' => 'ph_mod_search_manage.search_result(\'secc_modify\');'
             )
         );
         Valid::turn();

@@ -1,24 +1,32 @@
-//
-// 사이트맵 관리
-//
-var mod_searchResult = {
+ph_mod_search_manage = {
+
+    //
+    // init
+    //
     'init' : function() {
-        this.action();
+
+        this.search_result(); // 사이트맵 관리
+
     },
-    'action' : function(functions) {
-        var $wait_box = $('#searchModifyForm .search-wait').clone();
+
+    //
+    // 사이트맵 관리
+    //
+    'search_result' : function(functions) {
+
+        var $wait_box = $('body.mod-search-manage #searchModifyForm .search-wait').clone();
         var list_arr = new Array;
         list_arr[0] = {
             'axis' : 'y',
             'stop' : function() {
-                $('#searchListForm input[name=type]').val('modify');
+                $('body.mod-search-manage #searchListForm input[name=type]').val('modify');
                 list_refrs();
             }
         }
         var $list_ele = new Array;
 
         var get_sortable = function() {
-            $list_ele[0] = $('#searchListForm .sortable');
+            $list_ele[0] = $('body.mod-search-manage #searchListForm .sortable');
             $list_ele[0].sortable(list_arr[0]).disableSelection();
         }
 
@@ -35,14 +43,14 @@ var mod_searchResult = {
         }
 
         var request_sbm = function() {
-            $('#searchListForm').submit();
+            $('body.mod-search-manage #searchListForm').submit();
 
         }
 
         var list_reload = function() {
-            $('#searchListForm').load(MOD_SEARCH_DIR.replace(PH_DIR, PH_DIR + '/manage') + '/result/searchList', function(){
+            $('body.mod-search-manage #searchListForm').load(MOD_SEARCH_DIR.replace(PH_DIR, PH_DIR + '/manage') + '/result/searchList', function(){
                 get_sortable();
-                $('.searchbox').removeClass('with-ajax-cover');
+                $('body.mod-search-manage .searchbox').removeClass('with-ajax-cover');
             });
         }
         list_reload();
@@ -51,8 +59,8 @@ var mod_searchResult = {
             var eqidx = new Array();
             var eqval = new Array();
 
-            $('.searchbox').addClass('with-ajax-cover');
-            $('#searchListForm').append('<div class="ajax-cover"></div>');
+            $('body.mod-search-manage .searchbox').addClass('with-ajax-cover');
+            $('body.mod-search-manage #searchListForm').append('<div class="ajax-cover"></div>');
 
             get_sortable();
 
@@ -61,7 +69,7 @@ var mod_searchResult = {
                 var depth = $this.data('depth');
 
                 if ($this.data('depth') === 1) {
-                    eqidx[0] = parseInt($this.index('input[name="caidx[]"][data-depth=1]')) + 1;
+                    eqidx[0] = parseInt($this.index('body.mod-search-manage input[name="caidx[]"][data-depth=1]')) + 1;
                     eqval[0] = list_charlen(eqidx[0]);
                     if (eqidx[0]!=0) {
                         $this.val(eqval[0]);
@@ -69,7 +77,7 @@ var mod_searchResult = {
                 }
             });
 
-            $('input[name="idx[]"]').each(function() {
+            $('body.mod-search-manage input[name="idx[]"]').each(function() {
                 if (!$(this).val()) {
                     $(this).addClass('search_new_added_ele');
 
@@ -78,9 +86,9 @@ var mod_searchResult = {
                 }
             });
 
-            $('#searchListForm input[name=new_caidx]').val($('.search_new_added_ele').eq(0).next('input[name="caidx[]"]').val());
+            $('body.mod-search-manage #searchListForm input[name=new_caidx]').val($('.search_new_added_ele').eq(0).next('input[name="caidx[]"]').val());
             request_sbm();
-            $('#searchListForm input[name=type]').val('add');
+            $('body.mod-search-manage #searchListForm input[name=type]').val('add');
         }
 
         var secc_modify = function() {
@@ -93,32 +101,35 @@ var mod_searchResult = {
             return false;
         }
 
-        $(document).on('click', '#searchListForm .add-1d', function(e) {
+        $(document).on('click', 'body.mod-search-manage #searchListForm .add-1d', function(e) {
             e.preventDefault();
             var html = '<div class="st-1d"><h4><a href="#" class="modify-btn"><input type="hidden" name="idx[]" value="" /><input type="hidden" name="caidx[]" value="" data-depth="1" /><input type="hidden" name="org_caidx[]" value="" />새로운 통합검색 콘텐츠</a><i class="fa fa-trash-alt st-del del-1d"></i></h4></div>';
             $(html).hide().appendTo($('.sortable'));
             list_refrs();
         });
 
-        $(document).on('click', '#searchListForm .del-1d', function(e) {
+        $(document).on('click', 'body.mod-search-manage #searchListForm .del-1d', function(e) {
             e.preventDefault();
             if (!confirm('삭제하는 경우 복구할 수 없습니다.\n\n그래도 진행 하시겠습니까?')) {
                 return false;
             }
             var $this = $(this);
             $this.parents('.st-1d').remove();
-            $('#searchListForm input[name=type]').val('modify');
-            $('#searchModifyForm').empty().append($wait_box);
+            $('body.mod-search-manage #searchListForm input[name=type]').val('modify');
+            $('body.mod-search-manage #searchModifyForm').empty().append($wait_box);
             list_refrs();
         });
 
-        $(document).on('click', '#searchListForm a.modify-btn', function(e) {
+        $(document).on('click', 'body.mod-search-manage #searchListForm a.modify-btn', function(e) {
             e.preventDefault();
             var idx = $(this).find('input[name="idx[]"]').val();
-            $('#searchModifyForm').hide().load(MOD_SEARCH_DIR.replace(PH_DIR, PH_DIR + '/manage') + '/result/searchModify?idx=' + idx).fadeIn(100);
+            $('body.mod-search-manage #searchModifyForm').hide().load(MOD_SEARCH_DIR.replace(PH_DIR, PH_DIR + '/manage') + '/result/searchModify?idx=' + idx).fadeIn(100);
         });
+
     }
+
 }
+
 $(function() {
-    mod_searchResult.init();
+    ph_mod_search_manage.init();
 });

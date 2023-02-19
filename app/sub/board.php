@@ -14,11 +14,13 @@ class News extends \controller\Make_Controller {
         $this->layout()->foot();
     }
 
-    public function make(){
+    public function make()
+    {
         $this->module();
     }
 
-    public function module(){
+    public function module()
+    {
         $module = new \Module\Board\Make_Controller();
         $module->set('id', 'news');
         $module->run();

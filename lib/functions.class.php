@@ -75,8 +75,16 @@ class Func {
     {
         global $CONF, $ob_title, $ob_ogtitle;
 
-        $ob_title .= '<title>'.$CONF['title'].' - '.$title.'</title>'.PHP_EOL;
-        $ob_ogtitle .= '<meta property="og:title" content="'.$CONF['og_title'].' - '.$title.'" />'.PHP_EOL;
+        $ob_title = '<title>'.$CONF['title'].' - '.$title.'</title>'.PHP_EOL;
+        $ob_ogtitle = '<meta property="og:title" content="'.$CONF['og_title'].' - '.$title.'" />'.PHP_EOL;
+    }
+
+    static public function add_body_class($class)
+    {
+        global $ob_body_class;
+        
+        if (!$ob_body_class && $class) $ob_body_class = $class;
+        if ($ob_body_class && preg_match("/^(?!.*".$class.")[\w-]+$/", $ob_body_class)) $ob_body_class .= ' '.$class;
     }
 
     // page key 셋팅
@@ -108,23 +116,10 @@ class Func {
     {
         $byte = strtolower($byte);
 
-        switch ($byte) {
-            case 'k' :
-                $size = (int)$size / 1024;
-                break;
-
-            case 'm' :
-                $size = (int)$size / 1024 / 1024;
-                break;
-
-            case 'g' :
-                $size = (int)$size / 1024 / 1024 / 1024;
-                break;
-        }
-
-        if ($comma === true) {
-            $size = number_format($size, 1);
-        }
+        $divisors = array('k' => 1024, 'm' => 1024 * 1024, 'g' => 1024 * 1024 * 1024);
+        $divisor = isset($divisors[$byte]) ? $divisors[$byte] : 1;
+        $size = (int)$size / $divisor;
+        $size = ($comma === true) ? number_format($size, 1) : $size;
 
         return $size;
     }
@@ -155,13 +150,11 @@ class Func {
     // 로그인이 되어있지 않다면 로그인 화면으로 이동
     static public function getlogin($msg)
     {
-        if (!IS_MEMBER) {
-            if ($msg) {
-                self::alert($msg);
-            }
-            $url = $_SERVER['REQUEST_URI'];
-            self::location_parent(PH_DOMAIN.'/sign/signin?redirect='.urlencode($url));
-        }
+        if (IS_MEMBER) return;
+
+        if ($msg) self::alert($msg);
+        $url = $_SERVER['REQUEST_URI'];
+        self::location_parent(PH_DOMAIN.'/sign/signin?redirect='.urlencode($url));
     }
 
     // 회원 level 체크
@@ -200,10 +193,10 @@ class Func {
             if (strpos($val, trim($intd[$i])) !== false) $chk = false;
         }
         if ($type == 'notmatch') {
-            return ($chk === false) ? false : true;
-
+            return $chk !== false;
+            
         } else if ($type == 'match') {
-            return ($chk === false) ? true : false;
+            return $chk === false;
         }
     }
 
@@ -330,21 +323,15 @@ class Func {
     {
         $paramArr = array();
 
-        $firstChars = array('&', '?');
-        if (in_array(substr($param, 0, 1), $firstChars)) {
+        if (preg_match('/^[?&]/', $param)) {
             $param = substr($param, 1);
         }
-        $paramExp = explode('&', $param);
-
-        foreach ($paramExp as $list) {
-            if ($list == '') {
-                continue;
-            }
-            $valExp = explode('=', $list);
-            if ($valExp[1] != '') {
-                $paramArr[] = $valExp[0].'='.$valExp[1];
-            }
-        }
+        
+        $paramArr = array_filter(explode('&', $param), function ($list) {
+            if ($list == '') return false;
+            [$key, $value] = explode('=', $list, 2);
+            return !empty($value) ? $key . '=' . $value : false;
+        });
 
         return (count($paramArr) > 0) ? $chain.implode('&', $paramArr) : '';
     }
@@ -354,7 +341,7 @@ class Func {
     {
         global $CONF, $PLUGIN_CAPTCHA_CONF;
 
-        if ($id == '') $id = 'captcha';
+        $id = empty($id) ? 'captcha' : $id;
 
         $PLUGIN_CAPTCHA_CONF['id'] = $id;
 

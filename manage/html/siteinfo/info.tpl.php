@@ -34,7 +34,7 @@
                 <tr>
                     <th>사이트 설명</th>
                     <td>
-                        <input type="text" name="description" class="inp" title="사이트 설명" value="<?php echo $write['description']; ?>" />
+                        <input type="text" name="description" class="inp w100p" title="사이트 설명" value="<?php echo $write['description']; ?>" />
                     </td>
                 </tr>
                 <tr>

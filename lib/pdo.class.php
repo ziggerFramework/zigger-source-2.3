@@ -11,7 +11,7 @@ class Pdosql {
     static private $DB_PWD = DB_PWD;
     static private $DB_PREFIX = DB_PREFIX;
     static private $CONN;
-    private $ROW;
+    private $ROW_NUM = 0;
     private $REC_COUNT;
     private $pdo;
     private $stmt;
@@ -20,19 +20,15 @@ class Pdosql {
     public function __construct()
     {
         try {
-            switch (DB_ENGINE) {
-                default :
-                    $this->pdo = new \PDO(
-                        'mysql:host='.self::$DB_HOST.';dbname='.self::$DB_NAME, self::$DB_USER, self::$DB_PWD,
-                        array(
-                            \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
-                            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
-                        )
-                    );
-            }
-        }
-        catch (\PDOException $e) {
-            Func::core_err(ERR_MSG_3.'<br />'.$e->getMessage());
+            $dsn = 'mysql:host='.self::$DB_HOST.';dbname='.self::$DB_NAME;
+            $options = array(
+                \PDO::MYSQL_ATTR_INIT_COMMAND => 'set names utf8',
+                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+            );
+            $this->pdo = new \PDO($dsn, self::$DB_USER, self::$DB_PWD, $options);
+
+        } catch (\PDOException $e) {
+            Func::core_err(ERR_MSG_3 . '<br />' . $e->getMessage());
         }
 
         $this->specialchars = DB_SPECIALCHARS;
@@ -89,7 +85,6 @@ class Pdosql {
     //Query
     public function query($query, $param = [], $dspError = true)
     {
-
         try {
 
             $qryString = $query;
@@ -113,7 +108,7 @@ class Pdosql {
             if ( strpos($qryLower, 'select') !== false && ( strpos($qryLower, 'insert') === false && strpos($qryLower, 'update') === false ) ) {
                 $this->ROW = $this->stmt->fetch(\PDO::FETCH_ASSOC);
             }
-            $this->ROW_NUM = 0;
+            $this->ROW_NUM = 1;
 
             return $qryString;
 
@@ -134,39 +129,13 @@ class Pdosql {
         return $this->REC_COUNT;
     }
 
-    // 첫번째 레코드에 위치 시킴
-    public function firstRec()
-    {
-        $this->ROW = $this->stmt->fetch(\PDO::FETCH_ASSOC, \PDO::FETCH_ORI_ABS, 0);
-    }
-
-    // 마지막 레코드에 위치 시킴
-    public function lastRec()
-    {
-        $this->ROW = $this->stmt->fetch(\PDO::FETCH_ASSOC, \PDO::FETCH_ORI_LAST);
-    }
-
     // 다음 레코드에 위치 시킴
     public function nextRec()
     {
         $this->ROW_NUM = $this->ROW_NUM + 1;
 
-        if ($this->ROW_NUM < $this->REC_COUNT) {
-            $this->ROW = $this->stmt->fetch(\PDO::FETCH_ASSOC, \PDO::FETCH_ORI_REL, $this->ROW_NUM);
-            return true;
-
-        } else {
-            return false;
-        }
-    }
-
-    // 이전 레코드에 위치 시킴
-    public function prevRec()
-    {
-        $this->ROW_NUM = $this->ROW_NUM - 1;
-
-        if ($this->ROW_NUM >= 0) {
-            $this->ROW = $this->stmt->fetch(\PDO::FETCH_ASSOC, \PDO::FETCH_ORI_REL, $this->ROW_NUM);
+        if ($this->ROW_NUM <= $this->REC_COUNT) {
+            $this->ROW = $this->stmt->fetch(\PDO::FETCH_ASSOC);
             return true;
 
         } else {

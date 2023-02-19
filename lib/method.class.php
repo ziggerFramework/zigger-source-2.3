@@ -74,18 +74,14 @@ class Method {
     {
         $type = strtolower($type);
 
-        switch ($type) {
-            case 'referer' :
-                if (!isset($_SERVER['HTTP_REFERER']) || !preg_match(";$_SERVER[HTTP_HOST];", $_SERVER['HTTP_REFERER'])) Func::core_err(ERR_MSG_1);
-                break;
+        if ($type == 'referer') {
+            if (!isset($_SERVER['HTTP_REFERER']) || !preg_match(";$_SERVER[HTTP_HOST];", $_SERVER['HTTP_REFERER'])) Func::core_err(ERR_MSG_1);
 
-            case 'request_get' :
-                if (getenv('REQUEST_METHOD') == 'POST') Func::core_err(ERR_MSG_1);
-                break;
-
-            case 'request_post' :
-                if (getenv('REQUEST_METHOD') == 'GET') Func::core_err(ERR_MSG_1);
-                break;
+        } elseif ($type == 'request_get') {
+            if ($_SERVER['REQUEST_METHOD'] == 'POST') Func::core_err(ERR_MSG_1);
+            
+        } elseif ($type == 'request_post') {
+            if ($_SERVER['REQUEST_METHOD'] == 'GET') Func::core_err(ERR_MSG_1);
         }
     }
 }

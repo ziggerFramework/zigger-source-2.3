@@ -1,21 +1,33 @@
-//
-// Popup
-//
-var SitePopup = {
+ph_global_script = {
+
+    //
+    // init
+    //
     'init' : function() {
-        this.action();
+
+        this.site_popup(); // Popup
+        this.get_phonecheck(); // 휴대전화번호 SMS 인증 코드 발송 및 검증
+        this.get_kakao_address(); // 카카오 주소검색
+        
     },
-    'action' : function() {
+
+    //
+    // Popup
+    //
+    'site_popup' : function() {
+
         var $ele = {
             'closeBtn' : $('.ph-pop .close'),
             'closeTodayBtn' : $('.ph-pop .close-today')
         }
+
         $ele.closeBtn.on({
             'click' : function(e) {
                 e.preventDefault();
                 $(this).parents('.ph-pop').remove();
             }
         });
+
         $ele.closeTodayBtn.on({
             'click' : function(e) {
                 e.preventDefault();
@@ -24,20 +36,14 @@ var SitePopup = {
                 $(this).parents('.ph-pop').remove();
             }
         });
-    }
-}
-$(function() {
-    SitePopup.init();
-});
-
-//
-// 휴대전화번호 SMS 인증 코드 발송 및 검증
-//
-var Get_phonecheck = {
-    'init' : function() {
-        this.action();
+        
     },
-    'action' : function() {
+
+    //
+    // 휴대전화번호 SMS 인증 코드 발송 및 검증
+    //
+    'get_phonecheck' : function() {
+
         var $ele = {
             'wrap' : $('#get-phone-check-wrap'),
             'sendBtn' : $('#get-phone-check-wrap').find('.send-sms-code'),
@@ -103,20 +109,13 @@ var Get_phonecheck = {
             }
         });
 
-    }
-}
-$(function() {
-    Get_phonecheck.init();
-});
-
-//
-// 카카오 주소검색
-//
-var Get_kakaoAddress = {
-    'init' : function() {
-        this.action();
     },
-    'action' : function() {
+
+    //
+    // 카카오 주소검색
+    //
+    'get_kakao_address' : function() {
+
         if (typeof PH_KPOSTCODE_API_URL == 'undefined' || typeof PH_KPOSTCODE_API_URL == 'null') {
             return false;
         }
@@ -153,13 +152,17 @@ var Get_kakaoAddress = {
                 }
             }).open();
         }
+        
         $ele.searchBtn.on({
             'click' : function() {
                 getSearch();
             }
         });
-    },
+
+    }
+
 }
+
 $(function() {
-    Get_kakaoAddress.init();
+    ph_global_script.init();
 });

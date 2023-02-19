@@ -22,18 +22,12 @@ class Imgresize {
 
     private function make_tmporg()
     {
-        switch ($this->type) {
-            case 'png' :
-                $this->tmporg = imagecreatefrompng($this->orgimg);
-                break;
-
-            case 'gif' :
-                $this->tmporg = imagecreatefromgif($this->orgimg);
-                break;
-
-            default :
-                $this->tmporg = imagecreatefromjpeg($this->orgimg);
-        }
+        $createFn = array(
+            'png' => 'imagecreatefrompng',
+            'gif' => 'imagecreatefromgif',
+        );
+        
+        $this->tmporg = isset($createFn[$this->type]) ? $createFn[$this->type]($this->orgimg) : imagecreatefromjpeg($this->orgimg);   
     }
 
     private function make_resampled()
@@ -66,18 +60,15 @@ class Imgresize {
         $this->make_tmporg();
         $this->make_resampled();
 
-        switch ($this->type) {
-            case 'png' :
-                imagepng($this->tmpnew, $this->newimg);
-                break;
-
-            case 'gif' :
-                imagegif($this->tmpnew, $this->newimg);
-                break;
-
-            default :
-                imagejpeg($this->tmpnew, $this->newimg, $this->quality);
-        }
+        $outputFn = array(
+            'png' => 'imagepng',
+            'gif' => 'imagegif',
+            'jpeg' => 'imagejpeg',
+        );
+        
+        $ext = pathinfo($this->newimg, PATHINFO_EXTENSION);
+        $output = isset($outputFn[$ext]) ? $outputFn[$ext] : 'imagejpeg';
+        $output($this->tmpnew, $this->newimg, $ext == 'jpeg' ? $this->quality : null);
 
         $this->destroy();
     }

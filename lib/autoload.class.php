@@ -18,7 +18,7 @@ function mod_autoloader($className)
     $loadfile = preg_replace("/($file(?!.*$file))/", 'controller/'.$file, $className);
     $loadfile = PH_MOD_PATH.$loadfile.'.php';
 
-    if (file_exists($loadfile) === true){
+    if (file_exists($loadfile) === true) {
         include_once $loadfile;
     }
 }

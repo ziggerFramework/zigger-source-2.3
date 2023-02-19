@@ -32,11 +32,7 @@ class Uploader {
         $f_type = Func::get_filetype($this->file['name']);
         $chk = true;
 
-        for ($i = 0; $i <= count($intd)-1; $i++) {
-            if ($f_type == trim($intd[$i])) {
-                $chk = false;
-            }
-        }
+        $chk = !in_array($f_type, $intd);
 
         if ($type == 'notmatch') {
             return ($chk === false) ? false : true;

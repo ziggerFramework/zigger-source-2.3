@@ -15,6 +15,7 @@ class Make_Controller {
     static private $ob_title;
     static private $ob_ogtitle;
     static private $ob_define_js;
+    static private $ob_body_class;
     static private $org_head_html;
     static private $setparm = array();
     static private $layout_type;
@@ -22,13 +23,14 @@ class Make_Controller {
 
     static public function set_ob()
     {
-        global $ob_src_css, $ob_src_js, $ob_title, $ob_ogtitle, $ob_define_js;
+        global $ob_src_css, $ob_src_js, $ob_title, $ob_ogtitle, $ob_define_js, $ob_body_class;
 
         self::$ob_src_css = $ob_src_css;
         self::$ob_src_js = $ob_src_js;
         self::$ob_title = $ob_title;
         self::$ob_ogtitle = $ob_ogtitle;
         self::$ob_define_js = $ob_define_js;
+        self::$ob_body_class = $ob_body_class;
     }
 
     public function set($name, $parm)
@@ -97,13 +99,8 @@ class Make_Controller {
     {
         global $CONF, $MB, $MODULE, $THEME, $NAVIGATOR;
 
-        if ($makedo === true) {
-            $this->{$makename}();
-        }
-
-        if ($viewer != '') {
-            $this->get_viewer($viewer);
-        }
+        if ($makedo === true) $this->{$makename}();
+        if ($viewer != '') $this->get_viewer($viewer);
     }
 
     public function head($type = '')
@@ -180,11 +177,14 @@ class Make_Controller {
 
         $html = self::$ob_head_html;
 
+        // <body>에 class 추가
+        $html = (self::$ob_body_class) ? preg_replace("/<body>/", "<body class=\"".self::$ob_body_class."\">", $html) : $html;
+
         // 마지막 <link> 와 <script> 사이에 stylesheet 추가
         $html = preg_replace("#(<script type=\"text/javascript\">[^<]*var PH_DIR[^>]+)#", self::$ob_src_css."$1", $html);
 
         // 마지막 <script> 와 </head> 사이에 javascript 추가
-        $html = preg_replace("#(</head>[^<]*<body>)#", self::$ob_src_js."$1", $html);
+        $html = preg_replace("#(</head>[^<]*<body)#", self::$ob_src_js."$1", $html);
 
         // 마지막 'var PH_DOMAIN' 와 </script> 사이에 javascript 전역변수 추가
         $html = preg_replace("#(var PH_DIR[^>]+;[^<]*var PH_DOMAIN[^>]+;)#", "$1".self::$ob_define_js, $html);
@@ -212,12 +212,25 @@ class Make_Controller {
     {
         global $CONF, $MB, $MODULE, $THEME, $NAVIGATOR;
 
-        foreach (self::$setparm as $key => $value) {
-            $$key = $value;
-        }
+        extract(self::$setparm);
 
         if ($tpl != '') {
             if (!file_exists($tpl)) Func::core_err('View 파일이 존재하지 않습니다. ('.$tpl.')');
+            
+            // module view가 요청된 경우 <body>에 class 추가
+            if (preg_match('/\/theme\/'.$THEME[0].'\/mod-.+?\//', $tpl, $matches)) {
+                $mod_name = $matches[0];
+                $mod_name = str_replace(array('/theme/'.$THEME[0], '/'), array('', ''), $mod_name);
+                if ($mod_name) Func::add_body_class($mod_name);
+            }
+
+            // module manage view가 요청된 경우 manager <body>에 class 추가
+            if (preg_match('/\/mod\/[\w-]+\/manage\.set\/html\//', $tpl, $matches)) {
+                $mod_name = $matches[0];
+                $mod_name = str_replace(array('/mod/', '/manage.set/html/'), array('', ''), $mod_name);
+                if ($mod_name) Func::add_body_class('mod-'.$mod_name.'-manage');
+            }
+            
             require $tpl;
         }
     }
@@ -262,7 +275,7 @@ class Make_View_Form {
 
         $form_id = $REL_PATH['class_name'].'Form';
 
-        if (isset($this->set['id']) && $this->set['id'] != '') {
+        if (!empty($this->set['id'])) {
             $form_id = $this->set['id'];
 
         } else if (!isset($this->set['type'])) {
@@ -274,20 +287,13 @@ class Make_View_Form {
         if (!isset($this->set['method'])) $this->set['method'] = 'post';
         if (!isset($this->set['target'])) $this->set['target'] = '';
 
-        switch ($this->set['type']) {
-            case 'static' :
-                $form_html = 'name="'.$form_id.'" id="'.$form_id.'" action="'.$this->set['action'].'" method="'.$this->set['method'].'"';
-                break;
+        $form_attr = array(
+            'static' => 'action="'.$this->set['action'].'" method="'.$this->set['method'].'"',
+            'html' => 'ajax-action="'.$this->set['action'].'?rewritetype=submit" ajax-type="'.$this->set['type'].'"',
+            'multipart' => 'enctype="multipart/form-data" ajax-action="'.$this->set['action'].'?rewritetype=submit" ajax-type="'.$this->set['type'].'"'
+        );
 
-            case 'html' :
-                $form_html = 'name="'.$form_id.'" id="'.$form_id.'" ajax-action="'.$this->set['action'].'?rewritetype=submit" ajax-type="'.$this->set['type'].'"';
-                break;
-
-            case 'multipart' :
-                $form_html = 'name="'.$form_id.'" id="'.$form_id.'" enctype="multipart/form-data" ajax-action="'.$this->set['action'].'?rewritetype=submit" ajax-type="'.$this->set['type'].'"';
-                break;
-        }
-        echo $form_html;
+        echo 'name="'.$form_id.'" id="'.$form_id.'" '.$form_attr[$this->set['type']];
     }
 
 }
@@ -312,7 +318,7 @@ class Make_View_Fetch {
     {
         require_once $this->set['doc'];
 
-        if (isset($this->set['className']) && $this->set['className'] != '') {
+        if (!empty($this->set['className'])) {
             $className = $this->set['className'];
 
         } else {
