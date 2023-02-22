@@ -13,7 +13,7 @@ php_value error_log ./data/php-error-logs.log
 
 RewriteEngine On
 
-RewriteRule ^\.well-known/.+ - [END]
+RewriteRule ^\.well-known/.+ - [L]
 
 RewriteRule ^install($|/.*) - [L]
 

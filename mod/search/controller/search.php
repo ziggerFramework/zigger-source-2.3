@@ -75,13 +75,13 @@ class Search extends \Controller\Make_Controller {
 
             if (!$sql->table_exists('mod:board_data_'.$board)) return null;
 
+            $where = array('', '', '');
+
             foreach (exp_keywords($keyword) as $key => $value) {
                 $or = ($key > 0) ? ' or ' : '';
-                $where = array(
-                    $or.' subject like \'%'.$value.'%\'',
-                    $or.' article like \'%'.$value.'%\'',
-                    $or.' writer like \'%'.$value.'%\''
-                );
+                $where[0] .= $or.' subject like \'%'.$value.'%\'';
+                $where[1] .= $or.' article like \'%'.$value.'%\'';
+                $where[2] .= $or.' writer like \'%'.$value.'%\'';
             }
 
             $sql->query(
