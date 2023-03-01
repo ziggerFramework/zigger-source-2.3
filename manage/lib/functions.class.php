@@ -3,7 +3,6 @@ namespace Manage;
 
 use Corelib\Func;
 use Corelib\Method;
-use Corelib\Valid;
 
 class ManageFunc{
 
@@ -11,7 +10,7 @@ class ManageFunc{
     {
         global $REQUEST, $PARAM, $MB, $keyword, $searchby;
 
-        $PARAM = Method::request('get', 'mod, href, p, sort,ordtg, ordsc, where, keyword, page');
+        $PARAM = Method::request('get', 'mod, href, p, sort, ordtg, ordsc, where, keyword, page');
 
         if ($REQUEST['rewritetype'] == 'submit') {
             if ($MB['level'] > 1) Valid::error('', '관리자만 접근 가능합니다.');
@@ -21,9 +20,9 @@ class ManageFunc{
             Func::chklevel(1);
         }
 
-        $keyword = urldecode($PARAM['keyword']);
+        $keyword = urldecode(addslashes($PARAM['keyword']));
 
-        $searchby = (trim($PARAM['keyword']) != '') ? 'AND '.$PARAM['where'].' like \'%'.$PARAM['keyword'].'%\'' : '';
+        $searchby = (trim(addslashes($PARAM['keyword'])) != '') ? 'AND '.addslashes($PARAM['where']).' like \'%'.addslashes($PARAM['keyword']).'%\'' : '';
 
     }
 

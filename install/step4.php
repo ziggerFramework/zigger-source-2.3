@@ -56,7 +56,6 @@ if (!file_exists('../data/dbconn.temp.php')) {
     $file = @fopen('../data/path.set.php', 'w');
     fwrite($file,"<?php\ndefine('PH_DOMAIN', '".$protocol.$_SERVER['HTTP_HOST'].$realdir."');\ndefine('PH_DIR', '".$realdir."');\ndefine('PH_PATH', \$_SERVER['DOCUMENT_ROOT'].PH_DIR);\n?>");
     fclose($file);
-    chmod('../data/manage/', 0707);
 }
 
 require_once './head.set.php';

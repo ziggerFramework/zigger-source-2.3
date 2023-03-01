@@ -10,7 +10,8 @@ class Pdosql {
     static private $DB_USER = DB_USER;
     static private $DB_PWD = DB_PWD;
     static private $DB_PREFIX = DB_PREFIX;
-    static private $CONN;
+    static private $ALREADY_CONNECTED_PDO;
+    private $ROW = 0;
     private $ROW_NUM = 0;
     private $REC_COUNT;
     private $pdo;
@@ -20,12 +21,19 @@ class Pdosql {
     public function __construct()
     {
         try {
-            $dsn = 'mysql:host='.self::$DB_HOST.';dbname='.self::$DB_NAME;
-            $options = array(
-                \PDO::MYSQL_ATTR_INIT_COMMAND => 'set names utf8',
-                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-            );
-            $this->pdo = new \PDO($dsn, self::$DB_USER, self::$DB_PWD, $options);
+            if (!empty(self::$ALREADY_CONNECTED_PDO)) {
+                $this->pdo = self::$ALREADY_CONNECTED_PDO;
+                
+            } else {
+                $dsn = 'mysql:host='.self::$DB_HOST.';dbname='.self::$DB_NAME;
+                $options = array(
+                    \PDO::MYSQL_ATTR_INIT_COMMAND => 'set names utf8',
+                    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                );
+                $this->pdo = new \PDO($dsn, self::$DB_USER, self::$DB_PWD, $options);
+                self::$ALREADY_CONNECTED_PDO = $this->pdo;
+            }
+            
 
         } catch (\PDOException $e) {
             Func::core_err(ERR_MSG_3 . '<br />' . $e->getMessage());
@@ -94,9 +102,16 @@ class Pdosql {
             if (is_array($param)) {
                 for ($i = 1; $i <= count($param); $i++) {
                     if (!strstr($query, ':col'.$i)) continue;
+                    
+                    $value = addslashes($param[$i-1]);
 
-                    $this->stmt->bindParam(':col'.$i, $param[$i-1]);
-                    $qryString = str_replace(':col'.$i, $param[$i-1], $qryString);
+                    if (is_null($param[$i-1])) {
+                        $this->stmt->bindValue(':col'.$i, null, \PDO::PARAM_NULL);
+                    } else {
+                        $this->stmt->bindValue(':col'.$i, $value, \PDO::PARAM_STR);
+                    }
+
+                    $qryString = str_replace(':col'.$i, $value, $qryString);
                 }
             }
 
@@ -167,7 +182,7 @@ class Pdosql {
         if (!$this->ROW) return false;
 
         foreach ($this->ROW as $key => $value) {
-            $array[$key] = stripslashes($this->fetch($key));
+            $array[$key] = $this->fetch($key);
         }
 
         return $array;

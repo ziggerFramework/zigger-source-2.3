@@ -113,7 +113,7 @@
 							<input type="checkbox" name="cnum[]" value="<?php echo $list['idx']; ?>" />
 							<?php } ?>
 							<?php echo $list[0]['secret_ico']; ?>
-							<?php echo $list[0]['subject']; ?>qjklwefhjkqwhefljkhqwjklefhjklqwhefjkqwhefjkhqwljkfe
+							<?php echo $list[0]['subject']; ?>
 						</a>
                         <?php echo $list[0]['new_ico']; ?>
                         <?php echo $list[0]['hot_ico']; ?>

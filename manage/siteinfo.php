@@ -263,10 +263,10 @@ class Info_submit {
                 {$sql->table("config")}
                 set
                 cfg_value=:col1
-                where cfg_type='engine' and cfg_key='{$key}'
+                where cfg_type='engine' and cfg_key=:col2
                 ",
                 array(
-                    $value
+                    $value, $key
                 )
             );
         }
@@ -1001,7 +1001,7 @@ class SitemapList_submit{
         Valid::set(
             array(
                 'return' => 'callback',
-                'function' => 'sitemap_list.action(\'list_reload\');'
+                'function' => 'ph_manage_script.siteinfo_sitemap_script(\'list_reload\');'
             )
         );
         Valid::turn();
@@ -1068,7 +1068,7 @@ class SitemapList_submit{
         Valid::set(
             array(
                 'return' => 'callback',
-                'function' => 'sitemap_list.action(\'list_reload\');'
+                'function' => 'ph_manage_script.siteinfo_sitemap_script(\'list_reload\');'
             )
         );
         Valid::turn();
@@ -1184,7 +1184,7 @@ class SitemapModify_submit{
         Valid::set(
             array(
                 'return' => 'callback',
-                'function' => 'sitemap_list.action(\'secc_modify\');'
+                'function' => 'ph_manage_script.siteinfo_sitemap_script(\'secc_modify\');'
             )
         );
         Valid::turn();

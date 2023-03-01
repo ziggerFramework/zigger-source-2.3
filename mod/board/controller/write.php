@@ -309,7 +309,7 @@ class Write extends \Controller\Make_Controller {
                 }
             }
 
-            if (Write::$boardconf['use_category'] == 'Y' && Write::$boardconf['category'] != '' && $req['wrmode'] != 'reply' && $arr['rn'] == 0 && $arr['reply_cnt'] < 1) {
+            if (Write::$boardconf['use_category'] == 'Y' && Write::$boardconf['category'] != '' && (!$req['wrmode'] || $req['wrmode'] != 'reply') && (!isset($arr['rn']) || $arr['rn'] == 0) && (!isset($arr['reply_cnt']) || $arr['reply_cnt'] < 1)) {
                 $is_category_show = true;
 
             } else {

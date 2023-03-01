@@ -124,8 +124,10 @@ class Uploader {
             "
             select *
             from {$sql->table("dataupload")}
-            where orgfile='{$fileinfo['orgfile']}' and repfile='{$replace_filename}'
-            ", []
+            where orgfile=:col1 and repfile=:col2
+            ", array(
+                $fileinfo['orgfile'], $replace_filename
+            )
         );
 
         if ($sql->getcount() > 0) return;
@@ -150,8 +152,10 @@ class Uploader {
             "
             delete
             from {$sql->table("dataupload")}
-            where repfile='{$replace_filename}'
-            ", []
+            where repfile=:col1
+            ", array(
+                $replace_filename
+            )
         );
     }
 

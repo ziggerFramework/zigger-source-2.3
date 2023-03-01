@@ -39,7 +39,7 @@ class Search extends \Controller\Make_Controller {
             foreach (exp_keywords($keyword) as $key => $value)
             {
                 $or = ($key > 0) ? ' or ' : '';
-                $where .= $or.'html like \'%'.$value.'%\'';
+                $where .= $or.'html like \'%'.addslashes($value).'%\'';
             }
 
             $sql->query(
@@ -79,9 +79,9 @@ class Search extends \Controller\Make_Controller {
 
             foreach (exp_keywords($keyword) as $key => $value) {
                 $or = ($key > 0) ? ' or ' : '';
-                $where[0] .= $or.' subject like \'%'.$value.'%\'';
-                $where[1] .= $or.' article like \'%'.$value.'%\'';
-                $where[2] .= $or.' writer like \'%'.$value.'%\'';
+                $where[0] .= $or.' subject like \'%'.addslashes($value).'%\'';
+                $where[1] .= $or.' article like \'%'.addslashes($value).'%\'';
+                $where[2] .= $or.' writer like \'%'.addslashes($value).'%\'';
             }
 
             $sql->query(

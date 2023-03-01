@@ -1,223 +1,259 @@
-//
-// Navigator
-//
-$(function() {
-    $('#side .tab a').on({
-        'click' : function(e) {
-            e.preventDefault();
-            var idx = $(this).parents('li').index();
-            $('#side .tab > li').eq(idx).addClass('on').siblings().removeClass('on');
-            $('#gnb .menu').eq(idx).stop().fadeIn(100).siblings().hide();
-        }
-    });
-    $('#gnb .menu > li > a').on({
-        'click' : function(e) {
-            e.preventDefault();
-            $(this).next().stop().slideToggle(100).parents('li').toggleClass('on');
-        }
-    });
-    $('#gnb .menu > li').each(function() {
-        if ($(this).hasClass('active')) {
-            $(this).find('a').click();
-        }
-    });
-});
+ph_manage_script = {
 
-//
-// Navigator active
-//
-$(function() {
-    var href = window.document.location.href;
-    href = href.replace(PH_DOMAIN, '', href);
-
-    if (href.indexOf('?') !== -1) {
-        href = PH_DIR + href.replace(PH_DOMAIN, '', href);
-        href = href.replace(href.substr(href.indexOf('?')), '' ,href);
-    }
-    if (href.indexOf('#') !== -1) {
-        href = PH_DIR + href.replace(PH_DOMAIN, '', href);
-        href = href.replace(href.substr(href.indexOf('#')), '' ,href);
-    }
-    if (href.indexOf('/manage/mod') !== -1) {
-        $('#side .tab a[data-tab="mod"]').click();
-    }
-
-    if ($('#side #gnb .menu a[href="' + href + '"]').length > 0){
-        $('#side #gnb .menu a[href="' + href + '"]')
-        .closest('li').addClass('on')
-        .closest('ul').prev('a').click();
-
-    } else {
-        $('#side #gnb .menu a[data-idx-href]').each(function() {
-            var idx_href = $(this).data('idx-href');
-            idx_href = idx_href.split('|');
-            for (var i=0; i < idx_href.length; i++) {
-                if (href.indexOf(idx_href[i]) != -1) {
-                    $(this)
-                    .closest('li').addClass('on')
-                    .closest('ul').prev('a').click();
-                }
-            }
-
-        });
-    }
-
-});
-
-//
-// label active
-//
-function label_active() {
-    $('label.__label').each(function() {
-        $this = $(this);
-        if ($this.find('input').is(':checked')) {
-            $this.addClass('active');
-        } else {
-            $this.removeClass('active');
-        }
-    });
-}
-function label_custom() {
-    $('input[type=radio], input[type=checkbox]').each(function(i) {
-        var $this = $(this);
-        var $label = $this.parent('label');
-        var label_for = $(this).attr('name') + '_' + Math.floor(Math.random() * 9999) + '_' + i;
-
-        if ($label.length && !$label.hasClass('added_labelCustom') && !$label.hasClass('__label')) {
-            var $this_clone = $this.clone().attr('id', label_for);
-            $this.remove();
-            $label.addClass('added_labelCustom').attr('for', label_for).before($this_clone);
-        }
-    });
-}
-$(function() {
-    label_custom();
-});
-setInterval(label_custom, 100);
-
-$(window).on({
-    'load' : label_active
-});
-$(function() {
-    $('label.__label').on({
-        'click' : function() {
-            label_active();
-        }
-    });
-});
-
-//
-// Orderby
-//
-function get_query() {
-    var url = document.location.href;
-    var qs = url.substring(url.indexOf('?') + 1).split('&');
-    for (var i = 0, result = {}; i < qs.length; i++) {
-        qs[i] = qs[i].split('=');
-        result[qs[i][0]] = decodeURIComponent(qs[i][1]);
-    }
-    return result;
-}
-
-$(function(){
-    var qry = get_query();
-
-    $('table thead th a').each(function() {
-        var href = $(this).attr('href');
-        if (href.indexOf('desc') !== -1) {
-            $(this).attr({
-                'title' : '내림차순 정렬'
-            });
-        } else {
-            $(this).attr({
-                'title' : '오름차순 정렬'
-            });
-        }
-
-        if (qry['ordsc'] == 'asc') {
-            qry['order'] = 'desc';
-            qry['icon'] = '<i class="fas fa-caret-up"></i>';
-        } else {
-            qry['order'] = 'asc';
-            qry['icon'] = '<i class="fas fa-caret-down"></i>';
-        }
-
-        if (href.indexOf('&ordtg='+qry['ordtg']+'&ordsc='+qry['order']) != -1) {
-            $(this).html($(this).text() + qry['icon']);
-        }
-    });
-});
-
-//
-// UI: datepicker
-//
-$(function() {
-    $('input[datepicker]').datepicker();
-    $.datepicker.setDefaults({
-        dateFormat: 'yy-mm-dd',
-        prevText: '이전 달',
-        nextText: '다음 달',
-        monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
-        monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
-        dayNames: ['일', '월', '화', '수', '목', '금', '토'],
-        dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
-        dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
-        showMonthAfterYear: true,
-        yearSuffix: '년'
-    });
-});
-
-$(function() {
-    $nowdate = $('#list-sch input[name=nowdate]');
-    $fdate = $('#list-sch input[name=fdate]');
-    $tdate = $('#list-sch input[name=tdate]');
-
-    $fdate.datepicker('option', 'maxDate', $nowdate.val());
-    $tdate.datepicker('option', 'maxDate', $nowdate.val());
-    $fdate.datepicker('option', 'onClose', function(selectedDate){
-        $tdate.datepicker('option', 'minDate', selectedDate);
-    });
-    $tdate.datepicker('option', 'onClose', function(selectedDate) {
-        $fdate.datepicker('option', 'maxDate', selectedDate);
-    });
-});
-
-//
-// main.tpl.php
-//
-$(function() {
-    $('#dashboard .news-wrap a.view-feed-link').on({
-        'click' : function(e) {
-            e.preventDefault();
-            var page = $('#dashboard .news-wrap input[name=page]').val();
-            var idx = $(this).data('feed-idx');
-            var href = $(this).data('feed-href');
-            window.open(href);
-            window.document.location.href = PH_MANAGE_DIR + "/main/dash?view_dash_feed=" + idx+'&page=' + page;
-        }
-    });
-});
-
-//
-// siteinfo/theme.tpl.php
-//
-$(function() {
-    $('#themeForm input[name=theme_slt]').on({
-        'change' : function(e) {
-            e.preventDefault();
-            $('#themeForm').submit();
-        }
-    });
-});
-
-//
-// siteinfo/sitemap.tpl.php
-//
-var sitemap_list = {
+    //
+    // init
+    //
     'init' : function() {
-        this.action();
+
+        this.make_navigator() // Navigator
+        this.set_navigator_action() // Navigator Action
+        this.label_active() // Label Active
+        this.make_orderby() // Orderby
+        this.set_ui_datepicker() // UI: datepicker
+        this.main_tpl_script() // main.tpl.php
+        this.siteinfo_theme_script() // siteinfo/theme.tpl.php
+        this.siteinfo_sitemap_script() // siteinfo/sitemap.tpl.php
+        this.mailler_send_script() // mailler/send.tpl.php
+        this.sms_tomember_script() // sms/tomember.tpl.php
+
     },
-    'action' : function(functions) {
+
+    //
+    // Navigator
+    //
+    'make_navigator' : function() {
+
+        $('#side .tab a').on({
+            'click' : function(e) {
+                e.preventDefault();
+                var idx = $(this).parents('li').index();
+                $('#side .tab > li').eq(idx).addClass('on').siblings().removeClass('on');
+                $('#gnb .menu').eq(idx).stop().fadeIn(100).siblings().hide();
+            }
+        });
+        $('#gnb .menu > li > a').on({
+            'click' : function(e) {
+                e.preventDefault();
+                $(this).next().stop().slideToggle(100).parents('li').toggleClass('on');
+            }
+        });
+        $('#gnb .menu > li').each(function() {
+            if ($(this).hasClass('active')) {
+                $(this).find('a').click();
+            }
+        });
+
+    },
+
+    //
+    // Navigator Action
+    //
+    'set_navigator_action' : function() {
+
+        var href = window.document.location.href;
+        href = href.replace(PH_DOMAIN, '', href);
+    
+        if (href.indexOf('?') !== -1) {
+            href = PH_DIR + href.replace(PH_DOMAIN, '', href);
+            href = href.replace(href.substr(href.indexOf('?')), '' ,href);
+        }
+        if (href.indexOf('#') !== -1) {
+            href = PH_DIR + href.replace(PH_DOMAIN, '', href);
+            href = href.replace(href.substr(href.indexOf('#')), '' ,href);
+        }
+        if (href.indexOf('/manage/mod') !== -1) {
+            $('#side .tab a[data-tab="mod"]').click();
+        }
+    
+        if ($('#side #gnb .menu a[href="' + href + '"]').length > 0){
+            $('#side #gnb .menu a[href="' + href + '"]')
+            .closest('li').addClass('on')
+            .closest('ul').prev('a').click();
+    
+        } else {
+            $('#side #gnb .menu a[data-idx-href]').each(function() {
+                var idx_href = $(this).data('idx-href');
+                idx_href = idx_href.split('|');
+                for (var i=0; i < idx_href.length; i++) {
+                    if (href.indexOf(idx_href[i]) != -1) {
+                        $(this)
+                        .closest('li').addClass('on')
+                        .closest('ul').prev('a').click();
+                    }
+                }
+    
+            });
+        }
+
+    },
+
+    //
+    // Label Active
+    //
+    'label_active' : function() {
+
+        function label_active() {
+            $('label.__label').each(function() {
+                $this = $(this);
+                if ($this.find('input').is(':checked')) {
+                    $this.addClass('active');
+                } else {
+                    $this.removeClass('active');
+                }
+            });
+        }
+        function label_custom() {
+            $('input[type=radio], input[type=checkbox]').each(function(i) {
+                var $this = $(this);
+                var $label = $this.parent('label');
+                var label_for = $(this).attr('name') + '_' + Math.floor(Math.random() * 9999) + '_' + i;
+        
+                if ($label.length && !$label.hasClass('added_labelCustom') && !$label.hasClass('__label')) {
+                    var $this_clone = $this.clone().attr('id', label_for);
+                    $this.remove();
+                    $label.addClass('added_labelCustom').attr('for', label_for).before($this_clone);
+                }
+            });
+        }
+        $(function() {
+            label_custom();
+        });
+        setInterval(label_custom, 100);
+        
+        $(window).on({
+            'load' : label_active
+        });
+        $(function() {
+            $('label.__label').on({
+                'click' : function() {
+                    label_active();
+                }
+            });
+        });
+
+    },
+
+    //
+    // Orderby
+    //
+    'make_orderby' : function() {
+
+        function get_query() {
+            var url = document.location.href;
+            var qs = url.substring(url.indexOf('?') + 1).split('&');
+            for (var i = 0, result = {}; i < qs.length; i++) {
+                qs[i] = qs[i].split('=');
+                result[qs[i][0]] = decodeURIComponent(qs[i][1]);
+            }
+            return result;
+        }
+        
+        $(function(){
+            var qry = get_query();
+        
+            $('table thead th a').each(function() {
+                var href = $(this).attr('href');
+                if (href.indexOf('desc') !== -1) {
+                    $(this).attr({
+                        'title' : '내림차순 정렬'
+                    });
+                } else {
+                    $(this).attr({
+                        'title' : '오름차순 정렬'
+                    });
+                }
+        
+                if (qry['ordsc'] == 'asc') {
+                    qry['order'] = 'desc';
+                    qry['icon'] = '<i class="fas fa-caret-up"></i>';
+                } else {
+                    qry['order'] = 'asc';
+                    qry['icon'] = '<i class="fas fa-caret-down"></i>';
+                }
+        
+                if (href.indexOf('&ordtg='+qry['ordtg']+'&ordsc='+qry['order']) != -1) {
+                    $(this).html($(this).text() + qry['icon']);
+                }
+            });
+        });
+
+    },
+
+    //
+    // UI: datepicker
+    //
+    'set_ui_datepicker' : function() {
+
+        $(function() {
+            $('input[datepicker]').datepicker();
+            $.datepicker.setDefaults({
+                dateFormat: 'yy-mm-dd',
+                prevText: '이전 달',
+                nextText: '다음 달',
+                monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                dayNames: ['일', '월', '화', '수', '목', '금', '토'],
+                dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
+                dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+                showMonthAfterYear: true,
+                yearSuffix: '년'
+            });
+        });
+        
+        $(function() {
+            $nowdate = $('#list-sch input[name=nowdate]');
+            $fdate = $('#list-sch input[name=fdate]');
+            $tdate = $('#list-sch input[name=tdate]');
+        
+            $fdate.datepicker('option', 'maxDate', $nowdate.val());
+            $tdate.datepicker('option', 'maxDate', $nowdate.val());
+            $fdate.datepicker('option', 'onClose', function(selectedDate){
+                $tdate.datepicker('option', 'minDate', selectedDate);
+            });
+            $tdate.datepicker('option', 'onClose', function(selectedDate) {
+                $fdate.datepicker('option', 'maxDate', selectedDate);
+            });
+        });
+
+    },
+
+    //
+    // main.tpl.php
+    //
+    'main_tpl_script' : function() {
+
+        $('#dashboard .news-wrap a.view-feed-link').on({
+            'click' : function(e) {
+                e.preventDefault();
+                var page = $('#dashboard .news-wrap input[name=page]').val();
+                var idx = $(this).data('feed-idx');
+                var href = $(this).data('feed-href');
+                window.open(href);
+                window.document.location.href = PH_MANAGE_DIR + "/main/dash?view_dash_feed=" + idx+'&page=' + page;
+            }
+        });
+
+    },
+
+    //
+    // siteinfo/theme.tpl.php
+    //
+    'siteinfo_theme_script' : function() {
+
+        $('#themeForm input[name=theme_slt]').on({
+            'change' : function(e) {
+                e.preventDefault();
+                $('#themeForm').submit();
+            }
+        });
+
+    },
+
+    //
+    // siteinfo/sitemap.tpl.php
+    //
+    'siteinfo_sitemap_script' : function(functions) {
+
         var $wait_box = $('#sitemapMofidyForm .sitemap-wait').clone();
         var list_arr = new Array;
         list_arr[0] = {
@@ -391,87 +427,94 @@ var sitemap_list = {
             var idx = $(this).find('input[name="idx[]"]').val();
             $('#sitemapMofidyForm').hide().load(PH_MANAGE_DIR + '/siteinfo/sitemapModify?idx=' + idx).fadeIn(100);
         });
-    }
-}
-$(function() {
-    sitemap_list.init();
-});
 
-//
-// mailler/send.tpl.php
-//
-$(function(){
-    $('#sendmailForm input[name=type]').on({
-        'click' : function(e){
-            var type = $(this).val();
-            $('#sendmailForm table tr.hd-tr[data-type='+type+']').show().siblings('.hd-tr').hide();
-        }
-    });
-});
+    },
 
-//
-// sms/tomember.tpl.php
-//
-$(function(){
+    //
+    // mailler/send.tpl.php
+    //
+    'mailler_send_script' : function() {
 
-    //내용 byte수 체크
-    var get_sms_memobyte = function(val) {
-        var bytes = val.replace(/[\0-\x7f]|([0-\u07ff]|(.))/g,"$&$1$2").length;
-        bytes = parseInt(bytes);
+        $('#sendmailForm input[name=type]').on({
+            'click' : function(e){
+                var type = $(this).val();
+                $('#sendmailForm table tr.hd-tr[data-type='+type+']').show().siblings('.hd-tr').hide();
+            }
+        });
 
-        $btn_txt = $('#smsSendForm button[type=submit] > strong');
+    },
 
-        if (bytes >= 80) {
-            $btn_txt.text('LMS');
-        } else {
-            $btn_txt.text('SMS');
-        }
+    //
+    // sms/tomember.tpl.php
+    //
+    'sms_tomember_script' : function() {
 
-        if ($('#smsSendForm input[name=image]').val() != '') {
-            $btn_txt.text('MMS');
-        }
+       //내용 byte수 체크
+        var get_sms_memobyte = function(val) {
+            var bytes = val.replace(/[\0-\x7f]|([0-\u07ff]|(.))/g,"$&$1$2").length;
+            bytes = parseInt(bytes);
 
-        return bytes;
-    }
-    var get_sms_timer;
-    var get_sms_printbyte = function() {
-        if (get_sms_timer) {
-            clearTimeout(get_sms_timer);
-        }
-        $('#smsSendForm .print_byte > strong > strong').text(get_sms_memobyte($('#smsSendForm #memo').val()));
-        get_sms_timer = setTimeout(get_sms_printbyte, 100);
-    }
-    if ($('#smsSendForm .print_byte').length > 0) {
-        get_sms_timer = setTimeout(get_sms_printbyte, 100);
-    }
+            $btn_txt = $('#smsSendForm button[type=submit] > strong');
 
-    //수신 범위 지정
-    $('#smsSendForm input[name=type]').on({
-        'click' : function(e){
-            var type = $(this).val();
-            $('#smsSendForm table tr.hd-tr[data-type='+type+']').show().siblings('.hd-tr').hide();
-        }
-    });
-
-    //예약 발송 설정
-    var get_sms_resv = function(type) {
-        if (type == 'show') {
-            $('#smsSendForm .resv-wrap *').attr('disabled', false);
-
-        } else if (type == 'hide') {
-            $('#smsSendForm .resv-wrap *').attr('disabled', true);
-        }
-    }
-    $('#smsSendForm .resv-btn').on({
-        'click' : function() {
-            var chked = $(this).prev(':checkbox').prop('checked');
-            if (chked == false) {
-                get_sms_resv('show');
-
+            if (bytes >= 80) {
+                $btn_txt.text('LMS');
             } else {
-                get_sms_resv('hide');
+                $btn_txt.text('SMS');
+            }
+
+            if ($('#smsSendForm input[name=image]').val() != '') {
+                $btn_txt.text('MMS');
+            }
+
+            return bytes;
+        }
+        var get_sms_timer;
+        var get_sms_printbyte = function() {
+            if (get_sms_timer) {
+                clearTimeout(get_sms_timer);
+            }
+            $('#smsSendForm .print_byte > strong > strong').text(get_sms_memobyte($('#smsSendForm #memo').val()));
+            get_sms_timer = setTimeout(get_sms_printbyte, 100);
+        }
+        if ($('#smsSendForm .print_byte').length > 0) {
+            get_sms_timer = setTimeout(get_sms_printbyte, 100);
+        }
+
+        //수신 범위 지정
+        $('#smsSendForm input[name=type]').on({
+            'click' : function(e){
+                var type = $(this).val();
+                $('#smsSendForm table tr.hd-tr[data-type='+type+']').show().siblings('.hd-tr').hide();
+            }
+        });
+
+        //예약 발송 설정
+        var get_sms_resv = function(type) {
+            if (type == 'show') {
+                $('#smsSendForm .resv-wrap *').attr('disabled', false);
+
+            } else if (type == 'hide') {
+                $('#smsSendForm .resv-wrap *').attr('disabled', true);
             }
         }
-    });
-    get_sms_resv('hide');
+        $('#smsSendForm .resv-btn').on({
+            'click' : function() {
+                var chked = $(this).prev(':checkbox').prop('checked');
+                if (chked == false) {
+                    get_sms_resv('show');
+
+                } else {
+                    get_sms_resv('hide');
+                }
+            }
+        });
+        get_sms_resv('hide');
+
+    },
+
+
+}
+
+$(function() {
+    ph_manage_script.init();
 });

@@ -81,25 +81,25 @@
                     </td>
                 </tr>
                 <tr>
-                    <th>목록 글 갯수</th>
+                    <th>목록 글 개수</th>
                     <td>
                         <table class="table2">
                             <tbody>
                                 <tr>
                                     <th>PC</th>
                                     <td>
-                                        <input type="text" name="list_limit" class="inp" title="목록 글 갯수" value="<?php echo $write['list_limit']; ?>" />
+                                        <input type="text" name="list_limit" class="inp" title="목록 글 개수" value="<?php echo $write['list_limit']; ?>" />
                                     </td>
                                 </tr>
                                 <tr>
                                     <th>Mobile</th>
                                     <td>
-                                        <input type="text" name="m_list_limit" class="inp" title="모바일 목록 글 갯수" value="<?php echo $write['m_list_limit']; ?>" />
+                                        <input type="text" name="m_list_limit" class="inp" title="모바일 목록 글 개수" value="<?php echo $write['m_list_limit']; ?>" />
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
-                        <span class="tbl_sment">설정한 글 갯수 초과시 Paging으로 페이지 나눔</span>
+                        <span class="tbl_sment">설정한 글 개수 초과시 Paging으로 페이지 나눔</span>
                     </td>
                 </tr>
                 <tr>
@@ -132,13 +132,13 @@
                                 <tr>
                                     <th>PC</th>
                                     <td>
-                                        <input type="text" name="txt_limit" class="inp" title="리스트 제목 글자수" value="<?php echo $write['txt_limit']; ?>" /> 글자
+                                        <input type="text" name="txt_limit" class="inp" title="리스트 본문 글자수" value="<?php echo $write['txt_limit']; ?>" /> 글자
                                     </td>
                                 </tr>
                                 <tr>
                                     <th>Mobile</th>
                                     <td>
-                                        <input type="text" name="m_txt_limit" class="inp" title="모바일 리스트 제목 글자수" value="<?php echo $write['m_txt_limit']; ?>" /> 글자
+                                        <input type="text" name="m_txt_limit" class="inp" title="모바일 리스트 본문 글자수" value="<?php echo $write['m_txt_limit']; ?>" /> 글자
                                     </td>
                                 </tr>
                             </tbody>

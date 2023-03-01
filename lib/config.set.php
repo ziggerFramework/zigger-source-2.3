@@ -93,7 +93,7 @@ define('SET_DATE', 'Y.m.d'); // 날짜 출력 format
 define('SET_DATETIME', 'Y.m.d H:i:s'); // 날짜 + 시간 출력 format
 define('SET_BLANK_IMG', PH_DOMAIN.'/layout/images/blank-tmb.jpg'); // 이미지가 없는 경우 대체될 blank 썸네일 경로
 define('SET_INTDICT_TAGS', preg_replace("/\s+/", "", 'script, iframe, link, meta')); // 사용 금지 태그
-define('SET_INTDICT_FILE', preg_replace("/\s+/", "", 'html, htm, shtm, php, php3, asp, jsp, cgi, js, css, conf, dot')); // 첨부 금지 확장명
+define('SET_INTDICT_FILE', preg_replace("/\s+/", "", 'html, htm, shtm, phtml, php, php3, asp, jsp, cgi, js, css, conf, dot')); // 첨부 금지 확장명
 define('SET_IMGTYPE', preg_replace("/\s+/", "", 'gif, jpg, jpeg, bmp, png')); // 사용 가능한 모든 이미지 종류
 define('SET_MOBILE_DEVICE', preg_replace("/\s+/", "", 'iphone, lgtelecom, skt, mobile, samsung, nokia, blackberry, android, sony, phone')); // 모바일 디바이스 종류
 define('SET_CACHE_HASH', '?cache='.md5(date('Ymd'))); // CSS, JS 갱신을 위한 캐시 값 설정 (매일 갱신)

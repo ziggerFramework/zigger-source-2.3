@@ -200,8 +200,6 @@ class Result_clone_submit{
 
         } while($sql->nextRec());
 
-        $board_title = addSlashes($arr['title']);
-
         $sql->query(
             "
             select *
@@ -214,7 +212,7 @@ class Result_clone_submit{
 
         foreach ($arr as $key => $value) {
 
-            if ($key == 'title') $value = $board_title.'에서 복제됨';
+            if ($key == 'title') $value = $arr['title'].'에서 복제됨';
             if ($key == 'id') $value = $clone_id;
 
             $sql->query(
@@ -222,8 +220,10 @@ class Result_clone_submit{
                 insert into {$sql->table("config")}
                 (cfg_type, cfg_key, cfg_value, cfg_regdate)
                 values
-                ('mod:board:config:{$clone_id}', '{$key}', '{$value}', now())
-                ", []
+                ('mod:board:config:{$clone_id}', :col1, :col2, now())
+                ", array(
+                    $key, $value
+                )
             );
         }
 
@@ -404,15 +404,6 @@ class Regist_submit {
         );
         Valid::get(
             array(
-                'input' => 'article_min_len',
-                'value' => $req['article_min_len'],
-                'check' => array(
-                    'charset' => 'number'
-                )
-            )
-        );
-        Valid::get(
-            array(
                 'input' => 'ico_new_case',
                 'value' => $req['ico_new_case'],
                 'check' => array(
@@ -587,8 +578,10 @@ class Regist_submit {
                 insert into {$sql->table("config")}
                 (cfg_type, cfg_key, cfg_value, cfg_regdate)
                 values
-                ('mod:board:config:{$req['id']}', '{$key}', '{$value}', now())
-                ", []
+                ('mod:board:config:{$req['id']}', :col1, :col2, now())
+                ", array(
+                    $key, $value
+                )
             );
         }
 
@@ -808,20 +801,71 @@ class Modify_submit {
         );
         Valid::get(
             array(
-                'input' => 'file_limit',
-                'value' => $req['file_limit'],
+                'input' => 'list_limit',
+                'value' => $req['list_limit'],
                 'check' => array(
                     'charset' => 'number',
-                    'maxlen' => 50
+                    'maxlen' => 10
                 )
             )
         );
         Valid::get(
             array(
-                'input' => 'article_min_len',
-                'value' => $req['article_min_len'],
+                'input' => 'm_list_limit',
+                'value' => $req['m_list_limit'],
                 'check' => array(
-                    'charset' => 'number'
+                    'charset' => 'number',
+                    'maxlen' => 10
+                )
+            )
+        );
+        Valid::get(
+            array(
+                'input' => 'sbj_limit',
+                'value' => $req['sbj_limit'],
+                'check' => array(
+                    'charset' => 'number',
+                    'maxlen' => 10
+                )
+            )
+        );
+        Valid::get(
+            array(
+                'input' => 'm_sbj_limit',
+                'value' => $req['m_sbj_limit'],
+                'check' => array(
+                    'charset' => 'number',
+                    'maxlen' => 10
+                )
+            )
+        );
+        Valid::get(
+            array(
+                'input' => 'txt_limit',
+                'value' => $req['txt_limit'],
+                'check' => array(
+                    'charset' => 'number',
+                    'maxlen' => 10
+                )
+            )
+        );
+        Valid::get(
+            array(
+                'input' => 'm_txt_limit',
+                'value' => $req['m_txt_limit'],
+                'check' => array(
+                    'charset' => 'number',
+                    'maxlen' => 10
+                )
+            )
+        );
+        Valid::get(
+            array(
+                'input' => 'file_limit',
+                'value' => $req['file_limit'],
+                'check' => array(
+                    'charset' => 'number',
+                    'maxlen' => 50
                 )
             )
         );
@@ -931,10 +975,10 @@ class Modify_submit {
                 "
                 select *
                 from {$sql->table("config")}
-                where cfg_type='mod:board:config:{$req['id']}' and cfg_key='{$key}'
+                where cfg_type='mod:board:config:{$req['id']}' and cfg_key=:col1
                 ",
                 array(
-                    $value
+                    $key
                 )
             );
             if ($sql->getcount() < 1) {
@@ -944,10 +988,10 @@ class Modify_submit {
                     {$sql->table("config")}
                     (cfg_type, cfg_key)
                     values
-                    ('mod:board:config:{$req['id']}', '{$key}')
+                    ('mod:board:config:{$req['id']}', :col1)
                     ",
                     array(
-                        $value
+                        $key
                     )
                 );
             }
@@ -957,10 +1001,10 @@ class Modify_submit {
                 {$sql->table("config")}
                 set
                 cfg_value=:col1
-                where cfg_type='mod:board:config:{$req['id']}' and cfg_key='{$key}'
+                where cfg_type='mod:board:config:{$req['id']}' and cfg_key=:col2
                 ",
                 array(
-                    $value
+                    $value, $key
                 )
             );
         }
@@ -1082,8 +1126,6 @@ class Board extends \Controller\Make_Controller {
         function print_subject($arr)
         {
             global $boardconf;
-
-            if (!$arr['subject']) return reply_ico($arr).'제목이 설정되지 않은 게시글입니다.';
 
             return (!$arr['dregdate']) ? reply_ico($arr).Func::strcut($arr['subject'],0,$boardconf['sbj_limit']) : reply_ico($arr).'<strike>'.$arr['dregdate'].'에 삭제된 게시글입니다.'.'</strike>';
         }
@@ -1287,7 +1329,7 @@ class Board extends \Controller\Make_Controller {
         $category = urldecode($req['category']);
         $search = '';
 
-        if ($category) $search = 'and board.category=\''.$req['category'].'\'';
+        if ($category) $search = 'and board.category=\''.addslashes($req['category']).'\'';
 
         // 검색 키워드 처리
         $keyword = htmlspecialchars(urlencode($PARAM['keyword']));
@@ -1299,8 +1341,8 @@ class Board extends \Controller\Make_Controller {
             switch ($PARAM['where']) {
                 case 'subjectAndArticle' :
                     $search .= 'and (';
-                    $search .= 'board.subject like \'%'.$PARAM['keyword'].'%\'';
-                    $search .= 'or board.article like \'%'.$PARAM['keyword'].'%\'';
+                    $search .= 'board.subject like \'%'.addslashes($PARAM['keyword']).'%\'';
+                    $search .= 'or board.article like \'%'.addslashes($PARAM['keyword']).'%\'';
                     $search .= ')';
                     break;
 
@@ -1308,13 +1350,13 @@ class Board extends \Controller\Make_Controller {
                 case 'article' :
                 case 'writer' :
                 case 'mb_id' :
-                    $search .= 'and board.'.$PARAM['where'].' like \'%'.$PARAM['keyword'].'%\'';
+                    $search .= 'and board.'.addslashes($PARAM['where']).' like \'%'.addslashes($PARAM['keyword']).'%\'';
                     break;
 
                 default :
                     $search .= 'and (';
                     foreach ($where_arr as $key => $value) {
-                        $search .= ($key > 0 ? ' or ' : '').'board.'.$value.' like \'%'.$PARAM['keyword'].'%\'';
+                        $search .= ($key > 0 ? ' or ' : '').'board.'.$value.' like \'%'.addslashes($PARAM['keyword']).'%\'';
                     }
                     $search .= ')';
             }
@@ -1801,7 +1843,7 @@ class Board_view extends \Controller\Make_Controller {
                     $fileinfo = Func::get_fileinfo($arr['file'.$i]);
 
                     $files[$i] = '
-                    <a href=\''.MOD_BOARD_DIR.'/controller/file/down?board_id='.Board_view::$boardconf['id'].'&file='.urlencode($arr['file'.$i]).'\' target=\'_blank\'>'.Func::strcut($fileinfo['orgfile'],0,70).'</a>
+                    <a href=\''.MOD_BOARD_DIR.'/controller/file/down?board_id='.Board_view::$boardconf['id'].'&idx='.$arr['idx'].'&file='.$i.'\' target=\'_blank\'>'.Func::strcut($fileinfo['orgfile'],0,70).'</a>
                     <span class=\'byte\'>('.number_format($fileinfo['byte'] / 1024, 0).'K)</span>
                     <span class=\'cnt\'><strong>'.Func::number($arr['file'.$i.'_cnt']).'</strong> 회 다운로드</span>
                     ';
@@ -1917,7 +1959,6 @@ class Board_view extends \Controller\Make_Controller {
         $arr['datetime'] = Func::datetime($arr['regdate']);
         $arr['likes_cnt'] = Func::number($arr['likes_cnt']);
         $arr['unlikes_cnt'] = Func::number($arr['unlikes_cnt']);
-        if (!$arr['subject']) $arr['subject'] = '제목이 설정되지 않은 게시글입니다.';
 
         $view = array();
 

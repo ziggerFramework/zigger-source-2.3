@@ -72,7 +72,7 @@
 
                 <div id="confirm-sms-code-wrap" style="display: none;">
                     <label for="phone_code" class="sound_only_ele">휴대전화 인증코드</label>
-                    <input type="text" name="phone_code" id="phone_code" title="휴대전화 인증코드" placeholder="휴대전화 인증코드 입력" class="inp w100" <?php if ($siteconf['use_mb_phone'] == 'Y') echo 'required'; ?> />
+                    <input type="text" name="phone_code" id="phone_code" title="휴대전화 인증코드" placeholder="휴대전화 인증코드 입력" class="inp w100" />
                     <button type="button" class="btn2 small mb5 confirm-sms-code">인증코드 입력 완료</button>
                     <span class="tbltxt">
                         · SMS 발송된 6자리 인증코드 입력

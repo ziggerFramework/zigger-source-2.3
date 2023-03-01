@@ -29,8 +29,10 @@ class Func {
                     {$sql->table("config")}
                     (cfg_type, cfg_key, cfg_value, cfg_regdate)
                     values
-                    ('engine', '{$field_key}', '{$field_value}', now())
-                    ", []
+                    ('engine', :col1, :col2, now())
+                    ", array(
+                        $field_key, $field_value
+                    )
                 );
             }
 
@@ -84,7 +86,7 @@ class Func {
         global $ob_body_class;
         
         if (!$ob_body_class && $class) $ob_body_class = $class;
-        if ($ob_body_class && preg_match("/^(?!.*".$class.")[\w-]+$/", $ob_body_class)) $ob_body_class .= ' '.$class;
+        if ($ob_body_class && !preg_match("/.*(?:^| )".$class."(?:$| ).*/", $ob_body_class)) $ob_body_class .= ' '.$class;
     }
 
     // page key 셋팅
@@ -292,9 +294,9 @@ class Func {
         $sql->query(
             "
             insert into {$sql->table("mng_feeds")}
-            (msg_from,memo,href,regdate)
+            (msg_from, memo, href, regdate)
             values
-            (:col1,:col2,:col3,now())
+            (:col1, :col2, :col3, now())
             ",
             array(
                 $arr['from'],
@@ -329,7 +331,7 @@ class Func {
         
         $paramArr = array_filter(explode('&', $param), function ($list) {
             if ($list == '') return false;
-            list($key, $value) = explode('=', $list, 2);
+            [$key, $value] = explode('=', $list, 2);
             return !empty($value) ? $key . '=' . $value : false;
         });
 
@@ -415,8 +417,10 @@ class Func {
                 "
                 select *
                 from {$sql->table("dataupload")}
-                where repfile='{$file}'
-                ", []
+                where repfile=:col1
+                ", array(
+                    $file
+                )
             );
             $arr = $sql->fetchs();
 

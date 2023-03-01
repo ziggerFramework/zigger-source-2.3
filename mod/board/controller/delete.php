@@ -217,7 +217,7 @@ class Delete extends \Controller\Make_Controller {
                     "
                     delete
                     from {$sql->table("mod:board_cmt_".$board_id)}
-                    where idx=:col1
+                    where bo_idx=:col1
                     ",
                     array(
                         $bo_idx

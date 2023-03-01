@@ -95,9 +95,11 @@ class Theme_submit{
             "
             update
             {$sql->table("config")}
-            set cfg_value='{$req['theme_slt']}'
+            set cfg_value=:col1
             where cfg_type='engine' and cfg_key='theme'
-            ", []
+            ", array(
+                $req['theme_slt']
+            )
         );
 
         Valid::set(

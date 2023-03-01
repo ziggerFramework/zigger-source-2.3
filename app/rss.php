@@ -52,8 +52,10 @@ class Index {
                 "
                 select *
                 from {$sql->table("config")}
-                where cfg_type='mod:board:config:{$value['board_id']}' and cfg_key='id' and cfg_value='{$value['board_id']}'
-                ", []
+                where cfg_type='mod:board:config:{$value['board_id']}' and cfg_key='id' and cfg_value=:col1
+                ", array(
+                    $value['board_id']
+                )
             );
             if ($sql->getcount() > 0) {
                 $rss_borad[] = array(
@@ -118,7 +120,12 @@ class Index {
             echo '<item>'.PHP_EOL;
             echo '<title>'.$value['data']['subject'].'</title>'.PHP_EOL;
             echo '<link>'.$value['link'].'</link>'.PHP_EOL;
-            echo '<description>'.str_replace('&nbsp;', '', $value['data']['article']).'</description>'.PHP_EOL;
+
+            $article = $value['data']['article'];
+            if (strstr($article, '[/@]')) $article = mb_substr($article, mb_strpos($article, '[/@]') + 4);
+            $article = str_replace(array('[!]', '[/!]'), array('', ''), $article);
+            echo '<description>'.str_replace('&nbsp;', '', $article).'</description>'.PHP_EOL;
+
             echo '<category>'.$value['title'].'</category>'.PHP_EOL;
             echo '<author>'.$CONF['title'].'</author>'.PHP_EOL;
             echo '<guid isPermaLink="true">'.$value['link'].'</guid>'.PHP_EOL;

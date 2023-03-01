@@ -45,7 +45,6 @@ class Latest_fetch extends \Controller\Make_Controller {
         {
             global $FETCH_CONF;
 
-            if (!$list['subject']) return '제목이 설정되지 않은 게시글입니다.';
             return Func::strcut($list['subject'], 0, $FETCH_CONF['subject']);
         }
 
@@ -54,7 +53,10 @@ class Latest_fetch extends \Controller\Make_Controller {
         {
             global $FETCH_CONF;
 
-            return Func::strcut(strip_tags(Func::deHtmlspecialchars($list['article'])), 0, $FETCH_CONF['article']);
+            $html = Func::strcut(strip_tags(Func::deHtmlspecialchars($list['article'])), 0, $FETCH_CONF['article']);
+            $html = str_replace('&nbsp;', ' ', $html);
+            $html = preg_replace('/\s+/', ' ', $html);
+            return $html;
         }
 
         // 댓글 갯수

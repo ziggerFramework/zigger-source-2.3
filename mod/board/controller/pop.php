@@ -360,11 +360,6 @@ class Ctrl_submit {
                     $sql->nl2br = 0;
                     $arr = $sql->fetchs();
 
-                    // 원본들의 내용을 addslashes 시킴
-                    foreach ($arr as $key => $value) {
-                        $arr[$key] = addslashes($arr[$key]);
-                    }
-
                     // 대상 게시판으로 첨부파일 복사
                     $old_path = MOD_BOARD_DATA_PATH.'/'.$board_id;
                     $tar_path = MOD_BOARD_DATA_PATH.'/'.$t_board_id;
@@ -475,11 +470,6 @@ class Ctrl_submit {
                             $cp_sql->nl2br = 0;
                             $cmt_arr = $cp_sql->fetchs();
 
-                            // 가져온 원본들의 내용을 addslashes 시킴
-                            foreach ($cmt_arr as $key => $value) {
-                                $cmt_arr[$key] = addslashes($cmt_arr[$key]);
-                            }
-
                             $cp_sql2->query(
                                 "
                                 insert into
@@ -571,11 +561,6 @@ class Ctrl_submit {
             $sql->specialchars = 0;
             $sql->nl2br = 0;
             $arr = $sql->fetchs();
-
-            // 원본글의 내용을 addslashes 시킴
-            foreach ($arr as $key => $value){
-                $arr[$key] = addslashes($arr[$key]);
-            }
 
             // 부모글인 경우만 복사 실행
             if($arr['rn'] == 0){

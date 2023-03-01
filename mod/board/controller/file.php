@@ -18,29 +18,31 @@ class Down extends \Controller\Make_Controller {
 
         $sql = new Pdosql();
 
-        $req = Method::request('get', 'board_id, file');
+        $req = Method::request('get', 'board_id, idx, file');
 
         $board_id = $req['board_id'];
 
-        if (!$board_id) Func::err('board_id 가 누락되었습니다.');
+        if (!$board_id || !$req['idx'] || !$req['file']) Func::err('필수 값이 누락 되었습니다.');
 
         // 게시글의 첨부파일 정보 불러옴
         $sql->query(
             "
             select *
             from {$sql->table("mod:board_data_".$board_id)}
-            where file1=:col1 or file2=:col1
+            where idx=:col1
             ",
             array(
-                $req['file']
+                $req['idx']
             )
         );
 
+        $target_file = $sql->fetch('file'.$req['file']);
+
         // 첨부파일이 확인되지 않는 경우
-        if ($sql->getcount() < 1) Func::err('첨부파일이 확인되지 않습니다.');
+        if (!$target_file) Func::err('첨부파일이 확인되지 않습니다.');
 
         // 파일 정보
-        $fileinfo = Func::get_fileinfo($req['file']);
+        $fileinfo = Func::get_fileinfo($target_file);
 
         // Object Storage에 저장된 파일인 경우
         if ($fileinfo['storage'] == 'Y') {
@@ -74,7 +76,7 @@ class Down extends \Controller\Make_Controller {
         else if ($fileinfo['storage'] == 'N') {
 
             $fileinfo = array();
-            $fileinfo['path'] = MOD_BOARD_DATA_PATH.'/'.$board_id.'/'.$req['file'];
+            $fileinfo['path'] = MOD_BOARD_DATA_PATH.'/'.$board_id.'/'.$target_file;
             $fileinfo['size'] = filesize($fileinfo['path']);
             $fileinfo['parts'] = pathinfo($fileinfo['path']);
             $fileinfo['name'] = $fileinfo['parts']['basename'];
@@ -97,25 +99,12 @@ class Down extends \Controller\Make_Controller {
         }
 
         // 파일 다운로드 횟수 증가
-        $qry_file = array();
-        $qry_file_cnt = array();
-
-        for ($i = 1; $i <= 2; $i++){
-            $downfile = urldecode($req['file']);
-            $isfile = $sql->fetch('file'.$i);
-
-            $qry_file_cnt[$i] = ($isfile == $downfile) ? 1 : 0;
-        }
-
         $sql->query(
             "
             update {$sql->table("mod:board_data_".$board_id)}
-            set file1_cnt=file1_cnt+:col2, file2_cnt=file2_cnt+:col3
-            where file1=:col1 or file2=:col1
-            ",
-            array(
-                $downfile, $qry_file_cnt[1], $qry_file_cnt[2]
-            )
+            set file{$req['file']}_cnt = file{$req['file']}_cnt + 1
+            where idx={$req['idx']}
+            ", []
         );
 
     }

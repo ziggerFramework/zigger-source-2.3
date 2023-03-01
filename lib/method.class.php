@@ -25,13 +25,7 @@ class Method {
             if (count($expl) > 0) {
                 for ($i = 0; $i < count($expl); $i++) {
                     $expl[$i] = trim($expl[$i]);
-
-                    if (isset($_GET[$expl[$i]])) {
-                        $return_arr[$expl[$i]] = (!is_array($_GET[$expl[$i]])) ? addslashes($_GET[$expl[$i]]) : $_GET[$expl[$i]];
-
-                    } else {
-                        $return_arr[$expl[$i]] = null;
-                    }
+                    $return_arr[$expl[$i]] = (isset($_GET[$expl[$i]])) ? $_GET[$expl[$i]] : null;
                 }
             }
             return $return_arr;
@@ -43,13 +37,7 @@ class Method {
             if (count($expl) > 0) {
                 for ($i = 0; $i < count($expl); $i++) {
                     $expl[$i] = trim($expl[$i]);
-
-                    if (isset($_POST[$expl[$i]])) {
-                        $return_arr[$expl[$i]] = (!is_array($_POST[$expl[$i]])) ?  addslashes($_POST[$expl[$i]]) : $_POST[$expl[$i]];
-
-                    } else {
-                        $return_arr[$expl[$i]] = null;
-                    }
+                    $return_arr[$expl[$i]] = (isset($_POST[$expl[$i]])) ? $_POST[$expl[$i]] : null;
                 }
             }
             return $return_arr;
@@ -61,7 +49,6 @@ class Method {
             if (count($expl) > 0) {
                 for ($i = 0; $i < count($expl); $i++) {
                     $expl[$i] = trim($expl[$i]);
-
                     $return_arr[$expl[$i]] = (isset($_FILES[$expl[$i]])) ? $_FILES[$expl[$i]] : null;
                 }
             }
@@ -75,13 +62,13 @@ class Method {
         $type = strtolower($type);
 
         if ($type == 'referer') {
-            if (!isset($_SERVER['HTTP_REFERER']) || !preg_match(";$_SERVER[HTTP_HOST];", $_SERVER['HTTP_REFERER'])) Func::core_err(ERR_MSG_1);
+            if (!isset($_SERVER['HTTP_REFERER']) || !preg_match(";{$_SERVER['HTTP_HOST']};", $_SERVER['HTTP_REFERER'])) Func::core_err(ERR_MSG_1);
 
         } elseif ($type == 'request_get') {
-            if ($_SERVER['REQUEST_METHOD'] == 'POST') Func::core_err(ERR_MSG_1);
+            if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') Func::core_err(ERR_MSG_1);
             
         } elseif ($type == 'request_post') {
-            if ($_SERVER['REQUEST_METHOD'] == 'GET') Func::core_err(ERR_MSG_1);
+            if (strtolower($_SERVER['REQUEST_METHOD']) == 'get') Func::core_err(ERR_MSG_1);
         }
     }
 }

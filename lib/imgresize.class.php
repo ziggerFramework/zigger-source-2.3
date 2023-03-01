@@ -62,13 +62,11 @@ class Imgresize {
 
         $outputFn = array(
             'png' => 'imagepng',
-            'gif' => 'imagegif',
-            'jpeg' => 'imagejpeg',
+            'gif' => 'imagegif'
         );
         
-        $ext = pathinfo($this->newimg, PATHINFO_EXTENSION);
-        $output = isset($outputFn[$ext]) ? $outputFn[$ext] : 'imagejpeg';
-        $output($this->tmpnew, $this->newimg, $ext == 'jpeg' ? $this->quality : null);
+        $output = isset($outputFn[$this->type]) ? $outputFn[$this->type] : 'imagejpeg';
+        $output($this->tmpnew, $this->newimg, ($output == 'imagejpeg') ? $this->quality : null);
 
         $this->destroy();
     }

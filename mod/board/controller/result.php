@@ -42,8 +42,6 @@ class Result extends \Controller\Make_Controller {
         {
             global $boardconf;
 
-            if (!$arr['subject']) return reply_ico($arr).'제목이 설정되지 않은 게시글입니다.';
-
             if (!$arr['dregdate']) {
                 return reply_ico($arr).Func::strcut($arr['subject'],0,$boardconf['sbj_limit']);
 
@@ -72,8 +70,11 @@ class Result extends \Controller\Make_Controller {
         function print_article($arr)
         {
             global $boardconf;
-
-            return Func::strcut(strip_tags(Func::htmldecode($arr['article'])), 0, $boardconf['txt_limit']);
+            
+            $html = Func::strcut(strip_tags(Func::htmldecode($arr['article'])), 0, $boardconf['txt_limit']);
+            $html = str_replace('&nbsp;', ' ', $html);
+            $html = preg_replace('/\s+/', ' ', $html);
+            return $html;
         }
 
         // 첨부파일 아이콘
@@ -353,8 +354,8 @@ class Result extends \Controller\Make_Controller {
             switch ($req['where']) {
                 case 'subjectAndArticle' :
                     $search .= 'and (';
-                    $search .= 'board.subject like \'%'.$req['keyword'].'%\'';
-                    $search .= 'or board.article like \'%'.$req['keyword'].'%\'';
+                    $search .= 'board.subject like \'%'.addslashes($req['keyword']).'%\'';
+                    $search .= 'or board.article like \'%'.addslashes($req['keyword']).'%\'';
                     $search .= ')';
                     break;
 
@@ -362,13 +363,13 @@ class Result extends \Controller\Make_Controller {
                 case 'article' :
                 case 'writer' :
                 case 'mb_id' :
-                    $search .= 'and board.'.$req['where'].' like \'%'.$req['keyword'].'%\'';
+                    $search .= 'and board.'.$req['where'].' like \'%'.addslashes($req['keyword']).'%\'';
                     break;
 
                 default :
                     $search .= 'and (';
                     foreach ($where_arr as $key => $value) {
-                        $search .= ($key > 0 ? ' or ' : '').'board.'.$value.' like \'%'.$req['keyword'].'%\'';
+                        $search .= ($key > 0 ? ' or ' : '').'board.'.addslashes($value).' like \'%'.addslashes($req['keyword']).'%\'';
                     }
                     $search .= ')';
             }

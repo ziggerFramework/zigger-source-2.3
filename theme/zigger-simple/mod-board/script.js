@@ -85,8 +85,8 @@ ph_mod_board = {
             //접근성 위해 layer띄운 요소로 focus 이동.
             $('*[data-tab-index='+PH_NOW_TABINDEX+']').focus();
 
-            $ele.ctrpop.fadeOut(100);
-            $ele.ctrpopBG.fadeOut(100);
+            $ele.ctrpop.remove();
+            $ele.ctrpopBG.remove();
         });
 
         // 삭제 버튼을 클릭하는 경우
@@ -168,8 +168,8 @@ ph_mod_board = {
             // 접근성 위해 layer 띄운 요소로 focus 이동.
             $('*[data-tab-index='+PH_NOW_TABINDEX+']').focus();
 
-            $ele.mbpop.fadeOut(100);
-            $ele.mbpopBG.fadeOut(100);
+            $ele.mbpop.remove();
+            $ele.mbpopBG.remove();
         });
         
     },

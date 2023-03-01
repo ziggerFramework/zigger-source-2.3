@@ -147,7 +147,7 @@ class View extends \Controller\Make_Controller {
                     $fileinfo = Func::get_fileinfo($arr['file'.$i]);
 
                     $files[$i] = '
-                        <a href=\''.MOD_BOARD_DIR.'/controller/file/down?board_id='.View::$boardconf['id'].'&file='.urlencode($arr['file'.$i]).'\' target=\'_blank\'>'.Func::strcut($fileinfo['orgfile'],0,70).'</a>
+                        <a href=\''.MOD_BOARD_DIR.'/controller/file/down?board_id='.View::$boardconf['id'].'&idx='.$arr['idx'].'&file='.$i.'\' target=\'_blank\'>'.Func::strcut($fileinfo['orgfile'],0,70).'</a>
                         <span class=\'byte\'>('.number_format($fileinfo['byte'] / 1024, 0).'K)</span>
                         <span class=\'cnt\'><strong>'.Func::number($arr['file'.$i.'_cnt']).'</strong> 회 다운로드</span>
                     ';
