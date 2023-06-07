@@ -451,6 +451,7 @@ ph_manage_script = {
 
        //내용 byte수 체크
         var get_sms_memobyte = function(val) {
+<<<<<<< HEAD
             var bytes = 0;
             for (var i = 0; i < val.length; i++) {
                 if (escape(val.charAt(i)).length == 6) {
@@ -462,6 +463,14 @@ ph_manage_script = {
             $btn_txt = $('#smsSendForm button[type=submit] > strong');
 
             if (bytes > 80) {
+=======
+            var bytes = val.replace(/[\0-\x7f]|([0-\u07ff]|(.))/g,"$&$1$2").length;
+            bytes = parseInt(bytes);
+
+            $btn_txt = $('#smsSendForm button[type=submit] > strong');
+
+            if (bytes >= 80) {
+>>>>>>> 5f1951bf2cdfbeaa538f4e5068770d58252a2ab5
                 $btn_txt.text('LMS');
             } else {
                 $btn_txt.text('SMS');

@@ -90,7 +90,11 @@ class Pdosql {
         return $tbl;
     }
 
+<<<<<<< HEAD
     // Query
+=======
+    //Query
+>>>>>>> 5f1951bf2cdfbeaa538f4e5068770d58252a2ab5
     public function query($query, $param = [], $dspError = true)
     {
         try {
@@ -111,7 +115,11 @@ class Pdosql {
                         $this->stmt->bindValue(':col'.$i, $value, \PDO::PARAM_STR);
                     }
 
+<<<<<<< HEAD
                     $qryString = str_replace(':col'.$i, (is_null($value) || is_numeric($value)) ? $value : "'$value'", $qryString);
+=======
+                    $qryString = str_replace(':col'.$i, $value, $qryString);
+>>>>>>> 5f1951bf2cdfbeaa538f4e5068770d58252a2ab5
                 }
             }
 

@@ -28,7 +28,11 @@ class Uploader {
     // 파일 검사
     public function chkfile($type)
     {
+<<<<<<< HEAD
         $intd = explode(',', preg_replace('/\s+/', '', $this->intdict));
+=======
+        $intd = explode(',', $this->intdict);
+>>>>>>> 5f1951bf2cdfbeaa538f4e5068770d58252a2ab5
         $f_type = Func::get_filetype($this->file['name']);
         $chk = true;
 
@@ -70,8 +74,12 @@ class Uploader {
     // 저장 위치 검사 및 생성
     public function chkpath()
     {
+<<<<<<< HEAD
         $paths = str_replace(PH_PATH.'/', '', $this->path);
         $paths = explode('/', $paths);
+=======
+        $paths = explode('/', $this->path);
+>>>>>>> 5f1951bf2cdfbeaa538f4e5068770d58252a2ab5
 
         $path_sum = '';
         foreach ($paths as $key => $value) {
@@ -79,7 +87,11 @@ class Uploader {
             if ($key > 0) {
                 $path_sum .= '/'.$value;
             } else {
+<<<<<<< HEAD
                 $path_sum = PH_PATH.'/'.$value;
+=======
+                $path_sum = '/'.$value;
+>>>>>>> 5f1951bf2cdfbeaa538f4e5068770d58252a2ab5
             }
 
             if (!is_dir($path_sum)) {

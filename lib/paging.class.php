@@ -25,7 +25,14 @@ class Paging {
     {
         $method = new Method();
         $req = $method->request('get', 'page');
+<<<<<<< HEAD
         $this->page = (!isset($req['page']) || empty($req['page'])) ? 1 : $req['page'];
+=======
+        $page = (!$req['page']) ? 1 : $req['page'];
+        $this->page = $req['page'];
+
+        if (!$this->page) $this->page = 1;
+>>>>>>> 5f1951bf2cdfbeaa538f4e5068770d58252a2ab5
     }
 
     public function gettotal($total)

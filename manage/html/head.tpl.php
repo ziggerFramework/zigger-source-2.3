@@ -1,6 +1,10 @@
 <header id="header">
     <a href="<?php echo PH_DIR; ?>/manage/" class="logo">
+<<<<<<< HEAD
         <h1><img src="<?php echo PH_MANAGE_DIR; ?>/images/logo.svg" alt="zigger Manager"></h1>
+=======
+        <h1><img src="<?php echo PH_MANAGE_DIR; ?>/images/logo.svg" alt="Ph-Core Manager"></h1>
+>>>>>>> 5f1951bf2cdfbeaa538f4e5068770d58252a2ab5
     </a>
     <ul id="tnb">
         <li><a href="<?php echo $manage->gosite(); ?>">웹사이트</a></li>

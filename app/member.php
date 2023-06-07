@@ -481,7 +481,11 @@ class Info_submit {
 // Controller for display
 // https://{domain}/member/point
 //
+<<<<<<< HEAD
 class Point extends \Controller\Make_Controller {
+=======
+class point extends \Controller\Make_Controller {
+>>>>>>> 5f1951bf2cdfbeaa538f4e5068770d58252a2ab5
 
     public function init()
     {

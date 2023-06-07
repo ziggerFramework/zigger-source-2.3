@@ -8,7 +8,11 @@ $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVE
 $realdir = str_replace($_SERVER['DOCUMENT_ROOT'], '', str_replace("\\", '/', str_replace(basename(__FILE__), '', realpath(__FILE__))));
 $realdir = str_replace('/install/', '', $realdir);
 
+<<<<<<< HEAD
 $req = Method::request('post', 'engine, host, name, user, pwd, pfx');
+=======
+$req = Method::request('post', 'engine, host, name, user, pwd,pfx');
+>>>>>>> 5f1951bf2cdfbeaa538f4e5068770d58252a2ab5
 
 if (step1_chk() === false) Func::err_location('Step 1 부터 진행해야 합니다.', './index.php');
 

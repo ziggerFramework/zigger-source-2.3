@@ -254,6 +254,7 @@ class Mail extends \Make\Database\Pdosql {
         $this->getSmtpServerInfo();
         $this->addHeader('Subject', $this->setSubject());
 
+<<<<<<< HEAD
         // socket 연결
         if (strstr($this->smtp_server, 'ssl://') || strstr($this->smtp_server, 'tls://')) {
             $context = stream_context_create();
@@ -276,6 +277,8 @@ class Mail extends \Make\Database\Pdosql {
         }
 
         // socket 발송
+=======
+>>>>>>> 5f1951bf2cdfbeaa538f4e5068770d58252a2ab5
         foreach ($this->mailToArray as $email => $name) {
 
             $html = $this->makeHtmlBody($email);
@@ -286,6 +289,7 @@ class Mail extends \Make\Database\Pdosql {
 
             $contents = $this->makeHeaders()."\r\n".$html;
 
+<<<<<<< HEAD
             $this->putSocket('MAIL From:'.$this->mailFromArray['email']);
             $this->putSocket('RCPT To:'.$email);
             $this->putSocket('DATA');
@@ -295,6 +299,37 @@ class Mail extends \Make\Database\Pdosql {
             if (strpos($result, 'Message accepted for delivery') !== false) $successCount++;
 
             $this->putSocket('QUIT');
+=======
+            if (strstr($this->smtp_server, 'ssl://') || strstr($this->smtp_server, 'tls://')) {
+                $context = stream_context_create();
+                $result = stream_context_set_option($context, 'ssl', 'verify_peer', false);
+                $result = stream_context_set_option($context, 'ssl', 'verify_host', false);
+                $this->smtp_sock = stream_socket_client($this->smtp_server.':'.$this->smtp_port, $errno, $errstr, 10, STREAM_CLIENT_CONNECT, $context) or die (ERR_MSG_7);
+
+            } else {
+                $this->smtp_sock = fsockopen($this->smtp_server, $this->smtp_port) or die (ERR_MSG_7);
+            }
+
+            if ($this->smtp_sock) {
+                $this->putSocket('HELO '.$this->smtp_server);
+
+                if ($this->smtp_id) {
+                    $this->putSocket('AUTH LOGIN');
+                    $this->putSocket($this->smtp_id);
+                    $this->putSocket($this->smtp_pwd);
+                }
+
+                $this->putSocket('MAIL From:'.$this->mailFromArray['email']);
+                $this->putSocket('RCPT To:'.$email);
+                $this->putSocket('DATA');
+                $this->putSocket($contents);
+                $result = $this->putSocket('.');
+
+                if (strpos($result, 'Message accepted for delivery') !== false) $successCount++;
+
+                $this->putSocket('QUIT');
+            }
+>>>>>>> 5f1951bf2cdfbeaa538f4e5068770d58252a2ab5
         }
 
         return $successCount;

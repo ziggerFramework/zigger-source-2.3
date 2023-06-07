@@ -60,7 +60,11 @@ textarea.required {background-image: url('../images/input-required-bull.png');ba
 .table_wrt {border-collapse: collapse;width: 100%;}
 .table_wrt tr > * {border: 1px solid #f1f1f1;border-width: 1px 0 1px 0;font-size: 14px;letter-spacing: -0.03em;padding: 20px 15px;transition: background 0.3s;}
 .table_wrt tr:first-child > * {border-top: 1px solid #dddddd;}
+<<<<<<< HEAD
 .table_wrt tbody th {color: #333333;font-weight: normal;letter-spacing: -0.03em;text-align: left;}
+=======
+.table_wrt tbody th {color: #333333;font-weight: 500;font-weight: normal;letter-spacing: -0.03em;text-align: left;}
+>>>>>>> 5f1951bf2cdfbeaa538f4e5068770d58252a2ab5
 .table_wrt tbody th em {color: #6963db;display: inline-block;font-style: normal;vertical-align: middle;}
 .table_wrt tbody td {color: #666666;}
 .table_wrt tbody td p {line-height: 22px;}

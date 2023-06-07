@@ -120,7 +120,16 @@ class Index {
             echo '<item>'.PHP_EOL;
             echo '<title>'.$value['data']['subject'].'</title>'.PHP_EOL;
             echo '<link>'.$value['link'].'</link>'.PHP_EOL;
+<<<<<<< HEAD
             echo '<description>'.str_replace('&nbsp;', '', $value['data']['article']).'</description>'.PHP_EOL;
+=======
+
+            $article = $value['data']['article'];
+            if (strstr($article, '[/@]')) $article = mb_substr($article, mb_strpos($article, '[/@]') + 4);
+            $article = str_replace(array('[!]', '[/!]'), array('', ''), $article);
+            echo '<description>'.str_replace('&nbsp;', '', $article).'</description>'.PHP_EOL;
+
+>>>>>>> 5f1951bf2cdfbeaa538f4e5068770d58252a2ab5
             echo '<category>'.$value['title'].'</category>'.PHP_EOL;
             echo '<author>'.$CONF['title'].'</author>'.PHP_EOL;
             echo '<guid isPermaLink="true">'.$value['link'].'</guid>'.PHP_EOL;

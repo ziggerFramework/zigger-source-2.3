@@ -331,7 +331,11 @@ class Func {
         
         $paramArr = array_filter(explode('&', $param), function ($list) {
             if ($list == '') return false;
+<<<<<<< HEAD
             list($key, $value) = explode('=', $list, 2);
+=======
+            [$key, $value] = explode('=', $list, 2);
+>>>>>>> 5f1951bf2cdfbeaa538f4e5068770d58252a2ab5
             return !empty($value) ? $key . '=' . $value : false;
         });
 

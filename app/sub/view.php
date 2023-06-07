@@ -38,7 +38,11 @@ class Manager extends \controller\Make_Controller {
     {
         $this->layout()->category_key(3);
         $this->layout()->head();
+<<<<<<< HEAD
         $this->layout()->view(PH_THEME_PATH.'/html/sub/manager.tpl.php'); // view(template) 파일과 결합하는 경우 view 경로 지정
+=======
+        $this->layout()->view(PH_THEME_PATH.'/html/sub/manager.tpl.php', false);
+>>>>>>> 5f1951bf2cdfbeaa538f4e5068770d58252a2ab5
         $this->layout()->foot();
     }
 

@@ -79,12 +79,15 @@ class Sms {
         return $this->from;
     }
 
+<<<<<<< HEAD
     // article length
     protected function getByteLength($str) {
         $strlen = mb_strwidth(str_replace("\r\n", "\n", $str), 'UTF-8');
         return $strlen;
     }
 
+=======
+>>>>>>> 5f1951bf2cdfbeaa538f4e5068770d58252a2ab5
     // sendType
     protected function getSendType()
     {
@@ -92,7 +95,11 @@ class Sms {
             if (count($this->attach) >= 1) {
                 $this->sendType = 'mms';
             }
+<<<<<<< HEAD
             else if ($this->getByteLength($this->memo) > 80) {
+=======
+            else if (strlen($this->memo) > 80) {
+>>>>>>> 5f1951bf2cdfbeaa538f4e5068770d58252a2ab5
                 $this->sendType = 'lms';
             }
             else {
